@@ -1,0 +1,26 @@
+{
+  "name": "wechat-jssdk",
+  "version": "1.0.0",
+  "description": "WeChat/WeiXin JS-SDK integration with NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JasonBoy/wechat-jssdk.git"
+  },
+  "keywords": [
+    "wechat",
+    "weixin",
+    "node",
+    "jssdk",
+    "wechat share"
+  ],
+  "author": "Jason Jiang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JasonBoy/wechat-jssdk/issues"
+  },
+  "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme"
+}

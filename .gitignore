@@ -31,3 +31,10 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
+
+*.map
+--no-cache
+.idea
+config.json
+.Ds_Store
+wechat-info.json
