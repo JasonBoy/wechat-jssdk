@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/JasonBoy/wechat-jssdk/issues"
   },
-  "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme"
+  "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
+  "dependencies": {
+    "lodash": "^4.6.1",
+    "request": "^2.69.0"
+  }
 }
