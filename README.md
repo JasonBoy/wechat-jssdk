@@ -43,7 +43,7 @@ For other url configuration, there are default values, you can checkout the `./l
   });
   //or you can just get signature from cache if it's exists
   router.get('/get-signature', function(req, res) {
-    wx.jssdk.getSignatureByURL(req.query.url); //pass the url or do whatever you prefer
+    res.json(wx.jssdk.getSignatureByURL(req.query.url)); //pass the url or do whatever you prefer
   });
   ```
 3.Now you can send the wx request in your browser to pass the verification.

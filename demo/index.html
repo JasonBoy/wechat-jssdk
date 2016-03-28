@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1.0, user-scalable=no">
+  <title>Wechat JSSDK DEMO</title>
+  <script src="//res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+  <script src="//cdn.bootcss.com/zepto/1.1.6/zepto.min.js"></script>
+</head>
+<body>
+  <p>点击右上角分享!</p>
+  <script type="text/javascript">
+    $.ajax({
+      type: 'GET',
+      url: '/create-signature',
+      dataType: 'json',
+      data: {
+        url: location.href
+      },
+      success: function(data) {
+        console.log(data);
+        initWechat(data);
+      }
+    });
+    function initWechat(info) {
+      var config = {
+        appId: 'wxfc9c5237ebf480aa',
+        timestamp: info.timestamp,
+        nonceStr: info.nonceStr,
+        signature: info.signature,
+        debug: true,
+        jsApiList: ["onMenuShareTimeline", "onMenuShareAppMessage"]
+      };
+      if("undefined" === typeof wx) {
+        console.warn("wechat js not defined");
+        return;
+      }
+      wx.config(config);
+      wx.ready(function () {
+        console.log('sign finished');
+        wx.onMenuShareAppMessage({
+          title: 'Share Title',
+          link: location.href,
+          type: 'link',
+          desc: 'Share Description',
+          imgUrl: 'http://pic1.ooopic.com/uploadfilepic/shiliang/2009-10-05/OOOPIC_00cyl_20091005e2c6eb1c889e342e.jpg'
+        });
+      });
+      wx.error(function () {
+        console.error('wechat jssdk sign failed!');
+      });
+    }
+  </script>
+</body>
+</html>

@@ -26,5 +26,9 @@
   "dependencies": {
     "lodash": "^4.6.1",
     "request": "^2.69.0"
+  },
+  "devDependencies": {
+    "express": "^4.13.4",
+    "swig": "^1.4.2"
   }
 }
