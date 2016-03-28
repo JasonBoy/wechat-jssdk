@@ -30,15 +30,11 @@ app.get('/api/wechat', function (req, res) {
   res.send("error");
 });
 
-app.get('/create-signature', function(req, res) {
-  console.log(req.query);
-  wx.jssdk.createNewSignature(req, res, req.query);
-});
-
 app.get('/get-signature', function(req, res) {
-  res.json(wx.jssdk.getSignatureByURL(req.query.url)); //pass the url or do whatever you prefer
+  console.log(req.query);
+  wx.jssdk.getSignatureByURL(req, res);
 });
-
 
 var server = http.createServer(app);
+//should use like nginx to proxy to the request to 3000, the signature domain must be on 80 PORT.
 server.listen(3000);

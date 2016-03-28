@@ -4,6 +4,7 @@
   "description": "WeChat/WeiXin JS-SDK integration with NodeJS",
   "main": "index.js",
   "scripts": {
+    "demo": "node ./demo/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,6 +25,7 @@
   },
   "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
   "dependencies": {
+    "debug": "^2.2.0",
     "lodash": "^4.6.1",
     "request": "^2.69.0"
   },
