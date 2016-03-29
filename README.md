@@ -38,14 +38,15 @@ For other url configuration, there are default values, you can checkout the `./l
 
 2.You should also provide a api for your browser to get token for the current url  
   ```
-  router.get('/create-signature', function(req, res) {
-    wx.jssdk.createNewSignatureForClient(req, res, req.query);
-  });
-  //or you can just get signature from cache if it's exists
   router.get('/get-signature', function(req, res) {
-    res.json(wx.jssdk.getSignatureByURL(req.query.url)); //pass the url or do whatever you prefer
+    wx.jssdk.createNewSignatureForClient(req.query.url, function(signatureDate) {
+      res.json(signatureDate);
+    });
   });
   ```
 3.Now you can send the wx request in your browser to pass the verification.
 
-###TBD...
+###APIs
+see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
+
+###To Be Continued...
