@@ -2,6 +2,7 @@
 WeChat/WeiXin JS-SDK integration with NodeJS 
 
 ###Usage
+`npm install wechat-jssdk`  
 ```
 var wx = require('wechat-jssdk');
 wx.initialize(wechatConfig);
