@@ -50,4 +50,43 @@ For other url configuration, there are default values, you can checkout the `./l
 ###APIs
 see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 
-###To Be Continued...
+###Client Side
+`var wechat = require('wechat-jssdk/client')` in your client side js, or anyother way you like to include this.  
+`var wechatObj = wechat(config[, successCallback[, errorCallback[, debug[, customWechatJSUrl]]]])`  
+or  
+`var wechatObj = new wechat(config, ...)`  
+where config will be: 
+
+```javascript
+var config = {
+  //must has properties to finish the wechat signature verification
+  'appId': 'xxx',
+  'nonceStr': 'xxx', //the four properties below should be received like api '/get-signature' above
+  'signature': 'xxx',
+  'timestamp': 'xxx',
+  'url': 'url',
+  //below are optional
+  'success': function(){}, //invoked if wechat signature sign succeeds, same as successCallback
+  'error': function(err){}, //invoked if sign failed, same as errorCallback
+  'debug': true, //enable debug mode, same as debug, property in `config` object has higher priority
+  'jsApiList': [] //optional, pass all the jsapi you want, the default will be ['onMenuShareTimeline', 'onMenuShareAppMessage']
+}
+```
+after signature signed, you can customize the share information:  
+```javascript
+//customize share on chat info
+wechatObj.setChatConfig({
+  title: 'title',
+  link: location.href,
+  imgUrl: '/logo.png',
+  desc: 'description'
+});
+//customize share on timeline info
+wechatObj.setMomentConfig({
+  title: 'title',
+  link: location.href,
+  imgUrl: '/logo.png'
+});
+```
+You can also access the original wechat object `wx` from `window.wx` or from `wechatObj.wx` to call other apis.  
+Also you can update the sign config if it fails, pass the new must has configs to `wechatObj.updateConfig(newSignatureConfig)`, and then call `wechatObj.signSignature()` to resign the signature.
