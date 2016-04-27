@@ -37,6 +37,10 @@ app.get('/get-signature', function(req, res) {
   });
 });
 
+app.get('/client.js', function (req, res) {
+  res.sendFile(path.join(__dirname, '../client.js'));
+});
+
 var server = http.createServer(app);
 //should use like nginx to proxy to the request to 3000, the signature domain must be on 80 PORT.
 server.listen(3000);

@@ -21,7 +21,7 @@ Required `wechatConfig` info:
 For other url configuration, there are default values, you can checkout the `./lib/config.js`.
   
 ###Setup your Wechat ENV  
-1.Set your URL and Token in [Wechat Website](https://mp.weixin.qq.com/advanced/advanced?action=dev&t=advanced/dev&token=1244756112&lang=zh_CN)  
+1.Set your URL and Token in [Wechat Website](https://mp.weixin.qq.com)  
   you should provide a api(e.g `/api/wechat`) to let wechat verify your validation, 
   in your router: 
   ```
@@ -40,7 +40,7 @@ For other url configuration, there are default values, you can checkout the `./l
 2.You should also provide a api for your browser to get token for the current url  
   ```
   router.get('/get-signature', function(req, res) {
-    wx.jssdk.createNewSignatureForClient(req.query.url, function(signatureDate) {
+    wx.jssdk.getSignatureByURL(req.query.url, function(signatureDate) {
       res.json(signatureDate);
     });
   });
