@@ -1,3 +1,8 @@
+/**
+ * @license MIT
+ * client side js to use wechat jssdk,
+ * https://github.com/JasonBoy/wechat-jssdk
+ */
 
 ;!(function(window, document, location) {
   var _script_url = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
