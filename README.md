@@ -11,10 +11,9 @@ wx.initialize(wechatConfig);
 Required `wechatConfig` info:  
 ```
 {
-  "wechatRedirectHost": "http://127.0.0.1",
-  "wechatToken": "",
-  "appId": "",
-  "appSecret": "",
+  "wechatToken": "xxx",
+  "appId": "xxx",
+  "appSecret": "xxx",
 }
 ```
 
