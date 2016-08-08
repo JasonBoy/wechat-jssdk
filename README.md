@@ -2,7 +2,7 @@
 WeChat/WeiXin JS-SDK integration with NodeJS 
 
 ###Usage
-`npm install wechat-jssdk`  
+`npm install wechat-jssdk --save`  
 ```
 var wx = require('wechat-jssdk');
 wx.initialize(wechatConfig);
@@ -11,6 +11,7 @@ wx.initialize(wechatConfig);
 Required `wechatConfig` info:  
 ```
 {
+  "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback", //set your oauth redirect url, defaults to localhost
   "wechatToken": "xxx",
   "appId": "xxx",
   "appSecret": "xxx",
