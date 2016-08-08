@@ -1,5 +1,5 @@
 # wechat-jssdk [![Building Status](https://travis-ci.org/JasonBoy/wechat-jssdk.svg?branch=master)](https://travis-ci.org/JasonBoy/wechat-jssdk)
-WeChat/WeiXin JS-SDK integration with NodeJS 
+[中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3) WeChat/WeiXin JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth. 
 
 ###Usage
 `npm install wechat-jssdk --save`  
@@ -47,8 +47,6 @@ For other url configuration, there are default values, you can checkout the `./l
   ```
 3.Now you can send the wx request in your browser to pass the verification.
 
-###APIs
-see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 
 ###Client Side
 `var wechat = require('wechat-jssdk/client')` in your client side js, or anyother way you like to include this.  
@@ -90,6 +88,9 @@ wechatObj.setMomentConfig({
 ```
 You can also access the original wechat object `wx` from `window.wx` or from `wechatObj.wx` to call other apis.  
 Also you can update the sign config if it fails, pass the new must has configs to `wechatObj.updateConfig(newSignatureConfig)`, and then call `wechatObj.signSignature()` to resign the signature.
+
+###APIs
+see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 
 ### LICENSE
 
