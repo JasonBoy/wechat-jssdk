@@ -1,4 +1,4 @@
-# wechat-jssdk
+# wechat-jssdk [![Building Status](https://travis-ci.org/JasonBoy/wechat-jssdk.svg?branch=master)](https://travis-ci.org/JasonBoy/wechat-jssdk)
 WeChat/WeiXin JS-SDK integration with NodeJS 
 
 ###Usage
