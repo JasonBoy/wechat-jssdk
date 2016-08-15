@@ -1,6 +1,6 @@
 {
   "name": "wechat-jssdk",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "WeChat/WeiXin JS-SDK integration with NodeJS",
   "main": "index.js",
   "scripts": {
