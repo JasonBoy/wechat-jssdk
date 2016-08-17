@@ -1,6 +1,6 @@
 # wechat-jssdk [![Building Status](https://travis-ci.org/JasonBoy/wechat-jssdk.svg?branch=master)](https://travis-ci.org/JasonBoy/wechat-jssdk)
-[中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3) WeChat/WeiXin JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth. 
-
+WeChat/WeiXin JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth.  
+[中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3) 
 ###Usage
 `npm install wechat-jssdk --save`  
 ```
@@ -23,7 +23,7 @@ For other url configuration, there are default values, you can checkout the `./l
 ###Setup your Wechat ENV  
 1.Set your URL and Token in [Wechat Website](https://mp.weixin.qq.com)  
   you should provide a api(e.g `/api/wechat`) to let wechat verify your validation, 
-  in your router: 
+  for example, in your router: 
   ```
   var wx = require('wechat-jssdk');
   wx.initialize(wechatConfig);
@@ -42,7 +42,7 @@ For other url configuration, there are default values, you can checkout the `./l
   router.get('/get-signature', function(req, res) {
     wx.jssdk.getSignatureByURL(req.query.url, function(signatureDate) {
       res.json(signatureDate);
-    }, [true]); // the last parameter is used to force updating the signature if you get error when signing in client side  
+    } [, true]); // the last parameter is used to force updating the signature if you get error when signing in client side  
   });
   ```
 3.Now you can send the wx request in your browser to pass the verification.
@@ -50,9 +50,7 @@ For other url configuration, there are default values, you can checkout the `./l
 
 ###Client Side
 `var wechat = require('wechat-jssdk/client')` in your client side js, or anyother way you like to include this.  
-`var wechatObj = wechat(config[, successCallback[, errorCallback[, debug[, customWechatJSUrl]]]])`  
-or  
-`var wechatObj = new wechat(config, ...)`  
+`var wechatObj = new wechat(config)` or `var wechatObj = wechat(config)`  
 where config will be: 
 
 ```javascript
@@ -88,6 +86,21 @@ wechatObj.setMomentConfig({
 ```
 You can also access the original wechat object `wx` from `window.wx` or from `wechatObj.wx` to call other apis.  
 Also you can update the sign config if it fails, pass the new must has configs to `wechatObj.updateConfig(newSignatureConfig)`, and then call `wechatObj.signSignature()` to resign the signature.
+
+###OAuth
+Wechat support web OAuth to get user profile in wechat app.
+In your page, provide a link, which you can get by using `wx.oauth.snsUserInfoUrl` in node, to the wechat OAuth page,  
+also you need provide a callback route(as show below) to get the wechat code after user click Agree button, the callback url is configured in the `wechatConfig` object above while initializing: 
+```javascript
+router.get('/wechat/oauth-callback', function (req, res) {
+  wx.oauth.getUserInfo(req.query.code, function(userProfile) {
+    console.log(userProfile)
+    res.render("demo", {
+      wechatInfo: userProfile
+    });
+  });
+});
+```
 
 ###APIs
 see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
