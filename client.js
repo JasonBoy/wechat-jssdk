@@ -6,7 +6,7 @@
 
 ;!(function(window, document, location) {
   var _script_url = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
-
+  var defaultApiList = ['onMenuShareTimeline', 'onMenuShareAppMessage'];
   /**
    *
    * @param wechatConfig, should contain like:
@@ -28,8 +28,16 @@
     //using new _wechat_jssdk(config);
     if(this instanceof WechatJSSDK) {
       this.config = wechatConfig;
-      if(!this.config.jsApiList) {
-        this.config.jsApiList = ['onMenuShareTimeline', 'onMenuShareAppMessage'];
+      var apiList = this.config.jsApiList;
+      if(!apiList || apiList.length <= 0) {
+        this.config.jsApiList = defaultApiList;
+      } else {
+        for(var i = 0, length = defaultApiList.length; i < length; i++) {
+          var defaultItem = defaultApiList[i];
+          if(apiList.indexOf(defaultItem) < 0) {
+            apiList.push(defaultItem);
+          }
+        }
       }
       this.debug = wechatConfig.hasOwnProperty('debug') ? wechatConfig.debug : true === debug;
       if(wechatConfig.success) {

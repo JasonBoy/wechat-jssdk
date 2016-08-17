@@ -33,6 +33,7 @@
         config.signature = data.signature;
         config.timestamp = data.timestamp;
         config.url = data.url;
+        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline'];
         var w = window._wechat_jssdk(config);
         w.setChatConfig({
           title: 'test title',
