@@ -11,7 +11,7 @@ describe('jssdk', function() {
   describe('#getAccessToken()', function() {
     it('should get wechat token', function(done) {
       this.timeout(20000);
-      wx.jssdk.getAccessToken(function (data) {
+      wx.jssdk.getAccessToken().then(function(data) {
         data.should.have.property('access_token');
         done();
       });
