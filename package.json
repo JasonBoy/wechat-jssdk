@@ -1,6 +1,6 @@
 {
   "name": "wechat-jssdk",
-  "version": "1.1.13",
+  "version": "2.0.0",
   "description": "WeChat/WeiXin JS-SDK integration with NodeJS",
   "main": "index.js",
   "scripts": {
@@ -25,9 +25,11 @@
   },
   "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
   "dependencies": {
+    "bluebird": "^3.4.1",
     "debug": "^2.2.0",
     "lodash": "^4.6.1",
-    "request": "^2.69.0"
+    "request": "^2.69.0",
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
