@@ -32,8 +32,12 @@ app.get('/api/wechat', function (req, res) {
 
 app.get('/get-signature', function(req, res) {
   console.log(req.query);
-  wx.jssdk.getSignatureByURL(req.query.url, function(data) {
+  wx.jssdk.getSignatureByURL(req.query.url).then(function(data) {
+    console.log('OK', data);
     res.json(data);
+  }, function(reason) {
+    console.error(reason);
+    res.json(reason);
   });
 });
 
