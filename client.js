@@ -88,8 +88,8 @@
       console.log('sign signature finished...');
       debug && alert('sign signature finished...');
       //initialize share on moment and chat features
-      wx.onMenuShareTimeline(_moment_config);
-      wx.onMenuShareAppMessage(_chat_config);
+      wx['onMenuShareTimeline'](_moment_config);
+      wx['onMenuShareAppMessage'](_chat_config);
       self.signFinished = true;
       self.cbSuccess && self.cbSuccess();
     });
@@ -124,16 +124,36 @@
   };
 
   WechatJSSDK.prototype.setMomentConfig = function(info) {
-    info.title && (_moment_config.title = info.title);
-    info.link && (_moment_config.link = info.link);
-    info.imgUrl && (_moment_config.imgUrl = info.imgUrl);
+    if(!info) return;
+    for(var key in info) {
+      if(info.hasOwnProperty(key)) {
+        _moment_config[key] = info[key];
+      }
+    }
   };
 
   WechatJSSDK.prototype.setChatConfig = function(info) {
-    info.title && (_chat_config.title = info.title);
-    info.link && (_chat_config.link = info.link);
-    info.imgUrl && (_chat_config.imgUrl = info.imgUrl);
-    info.desc && (_chat_config.desc = info.desc);
+    if(!info) return;
+    for(var key in info) {
+      if(info.hasOwnProperty(key)) {
+        _chat_config[key] = info[key];
+      }
+    }
+  };
+
+  //call other wechat api manually
+  WechatJSSDK.prototype.callWechatApi = function(apiName, config) {
+    if(!apiName) return;
+    if(this.config.jsApiList.indexOf(apiName) < 0) {
+      debug && alert('the wechat api [' + apiName + '] you call was not registered, \npls add the api into your [jsApiList] config');
+      return;
+    }
+    var customAPI = window.wx[apiName];
+    if(!customAPI || 'function' !== typeof customAPI) {
+      debug && alert('no such api [' + apiName + '] found!');
+      return;
+    }
+    customAPI(config);
   };
 
   if('undefined' !== typeof module && 'undefined' !== typeof exports) {
