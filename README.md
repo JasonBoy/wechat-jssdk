@@ -87,7 +87,9 @@ wechatObj.setMomentConfig({
 });
 ```
 You can also access the original wechat object `wx` from `window.wx` or from `wechatObj.wx` to call other apis.  
-Also you can update the sign config if it fails, pass the new must has configs to `wechatObj.updateConfig(newSignatureConfig)`, and then call `wechatObj.signSignature()` to resign the signature.
+Also you can update the sign config if it fails, pass the new must has configs to `wechatObj.updateConfig(newSignatureConfig)`, and then call `wechatObj.signSignature()` to resign the signature.  
+Call other wechat apis: `wechatObj.callWechatApi(apiName, config)`.
+
 
 ###OAuth
 Wechat support web OAuth to get user profile in wechat app.
