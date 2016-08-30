@@ -1,7 +1,7 @@
 # wechat-jssdk [![Building Status](https://travis-ci.org/JasonBoy/wechat-jssdk.svg?branch=master)](https://travis-ci.org/JasonBoy/wechat-jssdk)
 WeChat/WeiXin JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth.  
 For v1.x, pls checkout the [Readme on v1.x](https://github.com/JasonBoy/wechat-jssdk/tree/1.x)  
-[中文使用文档v1.x](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3) 
+[中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3) 
 ###Usage
 `npm install wechat-jssdk --save`  
 ```
@@ -91,9 +91,10 @@ Also you can update the sign config if it fails, pass the new must has configs t
 
 ###OAuth
 Wechat support web OAuth to get user profile in wechat app.
-In your page, provide a link, which you can get by using `wx.oauth.snsUserInfoUrl` in node, to the wechat OAuth page,  
-also you need provide a callback route(as show below) to get the wechat code after user click Agree button, the callback url is configured in the `wechatConfig` object above while initializing: 
+In your page, provide a link, which you can get by `wx.oauth.snsUserInfoUrl` which is the default oauth url, to the wechat OAuth page,  
+also you need provide a callback url(as show below) to get the wechat code after user click Agree button, the callback url is configured in the `wechatConfig` object above while initializing, but you can customize your own callback url by using `wx.oauth.generateOauthUrl(customUrl, isBaseUrl)` api.
 ```javascript
+//default callback url
 router.get('/wechat/oauth-callback', function (req, res) {
   wx.oauth.getUserInfo(req.query.code)
           .then(function(userProfile) {
