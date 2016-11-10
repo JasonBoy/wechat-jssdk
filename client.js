@@ -31,6 +31,7 @@
 
   /**
    * Initialize the WechatJSSDK instance
+   * @constructor
    * @param {object} wechatConfig, should contain like:
    *   {
    *      appId: 'xxxx',
@@ -73,7 +74,7 @@
 
   /**
    * Sign the signature now
-   * @param {object} newSignConfig, debug mode, appId, jsApiList cannot be changed!!!
+   * @param {object} [newSignConfig], debug mode, appId, jsApiList cannot be changed!!!
    *        , should only provide new signature specific config
    * @returns {WechatJSSDK} sdk instance
    */
@@ -128,7 +129,7 @@
     ele.onload = function () {
       console.log('Wechat script loaded successfully!');
       //init the wechat config
-      self.signSignature(undefined);
+      self.signSignature();
     };
     ele.onerror = function (err) {
       console.error('Failed to load wechat script!');
@@ -142,7 +143,7 @@
   };
 
   /**
-   * quick way to set custom moment share configs
+   * Quick way to set custom moment share configs
    * @param {object} info
    * @returns {WechatJSSDK}
    */
