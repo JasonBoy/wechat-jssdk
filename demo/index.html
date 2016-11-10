@@ -32,12 +32,17 @@
         config.nonceStr = data.nonceStr;
         config.signature = data.signature;
         config.timestamp = data.timestamp;
-        config.url = data.url;
         config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline'];
         var w = window._wechat_jssdk(config);
         w.setChatConfig({
           title: 'test title',
           desc: 'Share Description',
+          success: function() {
+            console.log('share success');
+          },
+          cancel: function() {
+            console.log('share canceled');
+          },
           imgUrl: 'http://pic1.ooopic.com/uploadfilepic/shiliang/2009-10-05/OOOPIC_00cyl_20091005e2c6eb1c889e342e.jpg'
         });
       }

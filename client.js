@@ -123,20 +123,21 @@
   sdk.loadScript = function () {
     var self = this;
     var ele = document.createElement('script');
-    ele.src = defaultScriptUrl;
+    ele.type = 'text\/javascript';
     ele.async = true;
-    var linkEle = document.getElementsByTagName('script')[0];
-    linkEle.parentNode.insertBefore(ele, linkEle);
     ele.onload = function () {
       console.log('Wechat script loaded successfully!');
       //init the wechat config
-      self.signSignature();
+      self.signSignature(undefined);
     };
     ele.onerror = function (err) {
       console.error('Failed to load wechat script!');
       console.error(err);
       self.debug && alert('Cannot load wechat script!');
     };
+    var linkEle = document.getElementsByTagName('script')[0];
+    linkEle.parentNode.insertBefore(ele, linkEle);
+    ele.src = defaultScriptUrl;
     return self;
   };
 

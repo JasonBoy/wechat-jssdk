@@ -12,7 +12,8 @@ wx.initialize(wechatConfig);
 Required `wechatConfig` info:  
 ```
 {
-  "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback", //set your oauth redirect url, defaults to localhost
+  //set your oauth redirect url, defaults to localhost
+  "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback",
   "wechatToken": "xxx",
   "appId": "xxx",
   "appSecret": "xxx",
@@ -50,7 +51,7 @@ For other url configuration, there are default values, you can checkout the `./l
 
 
 ###Client Side
-`var wechat = require('wechat-jssdk/client')` in your client side js, or anyother way you like to include this.  
+`var wechat = require('wechat-jssdk/client')` in your client side js, or any other way you like to include this.
 `var wechatObj = new wechat(config)` or `var wechatObj = wechat(config)`  
 or in other environment: `var wechatObj = window._wechat_jssdk(config)`  
 where config will be: 
@@ -62,12 +63,12 @@ var config = {
   'nonceStr': 'xxx', //the four properties below should be received like api '/get-signature' above
   'signature': 'xxx',
   'timestamp': 'xxx',
-  'url': 'url',
   //below are optional
   'success': function(){}, //invoked if wechat signature sign succeeds, same as successCallback
   'error': function(err){}, //invoked if sign failed, same as errorCallback
   'debug': true, //enable debug mode, same as debug, property in `config` object has higher priority
-  'jsApiList': [] //optional, pass all the jsapi you want, the default will be ['onMenuShareTimeline', 'onMenuShareAppMessage']
+  'jsApiList': [], //optional, pass all the jsapi you want, the default will be ['onMenuShareTimeline', 'onMenuShareAppMessage']
+  'customUrl': '' //set custom weixin js script url
 }
 ```
 after signature signed, you can customize the share information:  
@@ -77,7 +78,9 @@ wechatObj.setChatConfig({
   title: 'title',
   link: location.href,
   imgUrl: '/logo.png',
-  desc: 'description'
+  desc: 'description',
+  success: function (){},
+  cancel: function (){}
 });
 //customize share on timeline info
 wechatObj.setMomentConfig({
@@ -86,8 +89,17 @@ wechatObj.setMomentConfig({
   imgUrl: '/logo.png'
 });
 ```
-You can also access the original wechat object `wx` from `window.wx` or from `wechatObj.wx` to call other apis.  
-Also you can update the sign config if it fails, pass the new must has configs to `wechatObj.updateConfig(newSignatureConfig)`, and then call `wechatObj.signSignature()` to resign the signature.  
+You can also access the original wechat object `wx` from `window.wx` or from `wechatObj.wx` to call other apis.
+Also you can update the sign config if it fails, pass the new must has configs to `wechatObj.signSignature(newSignatureConfig)`.
+`newSignatureConfig` should only has:
+```
+{
+  'nonceStr': 'xxx',
+  'signature': 'xxx',
+  'timestamp': 'xxx',
+}
+```
+
 Call other wechat apis: `wechatObj.callWechatApi(apiName, config)`.
 
 
