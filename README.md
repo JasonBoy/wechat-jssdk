@@ -3,8 +3,8 @@
 ## THE NEXT MAJOR V3 WILL LEVERAGE ES6 FEATURES
 
 WeChat/WeiXin JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth.  
-For v1.x, pls checkout the [Readme on v1.x](https://github.com/JasonBoy/wechat-jssdk/tree/1.x)
-For v2.x, pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)
+For v1.x, pls checkout the [Readme on v1.x](https://github.com/JasonBoy/wechat-jssdk/tree/1.x)  
+For v2.x, pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)  
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 ###Usage
 `npm install wechat-jssdk --save`  
