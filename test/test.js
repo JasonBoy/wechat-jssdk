@@ -1,9 +1,9 @@
-var should = require('chai').should();
-var wx = require('../lib');
-var config = {
+let should = require('chai').should();
+const wx = require('../lib');
+const config = {
   "wechatToken": "6mwdIm9p@Wg7$Oup",
   "appId": "wxfc9c5237ebf480aa",
-  "appSecret": "2038576336804a90992b8dbe46cd5948"
+  "appSecret": "2038576336804a90992b8dbe46cd5948",
 };
 
 wx.initialize(config);
@@ -21,7 +21,7 @@ describe('jssdk', function() {
   describe('#getSignatureByURL()', function() {
     it('should get signature', function(done) {
       this.timeout(20000);
-      var url = 'http://localhost?test_signature';
+      const url = 'http://localhost?test_signature';
       wx.jssdk.getSignatureByURL(url)
           .then(function (signature) {
             signature.should.be.an('object');
