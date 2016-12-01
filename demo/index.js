@@ -1,12 +1,14 @@
 const express = require('express');
 const http = require("http");
 const swig = require('swig');
-const wx = require('../lib');
+const Wechat = require('../lib');
 const path = require("path");
-wx.initialize({
+
+const wx = new Wechat({
   "wechatToken": "6mwdIm9p@Wg7$Oup",
   "appId": "wxfc9c5237ebf480aa",
   "appSecret": "2038576336804a90992b8dbe46cd5948",
+  "wechatRedirectUrl": "http://127.0.0.1/oauth",
 });
 
 const app = express();
@@ -19,7 +21,7 @@ app.set('view engine', 'html');
 app.set('views', path.join(__dirname));
 
 app.get('/', function (req, res) {
-  res.render('index');
+  res.render('index', {oauthUrl: wx.oauth.snsUserInfoUrl});
 });
 
 app.get('/api/wechat', function (req, res) {
@@ -39,6 +41,16 @@ app.get('/get-signature', function(req, res) {
     console.error(reason);
     res.json(reason);
   });
+});
+
+app.get('/oauth', function (req, res) {
+  wx.oauth.getUserInfo(req.query.code)
+    .then(function(userProfile) {
+      console.log(userProfile);
+      res.render("oauth", {
+        wechatInfo: JSON.stringify(userProfile)
+      });
+    });
 });
 
 app.get('/client.js', function (req, res) {
