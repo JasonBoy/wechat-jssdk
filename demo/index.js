@@ -21,6 +21,8 @@ app.set('view engine', 'html');
 app.set('views', path.join(__dirname));
 
 app.get('/', function (req, res) {
+  //also you can generate one at runtime:
+  //const oauthUrl = wx.oauth.generateOauthUrl(customRedirectUrl, isBaseInfo);
   res.render('index', {oauthUrl: wx.oauth.snsUserInfoUrl});
 });
 
@@ -43,6 +45,9 @@ app.get('/get-signature', function(req, res) {
   });
 });
 
+/**
+ * @see wechatRedirectUrl in Wechat config
+ */
 app.get('/oauth', function (req, res) {
   wx.oauth.getUserInfo(req.query.code)
     .then(function(userProfile) {
@@ -58,5 +63,5 @@ app.get('/client.js', function (req, res) {
 });
 
 const server = http.createServer(app);
-//should use like nginx to proxy to the request to 3000, the signature domain must be on 80 PORT.
-server.listen(3000);
+//should use like nginx to proxy the request to 3000, the signature domain must be on PORT 80.
+server.listen(process.env.PORT || 3000);
