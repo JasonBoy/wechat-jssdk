@@ -9,8 +9,8 @@ For v2.x, pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-j
 ###Usage
 `npm install wechat-jssdk --save`  
 ```
-var wx = require('wechat-jssdk');
-wx.initialize(wechatConfig);
+const Wechat = require('wechat-jssdk');
+const wx = new Wechat(wechatConfig);
 ```
 
 Required `wechatConfig` info:  
@@ -31,8 +31,8 @@ For other url configuration, there are default values, you can checkout the `./l
   you should provide a api(e.g `/api/wechat`) to let wechat verify your validation, 
   for example, in your router: 
   ```javascript
-  var wx = require('wechat-jssdk');
-  wx.initialize(wechatConfig);
+  const Wechat = require('wechat-jssdk');
+  const wx = new Wechat(wechatConfig);
   router.get('/api/wechat', function(req, res){
     if(wx.jssdk.verifySignature(req.query)) {
       res.send(req.query.echostr);
