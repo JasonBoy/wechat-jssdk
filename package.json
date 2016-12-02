@@ -28,6 +28,7 @@
     "bluebird": "^3.4.1",
     "debug": "^2.2.0",
     "lodash": "^4.6.1",
+    "mongoose": "^4.7.1",
     "request": "^2.69.0",
     "request-promise": "^4.1.1"
   },
