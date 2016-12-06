@@ -2,13 +2,16 @@ const express = require('express');
 const http = require("http");
 const swig = require('swig');
 const Wechat = require('../lib');
+const MongoStore = require('../lib/store/MongoStore');
 const path = require("path");
+const debug = require('debug')('wechat');
 
 const wx = new Wechat({
   "wechatToken": "6mwdIm9p@Wg7$Oup",
   "appId": "wxfc9c5237ebf480aa",
   "appSecret": "2038576336804a90992b8dbe46cd5948",
   "wechatRedirectUrl": "http://127.0.0.1/oauth",
+  // store: new MongoStore()
 });
 
 const app = express();
@@ -63,5 +66,9 @@ app.get('/client.js', function (req, res) {
 });
 
 const server = http.createServer(app);
+const port = process.env.PORT || 3000;
 //should use like nginx to proxy the request to 3000, the signature domain must be on PORT 80.
-server.listen(process.env.PORT || 3000);
+server.listen(port);
+server.on('listening', function() {
+  debug('Express listening on port %d', port);
+});
