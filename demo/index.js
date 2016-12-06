@@ -62,7 +62,7 @@ app.get('/oauth', function (req, res) {
 });
 
 app.get('/client.js', function (req, res) {
-  res.sendFile(path.join(__dirname, '../client.js'));
+  res.sendFile(path.join(__dirname, '../lib/client.js'));
 });
 
 const server = http.createServer(app);
