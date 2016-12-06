@@ -3,17 +3,23 @@
 ## THE NEXT MAJOR V3 WILL LEVERAGE ES6 FEATURES
 
 WeChat/WeiXin JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth.  
+#### The usage of this readme is for v3
 For v1.x, pls checkout the [Readme on v1.x](https://github.com/JasonBoy/wechat-jssdk/tree/1.x)  
 For v2.x, pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)  
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 ###Usage
 `npm install wechat-jssdk --save`  
+or try the new v3  
+`npm install wechat-jssdk@next --save`  
+
+
 ```
 const Wechat = require('wechat-jssdk');
 const wx = new Wechat(wechatConfig);
 ```
 
 Required `wechatConfig` info:  
+
 ```
 {
   //set your oauth redirect url, defaults to localhost
@@ -30,6 +36,7 @@ For other url configuration, there are default values, you can checkout the `./l
 1.Set your URL and Token in [Wechat Website](https://mp.weixin.qq.com)  
   you should provide a api(e.g `/api/wechat`) to let wechat verify your validation, 
   for example, in your router: 
+  
   ```javascript
   const Wechat = require('wechat-jssdk');
   const wx = new Wechat(wechatConfig);
@@ -44,6 +51,7 @@ For other url configuration, there are default values, you can checkout the `./l
   if everything is OK, wechat will save your settings :).
 
 2.You should also provide a api for your browser to get token for the current url  
+
   ```javascript
   router.get('/get-signature', function(req, res) {
     wx.jssdk.getSignatureByURL(req.query.url).then(function(signatureData) {
@@ -55,9 +63,10 @@ For other url configuration, there are default values, you can checkout the `./l
 
 
 ###Client Side
-`var wechat = require('wechat-jssdk/client')` in your client side js, or any other way you like to include this.
-`var wechatObj = new wechat(config)` or `var wechatObj = wechat(config)`  
-or in other environment: `var wechatObj = window._wechat_jssdk(config)`  
+`var WechatJSSDK = require('wechat-jssdk/lib/client')`  
+in your client side js, or any other way you like to include this.
+`var wechatObj = new WechatJSSDK(config)`
+or in other environment: `var wechatObj = new window.WechatJSSDK(config)`  
 where config will be: 
 
 ```javascript
