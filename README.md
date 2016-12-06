@@ -143,8 +143,9 @@ Built in Stores: `FileStore`, `MongoStore`,
 
 ```javascript
 ...
-const MongoStore = require('wechat-jssdk/lib/store/MongoStore');
-const FileStore = require('wechat-jssdk/lib/store/FileStore');
+const Wechat = require('wechat-jssdk');
+const MongoStore = Wechat.MongoStore;
+const FileStore = Wechat.FileStore;
 const wx = new Wechat({
 	appId: 'xxx',
 	...,
