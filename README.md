@@ -65,8 +65,9 @@ For other url configuration, there are default values, you can checkout the `./l
 ###Client Side
 `var WechatJSSDK = require('wechat-jssdk/lib/client')`  
 in your client side js, or any other way you like to include this.
-`var wechatObj = new WechatJSSDK(config)`
-or in other environment: `var wechatObj = new window.WechatJSSDK(config)`  
+`var wechatObj = new WechatJSSDK(config)`  
+or in other environment:  
+`var wechatObj = new window.WechatJSSDK(config)`  
 where config will be: 
 
 ```javascript
