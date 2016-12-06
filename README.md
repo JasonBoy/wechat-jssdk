@@ -86,9 +86,12 @@ var config = {
 }
 ```
 after signature signed, you can customize the share information:  
+
 ```javascript
 //customize share on chat info
-wechatObj.setChatConfig({
+//sugar method for `wechatObj.callWechatApi('onMenuShareAppMessage', {...})`
+wechatObj.shareOnChat({
+  type: 'link',	
   title: 'title',
   link: location.href,
   imgUrl: '/logo.png',
@@ -97,7 +100,9 @@ wechatObj.setChatConfig({
   cancel: function (){}
 });
 //customize share on timeline info
-wechatObj.setMomentConfig({
+//sugar method
+wechatObj.shareOnMoment({
+  type: 'link',
   title: 'title',
   link: location.href,
   imgUrl: '/logo.png'
@@ -114,7 +119,62 @@ Also you can update the sign config if it fails, pass the new must has configs t
 }
 ```
 
-Call other wechat apis: `wechatObj.callWechatApi(apiName, config)`.
+Call other wechat apis: `wechatObj.callWechatApi(apiName, config)`:
+
+```javascript
+wechatObj.callWechatApi('onMenuShareAppMessage', {
+  type: 'link',	
+  title: 'title',
+  link: location.href,
+  imgUrl: '/logo.png',
+  desc: 'description',
+  success: function (){},
+  cancel: function (){}
+});
+```
+
+
+###Using Stores (new in v3)
+
+Stores are used to save url signatures into files, dbs, etc..., but also keep a copy in memory for better performence.  
+The default store used is `FileStore` which will persist tokens and signatures into `wechat-info.json` file every 10 minutes, also it will load these info from the file in next initialization.  
+Built in Stores: `FileStore`, `MongoStore`,  
+#### Using Custom Stores: 
+
+```javascript
+...
+const MongoStore = require('wechat-jssdk/lib/store/MongoStore');
+const FileStore = require('wechat-jssdk/lib/store/FileStore');
+const wx = new Wechat({
+	appId: 'xxx',
+	...,
+	//file store
+	//store: new FileStore(),
+	//======
+	//pass the MongoStore instance to config
+	//default 127.0.0.1:27017/wechat db, no need to pass anything to constructor
+	store: new MongoStore({
+		dbName: 'myWechat', //default wechat
+		dbAddress: 'mongodb://127.0.0.1:27017/wechat', //set the whole connection uri by yourself
+		dbOptions: {}, //set mongoose connection config
+	}) 
+})
+
+```
+
+#### Create your own Store
+
+You can also create own Store to store tokens anywhere you want, by doing that, you may need to extend the base `Store` class, and reimplement the apis you need(take a look at Store.js): 
+
+```javascript
+const Store = require('wechat-jssdk').Store;
+class CustomStore extends Store {
+	constructor (options) {
+		super();
+		console.log('using my own store!');
+	}
+}
+```
 
 
 ###OAuth
