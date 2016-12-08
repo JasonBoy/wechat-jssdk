@@ -2,7 +2,6 @@ const express = require('express');
 const http = require("http");
 const swig = require('swig');
 const Wechat = require('../lib');
-const MongoStore = require('../lib/store/MongoStore');
 const path = require("path");
 const debug = require('debug')('wechat');
 
@@ -11,7 +10,7 @@ const wx = new Wechat({
   "appId": "wxfc9c5237ebf480aa",
   "appSecret": "2038576336804a90992b8dbe46cd5948",
   "wechatRedirectUrl": "http://127.0.0.1/oauth",
-  // store: new MongoStore({limit: 5}),
+  // store: new Wechat.MongoStore({limit: 5}),
 });
 
 const app = express();
