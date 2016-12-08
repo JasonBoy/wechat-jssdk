@@ -5,12 +5,16 @@ const Wechat = require('../lib');
 const path = require("path");
 const debug = require('debug')('wechat');
 
+const MongoStore = Wechat.MongoStore;
+const FileStore = Wechat.FileStore;
+
 const wx = new Wechat({
   "wechatToken": "6mwdIm9p@Wg7$Oup",
   "appId": "wxfc9c5237ebf480aa",
   "appSecret": "2038576336804a90992b8dbe46cd5948",
   "wechatRedirectUrl": "http://127.0.0.1/oauth",
-  // store: new Wechat.MongoStore({limit: 5}),
+  // store: new MongoStore({limit: 5}),
+  store: new FileStore({interval: 1000 * 60 * 3}),
 });
 
 const app = express();
