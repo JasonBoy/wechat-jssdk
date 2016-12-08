@@ -11,7 +11,7 @@ const wx = new Wechat({
   "appId": "wxfc9c5237ebf480aa",
   "appSecret": "2038576336804a90992b8dbe46cd5948",
   "wechatRedirectUrl": "http://127.0.0.1/oauth",
-  // store: new MongoStore()
+  // store: new MongoStore({limit: 5}),
 });
 
 const app = express();
@@ -71,4 +71,8 @@ const port = process.env.PORT || 3000;
 server.listen(port);
 server.on('listening', function() {
   debug('Express listening on port %d', port);
+});
+
+process.on('exit', function () {
+  wx.store.flushStore();
 });
