@@ -2,7 +2,7 @@
 
 ## THE NEXT MAJOR V3 WILL LEVERAGE ES6 FEATURES
 
-WeChat/WeiXin JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth.  
+Next-Generation WeChat JS-SDK integration with NodeJS, also support retrieving wechat user profile with web OAuth.  
 #### The usage of this readme is for v3
 For v1.x, pls checkout the [Readme on v1.x](https://github.com/JasonBoy/wechat-jssdk/tree/1.x)  
 For v2.x, pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)  
