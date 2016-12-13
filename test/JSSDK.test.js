@@ -11,8 +11,6 @@ const MongoStore = Wechat.MongoStore;
 const wx = new Wechat(config);
 
 describe('JSSDK', function () {
-  beforeEach(function () {
-  });
 
   describe('@constructor()', function () {
     this.timeout(20000);
@@ -38,27 +36,50 @@ describe('JSSDK', function () {
     });
 
     it('should get wechat token failed', function (done) {
+      //use a custom instance
+      const wx = new Wechat(config);
       wx.jssdk.wechatConfig.appId = 'invalid_app_id';
       wx.jssdk.getAccessToken()
-        //TODO, error should go to catch
-        .then((data) => {
-          console.log('data: ', data);
-        })
         .catch((reason) => {
-          console.log(reason);
-          reason.shoud.not.have.property('access_token');
+          reason.should.not.have.property('access_token');
         })
-        .then(() => {
-          done();
-        })
+        .then(() => done())
     });
 
   });
 
+  describe('#getWechatTicket()', function () {
+    beforeEach(function () {
+      this.timeout(20000);
+    });
+    it('should not get ticket with the invalid token', function (done) {
+      wx.jssdk.getWechatTicket('invalid_access_token')
+        .catch((result) => {
+          result.should.not.have.property('ticket');
+        })
+        .then(() => done());
+    });
+  });
+
   describe('#getSignatureByURL()', function () {
+    beforeEach(function () {
+      this.timeout(20000);
+    });
     it('should get signature', function (done) {
       const url = 'http://localhost?test_signature';
       wx.jssdk.getSignatureByURL(url)
+        .then(function (signature) {
+          signature.should.be.an('object');
+          signature.should.have.property('url').equal(url);
+          signature.should.have.property('nonceStr');
+          signature.should.have.property('signature');
+          signature.should.have.property('timestamp');
+          done();
+        });
+    });
+    it('should get new signature even if signature is not expired', function (done) {
+      const url = 'http://localhost?test_signature';
+      wx.jssdk.getSignatureByURL(url, true)
         .then(function (signature) {
           signature.should.be.an('object');
           signature.should.have.property('url').equal(url);
@@ -114,6 +135,46 @@ describe('JSSDK', function () {
       };
       const verified = wx.jssdk.verifySignature(query);
       verified.should.be.equal(true);
+    });
+  });
+
+  describe('#getCachedUrlSignature()', function () {
+    this.timeout(20000);
+    it('should get the specified url signature', function (done) {
+      const url = 'http://localhost?' + Math.random();
+      wx.jssdk.createNewSignature(url)
+        .then(() => {
+          return wx.jssdk.getCachedUrlSignature(url);
+        })
+        .then((result) => {
+          result.should.have.property('signature');
+          result.url.should.be.equal(url);
+          done();
+        })
+    });
+  });
+
+  describe('#saveNewSignature()', function () {
+    this.timeout(20000);
+    it('should update existing signature', function (done) {
+      const mockUrl = 'http://localhost/saveNewSignature';
+      const mock = {
+        url: mockUrl,
+        signature: 'old_mock_signature',
+      };
+      wx.jssdk.store.setNewSignature(mock.url, mock)
+        .then(() => {
+          return wx.jssdk.saveNewSignature({
+            url: mockUrl,
+            signature: 'new_mock_signature',
+          });
+        })
+        .then(() => wx.jssdk.store.getCachedSignatureByUrl(mockUrl))
+        .then((newSig) => {
+          newSig.signature.should.be.equal('new_mock_signature');
+          newSig.url.should.be.equal(mockUrl);
+          done();
+        });
     });
   });
 
