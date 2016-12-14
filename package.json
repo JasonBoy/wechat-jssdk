@@ -6,7 +6,7 @@
   "scripts": {
     "demo": "node ./demo/index.js",
     "test": "mocha",
-    "coverage": "istanbul cover _mocha -- -R spec test/**/*",
+    "coverage": "DEBUG=wechat* istanbul cover _mocha -- -R spec test/**/*",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "build": "webpack --progress",
     "prod": "NODE_ENV=production webpack --progress"
