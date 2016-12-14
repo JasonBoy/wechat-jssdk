@@ -37,4 +37,4 @@ node_modules
 .idea
 config.json
 .Ds_Store
-wechat-info.json
+wechat-info*.json

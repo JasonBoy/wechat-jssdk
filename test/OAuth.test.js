@@ -109,7 +109,6 @@ describe('OAuth', function () {
       wx.oauth.oauthAccessToken = {};
       wx.oauth.isAccessTokenValid()
         .catch((result) => {
-          console.log(result);
           result.errcode.should.not.equal(0);
           result.errmsg.should.not.equal('ok');
           done();
