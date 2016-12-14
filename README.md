@@ -1,4 +1,6 @@
-# wechat-jssdk [![Building Status](https://travis-ci.org/JasonBoy/wechat-jssdk.svg?branch=master)](https://travis-ci.org/JasonBoy/wechat-jssdk)
+# wechat-jssdk 
+[![Building Status](https://travis-ci.org/JasonBoy/wechat-jssdk.svg?branch=master)](https://travis-ci.org/JasonBoy/wechat-jssdk)
+[![Coverage Status](https://coveralls.io/repos/github/JasonBoy/wechat-jssdk/badge.svg?branch=master)](https://coveralls.io/github/JasonBoy/wechat-jssdk?branch=master)
 
 ## THE NEXT MAJOR V3 WILL LEVERAGE ES6 FEATURES
 
