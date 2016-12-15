@@ -4,7 +4,7 @@
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "./lib/index.js",
   "scripts": {
-    "demo": "node ./demo/index.js",
+    "start": "DEBUG=wechat* node ./demo/index.js",
     "test": "mocha",
     "coverage": "DEBUG=wechat* istanbul cover _mocha -- -R spec test/**/*",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
