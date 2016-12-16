@@ -5,6 +5,9 @@ const Wechat = require('../lib');
 const path = require("path");
 const debug = require('debug')('wechat');
 
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+
 const MongoStore = Wechat.MongoStore;
 const FileStore = Wechat.FileStore;
 
@@ -25,6 +28,10 @@ swig.setDefaults({
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname));
+
+app.use(cookieParser());
+app.use(session({name: "sid", secret: 'wechat-app', saveUninitialized: true, resave: true}));
+
 
 app.get('/', function (req, res) {
   //also you can generate one at runtime:
@@ -55,12 +62,38 @@ app.get('/get-signature', function(req, res) {
  * @see wechatRedirectUrl in Wechat config
  */
 app.get('/oauth', function (req, res) {
+  //use default openid as the key
+
+  //use custom key for oauth token store
+  // const sid = req.sessionID;
+  // console.log('oauth sessionID: %s', sid);
   wx.oauth.getUserInfo(req.query.code)
+    .then(function(userProfile) {
+      console.log(userProfile);
+      //set openid to session to use in following request
+      req.session.openid = userProfile.openid;
+      res.render("oauth", {
+        wechatInfo: JSON.stringify(userProfile)
+      });
+    });
+});
+
+app.get('/oauth-cache', function (req, res) {
+  const openid = req.session.openid;
+  console.log('openid: ', openid);
+
+  // const sid = req.sessionID;
+  // console.log('sessionID: %s', sid);
+  wx.oauth.getUserInfo(undefined, openid)
     .then(function(userProfile) {
       console.log(userProfile);
       res.render("oauth", {
         wechatInfo: JSON.stringify(userProfile)
       });
+    })
+    .catch(() => {
+      //need to get new code
+      res.redirect(wx.oauth.snsUserInfoUrl);
     });
 });
 

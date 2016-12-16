@@ -84,8 +84,8 @@ describe('OAuth', function () {
       wx.oauth.oauthAccessToken = {};
       wx.oauth.refreshAccessToken()
         .catch((result) => {
-          result.errcode.should.not.equal(0);
-          result.errmsg.should.not.equal('ok');
+          should.not.exist(result.access_token);
+          should.not.exist(result.openid);
           done();
         });
     });
