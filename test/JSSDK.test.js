@@ -183,14 +183,14 @@ describe('JSSDK', function () {
         url: mockUrl,
         signature: 'old_mock_signature',
       };
-      wx.jssdk.store.setNewSignature(mock.url, mock)
+      wx.jssdk.store.saveSignature(mock.url, mock)
         .then(() => {
           return wx.jssdk.saveNewSignature({
             url: mockUrl,
             signature: 'new_mock_signature',
           });
         })
-        .then(() => wx.jssdk.store.getCachedSignatureByUrl(mockUrl))
+        .then(() => wx.jssdk.store.getSignature(mockUrl))
         .then((newSig) => {
           newSig.signature.should.be.equal('new_mock_signature');
           newSig.url.should.be.equal(mockUrl);
@@ -203,14 +203,14 @@ describe('JSSDK', function () {
         url: mockUrl,
         signature: 'old_mock_signature',
       };
-      wxMongo.jssdk.store.setNewSignature(mock.url, mock)
+      wxMongo.jssdk.store.saveSignature(mock.url, mock)
         .then(() => {
           return wxMongo.jssdk.saveNewSignature({
             url: mockUrl,
             signature: 'new_mock_signature',
           });
         })
-        .then(() => wxMongo.jssdk.store.getCachedSignatureByUrl(mockUrl))
+        .then(() => wxMongo.jssdk.store.getSignature(mockUrl))
         .then((newSig) => {
           newSig.signature.should.be.equal('new_mock_signature');
           newSig.url.should.be.equal(mockUrl);

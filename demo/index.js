@@ -77,5 +77,5 @@ server.on('listening', function() {
 });
 
 process.on('exit', function () {
-  wx.store.flushStore();
+  wx.store.flush();
 });

@@ -61,12 +61,12 @@ mongoStore2.on('initialized', function () {
   describe('MongoStore', function () {
     this.timeout(20000);
     it('should update the global token', function (done) {
-      mongoStore2.getGlobalTokenInfo()
+      mongoStore2.getGlobalToken()
         .then((oldToken) => {
           const newToken = {
             accessToken: 'mock_access_token',
           };
-          return mongoStore2.updateGlobalTokenInfo(newToken)
+          return mongoStore2.updateGlobalToken(newToken)
             .then((updatedToken) => {
               updatedToken.should.have.property('accessToken');
               updatedToken.accessToken.should.be.equal('mock_access_token');
