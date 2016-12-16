@@ -51,7 +51,7 @@ describe('JSSDK', function () {
   describe('#getWechatTicket()', function () {
     this.timeout(20000);
     it('should not get ticket with the invalid token', function (done) {
-      wx.jssdk.getWechatTicket('invalid_access_token')
+      wx.jssdk.getJsApiTicket('invalid_access_token')
         .catch((result) => {
           result.should.not.have.property('ticket');
         })
@@ -63,7 +63,7 @@ describe('JSSDK', function () {
     this.timeout(20000);
     it('should get signature', function (done) {
       const url = 'http://localhost?test_signature';
-      wx.jssdk.getSignatureByURL(url)
+      wx.jssdk.getSignature(url)
         .then(function (signature) {
           signature.should.be.an('object');
           signature.should.have.property('url').equal(url);
@@ -75,7 +75,7 @@ describe('JSSDK', function () {
     });
     it('@MongoStore should get signature', function (done) {
       const url = 'http://localhost?' + Math.random();
-      wxMongo.jssdk.getSignatureByURL(url)
+      wxMongo.jssdk.getSignature(url)
         .then(function (signature) {
           signature.should.be.an('object');
           signature.should.have.property('url').equal(url);
@@ -88,7 +88,7 @@ describe('JSSDK', function () {
 
     it('should get new signature even if signature is not expired', function (done) {
       const url = 'http://localhost?' + Math.random();
-      wx.jssdk.getSignatureByURL(url, true)
+      wx.jssdk.getSignature(url, true)
         .then(function (signature) {
           signature.should.be.an('object');
           signature.should.have.property('url').equal(url);
@@ -100,7 +100,7 @@ describe('JSSDK', function () {
     });
     it('@MongoStore should get new signature even if signature is not expired', function (done) {
       const url = 'http://localhost?test_signature';
-      wxMongo.jssdk.getSignatureByURL(url, true)
+      wxMongo.jssdk.getSignature(url, true)
         .then(function (signature) {
           signature.should.be.an('object');
           signature.should.have.property('url').equal(url);
@@ -122,11 +122,11 @@ describe('JSSDK', function () {
 
   describe('#signatureResult()', function () {
     it('should return empty object', function () {
-      const result = JSSDK.signatureResult(undefined);
+      const result = JSSDK.filterSignature(undefined);
       result.should.be.deep.equal({});
     });
     it('should return filtered object', function () {
-      const result = JSSDK.signatureResult({
+      const result = JSSDK.filterSignature({
         timestamp: 'aaa',
         nonceStr: 'bbb',
         signature: 'ccc',
@@ -163,9 +163,9 @@ describe('JSSDK', function () {
     this.timeout(20000);
     it('should get the specified url signature', function (done) {
       const url = 'http://localhost?' + Math.random();
-      wx.jssdk.createNewSignature(url)
+      wx.jssdk.createSignature(url)
         .then(() => {
-          return wx.jssdk.getCachedUrlSignature(url);
+          return wx.jssdk.getCachedSignature(url);
         })
         .then((result) => {
           result.should.have.property('signature');
@@ -185,7 +185,7 @@ describe('JSSDK', function () {
       };
       wx.jssdk.store.saveSignature(mock.url, mock)
         .then(() => {
-          return wx.jssdk.saveNewSignature({
+          return wx.jssdk.saveSignature({
             url: mockUrl,
             signature: 'new_mock_signature',
           });
@@ -205,7 +205,7 @@ describe('JSSDK', function () {
       };
       wxMongo.jssdk.store.saveSignature(mock.url, mock)
         .then(() => {
-          return wxMongo.jssdk.saveNewSignature({
+          return wxMongo.jssdk.saveSignature({
             url: mockUrl,
             signature: 'new_mock_signature',
           });
