@@ -1,1 +1,17 @@
+name: wechat-jssdk
+
+#repository: https://github.com/JasonBoy/wechat-jssdk
+
+title: Wechat-JSSDK
+description: Next-Generation WeChat JS-SDK integration with NodeJS
+
+# Build settings
+markdown: kramdown
 theme: jekyll-theme-cayman
+
+exclude:
+  - README.md
+  - .gitignore
+  - node_modules
+  - coverage
+  - wechat-info.json

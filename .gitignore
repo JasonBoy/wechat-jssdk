@@ -38,3 +38,6 @@ node_modules
 config.json
 .Ds_Store
 wechat-info*.json
+_site/
+Gemfile
+Gemfile.lock
