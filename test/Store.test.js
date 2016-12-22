@@ -22,6 +22,12 @@ describe('FileStore', function () {
     fileStore.emit(Store.StoreEvents.FLUSH_STORE);
   });
 
+  it('should failed to flush file store', function (done) {
+    fileStore.fileStorePath = './invalid/invalid_path';
+    fileStore.flush();
+    done();
+  });
+
   it('should destroy the store', function (done) {
     fileStore.on(Store.StoreEvents.DESTROYED, function (result) {
       result.should.be.equal(true);
@@ -30,6 +36,7 @@ describe('FileStore', function () {
     });
     fileStore.emit(Store.StoreEvents.DESTROY);
   });
+
 
 });
 

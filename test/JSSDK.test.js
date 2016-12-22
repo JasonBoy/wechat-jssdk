@@ -59,7 +59,7 @@ describe('JSSDK', function () {
     });
   });
 
-  describe('#getSignatureByURL()', function () {
+  describe('#getSignature()', function () {
     this.timeout(20000);
     it('should get signature', function (done) {
       const url = 'http://localhost?test_signature';
@@ -107,8 +107,9 @@ describe('JSSDK', function () {
           signature.should.have.property('nonceStr');
           signature.should.have.property('signature');
           signature.should.have.property('timestamp');
-          done();
-        });
+        })
+        .then(() => done())
+        .catch(() => done());
     });
   });
 
