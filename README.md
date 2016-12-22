@@ -148,7 +148,8 @@ wechatObj.callWechatApi('onMenuShareAppMessage', {
 ## OAuth
 Wechat support web OAuth to get user profile in wechat app.
 In your page, provide a link, which you can get by `wx.oauth.snsUserInfoUrl` which is the default oauth url, to the wechat OAuth page,  
-also you need provide a callback url(as show below) to get the wechat code after user click Agree button, the callback url is configured in the `wechatConfig` object above while initializing, but you can customize your own callback url by using `wx.oauth.generateOauthUrl(customUrl, isBaseUrl)` api.
+also you need provide a callback url(as show below) to get the wechat code after user click Agree button, the callback url is configured in the `wechatConfig` object above while initializing,
+but you can customize your own callback url by using `wx.oauth.generateOAuthUrl(customUrl, scope, state)` api.
 ```javascript
 //default callback url
 router.get('/wechat/oauth-callback', function (req, res) {
@@ -206,9 +207,12 @@ class CustomStore extends Store {
 }
 ```
 
-
 ## APIs
 see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
+
+## Demo
+
+use `npm start` to start the demo.
 
 ## LICENSE
 

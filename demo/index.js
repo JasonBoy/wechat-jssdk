@@ -35,7 +35,7 @@ app.use(session({name: "sid", secret: 'wechat-app', saveUninitialized: true, res
 
 app.get('/', function (req, res) {
   //also you can generate one at runtime:
-  //const oauthUrl = wx.oauth.generateOauthUrl(customRedirectUrl, isBaseInfo);
+  //const oauthUrl = wx.oauth.generateOAuthUrl(customRedirectUrl, scope, state);
   res.render('index', {oauthUrl: wx.oauth.snsUserInfoUrl});
 });
 
@@ -63,11 +63,12 @@ app.get('/get-signature', function(req, res) {
  */
 app.get('/oauth', function (req, res) {
   //use default openid as the key
+  const key = req.session.openid;
 
   //use custom key for oauth token store
-  // const sid = req.sessionID;
-  // console.log('oauth sessionID: %s', sid);
-  wx.oauth.getUserInfo(req.query.code)
+  // const key = req.sessionID;
+  // console.log('oauth sessionID: %s', key);
+  wx.oauth.getUserInfo(req.query.code, key)
     .then(function(userProfile) {
       console.log(userProfile);
       //set openid to session to use in following request
@@ -79,12 +80,16 @@ app.get('/oauth', function (req, res) {
 });
 
 app.get('/oauth-cache', function (req, res) {
-  const openid = req.session.openid;
-  console.log('openid: ', openid);
+  const key = req.session.openid;
+  console.log('openid: ', key);
 
   // const sid = req.sessionID;
   // console.log('sessionID: %s', sid);
-  wx.oauth.getUserInfo(undefined, openid)
+
+  //get user info without code, but with cached access token,
+  //if cached token is expired, or cannot refresh the token,
+  //it will redirect to the "/oauth" router above in catch handler to get new code
+  wx.oauth.getUserInfo(null, key)
     .then(function(userProfile) {
       console.log(userProfile);
       res.render("oauth", {
