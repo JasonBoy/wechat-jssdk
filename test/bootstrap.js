@@ -1,3 +1,5 @@
+'use strict';
+
 const config = {
   "wechatToken": "6mwdIm9p@Wg7$Oup",
   "appId": "wxfc9c5237ebf480aa",

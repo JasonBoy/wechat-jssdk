@@ -1,3 +1,5 @@
+'use strict';
+
 const bootstrap = require('./bootstrap');
 const config = bootstrap.config;
 const should = bootstrap.should;

@@ -1,8 +1,9 @@
+'use strict';
+
 const bootstrap = require('./bootstrap');
 
 const config = bootstrap.config;
 const should = bootstrap.should;
-const mockRequest = bootstrap.mockRequest;
 
 const Wechat = require('../lib');
 const Store = Wechat.Store;
