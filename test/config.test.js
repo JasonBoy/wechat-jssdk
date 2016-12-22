@@ -14,14 +14,6 @@ describe('config', function () {
     }).should.throw(/wechat configuration/);
   });
 
-  it('should throw error with wechat token unspecified', function () {
-    const temp = Object.assign({}, config);
-    delete temp.wechatToken;
-    (function() {
-      configCheck(temp);
-    }).should.throw(/wechat token/);
-  });
-
   it('should throw error with empty wechat appid', function () {
     const temp = Object.assign({}, config);
     delete temp.appId;

@@ -212,7 +212,8 @@ see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 
 ## Demo
 
-use `npm start` to start the demo.
+Use your own `appId` and `appSecret` in `./demo/index.js` to test
+Use `npm start` to start the demo.
 
 ## LICENSE
 
