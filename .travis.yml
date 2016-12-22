@@ -2,6 +2,8 @@ language: node_js
 repo_token: iUSiEgqT1o1NNeHUvMQz2bxetC1NzTbZG
 services: mongodb
 node_js:
+  - "4"
   - "6"
+  - "7"
 script: npm run coverage
 after_success: 'npm run coveralls'
