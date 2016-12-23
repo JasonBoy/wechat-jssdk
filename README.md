@@ -5,11 +5,11 @@
 [![npm](https://img.shields.io/npm/v/wechat-jssdk.svg)](https://www.npmjs.com/package/wechat-jssdk)
 [![npm](https://img.shields.io/npm/l/wechat-jssdk.svg)](https://www.npmjs.com/package/wechat-jssdk)
 
-## THE NEXT MAJOR V3 WILL LEVERAGE ES6 FEATURES
 
-Next-Generation WeChat JS-SDK integration with NodeJS, also supports retrieving wechat user profile with web OAuth.  
-### THE USAGE OF THIS README IS FOR v3
-For v2.x, pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)  
+Next-Generation WeChat JS-SDK integration with NodeJS(node >= 4),
+with support for web OAuth to retrieve wechat user profile.
+
+For v2.x(node >= 0.10), pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
 ## Features
@@ -20,10 +20,8 @@ For v2.x, pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-j
   1. [Using Stores](#using-stores)
 
 ## Usage
-`npm install wechat-jssdk --save`  
-Or try the new v3, which is still on `next` tag  
-`npm install wechat-jssdk@next --save`  
 
+`npm install wechat-jssdk --save`  
 
 ```
 const Wechat = require('wechat-jssdk');
