@@ -166,7 +166,7 @@ router.get('/wechat/oauth-callback', function (req, res) {
 ## Using Stores
 
 *New in V3*  
-Stores are used to save url signatures into files, dbs, etc..., but also keep a copy in memory for better performence.  
+[Store](https://github.com/JasonBoy/wechat-jssdk/wiki/Store) are used to save url signatures into files, dbs, etc..., but also keep a copy in memory for better performence.
 The default store used is `FileStore` which will persist tokens and signatures into `wechat-info.json` file every 10 minutes, also it will load these info from the file in next initialization.  
 Built in Stores: `FileStore`, `MongoStore`,  
 ### Using Custom Stores:
