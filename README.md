@@ -10,6 +10,7 @@ Next-Generation WeChat JS-SDK integration with NodeJS(node >= 4),
 with support for web OAuth to retrieve wechat user profile.
 
 For v2.x(node >= 0.10), pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)
+
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
 ## Features
@@ -64,7 +65,7 @@ For other url configuration, there are default values, you can checkout the `./l
 
   ```javascript
   router.get('/get-signature', function(req, res) {
-    wx.jssdk.getSignatureByURL(req.query.url).then(function(signatureData) {
+    wx.jssdk.getSignature(req.query.url).then(function(signatureData) {
       res.json(signatureDate);
     });  
   });
@@ -211,6 +212,7 @@ see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 ## Demo
 
 Use your own `appId` and `appSecret` in `./demo/index.js` to test
+
 Use `npm start` to start the demo.
 
 ## LICENSE
