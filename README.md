@@ -83,20 +83,24 @@ where config will be:
 
 ```javascript
 var config = {
-  //must has properties to finish the wechat signature verification
-  'appId': 'xxx',
-  'nonceStr': 'xxx', //the four properties below should be received like api '/get-signature' above
-  'signature': 'xxx',
-  'timestamp': 'xxx',
+  //below are mandatory options to finish the wechat signature verification
+  'appId': 'app_id',
+  //the 3 options below should be received like api '/get-signature' above
+  'nonceStr': 'your_nonceStr',
+  'signature': 'url_signature',
+  'timestamp': 'your_timestamp',
   //below are optional
-  'success': function(){}, //invoked if wechat signature sign succeeds, same as successCallback
-  'error': function(err){}, //invoked if sign failed, same as errorCallback
-  'debug': true, //enable debug mode, same as debug, property in `config` object has higher priority
+  //invoked if wechat signature sign succeeds
+  'success': function(){},
+  //invoked if sign failed
+  'error': function(err){},
+  //enable debug mode, same as debug
+  'debug': true,
   'jsApiList': [], //optional, pass all the jsapi you want, the default will be ['onMenuShareTimeline', 'onMenuShareAppMessage']
-  'customUrl': '' //set custom weixin js script url
+  'customUrl': '' //set custom weixin js script url, usually you don't need to add this js manually
 }
 ```
-after signature signed, you can customize the share information:  
+after signature signed successfully, you can customize the share information:
 
 ```javascript
 //customize share on chat info
@@ -208,6 +212,9 @@ class CustomStore extends Store {
 
 ## APIs
 see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
+
+[A Blog About This](https://blog.lovemily.me/next-generation-wechat-jssdk-integration-with-nodejs/)
+
 
 ## Demo
 
