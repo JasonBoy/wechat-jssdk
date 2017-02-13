@@ -213,7 +213,7 @@ class CustomStore extends Store {
 ## APIs
 see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 
-[A Blog About This](https://blog.lovemily.me/next-generation-wechat-jssdk-integration-with-nodejs/)
+[A Blog About This](http://blog.lovemily.me/next-generation-wechat-jssdk-integration-with-nodejs/)
 
 
 ## Demo
