@@ -1,6 +1,6 @@
 {
   "name": "wechat-jssdk",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "./lib/index.js",
   "scripts": {
@@ -49,6 +49,6 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "swig": "^1.4.2",
-    "webpack": "^2.2.0-rc.1"
+    "webpack": "^2.2.1"
   }
 }
