@@ -3,6 +3,9 @@
   "version": "3.0.3",
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "./lib/index.js",
+  "engines": {
+    "node": ">=4.0"
+  },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
     "test": "mocha",
