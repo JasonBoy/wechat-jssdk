@@ -34,8 +34,10 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "debug": "^2.5.1",
-    "lodash": "^4.17.2",
-    "mongoose": "^4.7.4"
+    "lodash.isempty": "^4.4.0",
+    "mongoose": "^4.7.4",
+    "request": "^2.81.0",
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -51,8 +53,5 @@
     "mocha": "^3.2.0",
     "swig": "^1.4.2",
     "webpack": "^2.2.1"
-  },
-  "peerDependencies": {
-    "request-promise": "^4.1.1"
   }
 }
