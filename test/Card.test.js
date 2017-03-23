@@ -31,6 +31,20 @@ describe('Card', function () {
 
   });
 
+  describe('#getApiTicket()', function (done) {
+    setTimeout(() => {
+      const store = wx.card.store;
+      store.store.card = {};
+      store.store.globalToken.modifyDate = new Date(0);
+      wx.card.getApiTicket()
+        .then(ticket => {
+          ticket.should.have.property('ticket');
+          done();
+        })
+        .catch(() => done());
+    }, 1000);
+  });
+
   describe('#getCardExt()', function () {
     this.timeout(20000);
     it('should get cardExt', function (done) {

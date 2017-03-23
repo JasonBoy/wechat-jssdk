@@ -24,17 +24,19 @@ describe('JSSDK', function () {
         store: new MongoStore(),
         clearCountInterval: 1000,
       }, config));
-      setTimeout(done, 2000);
+      setTimeout(() => done(), 2000);
     });
   });
 
   describe('#getAccessToken()', function () {
     this.timeout(20000);
     it('should get wechat token', function (done) {
-      wx.jssdk.getAccessToken().then(function (data) {
-        data.should.have.property('access_token');
-        done();
-      });
+      wx.jssdk.getAccessToken()
+        .then(function (data) {
+          data.should.have.property('access_token');
+          done();
+        })
+        .catch(() => done());
     });
 
     it('should get wechat token failed', function (done) {
@@ -73,7 +75,8 @@ describe('JSSDK', function () {
           signature.should.have.property('signature');
           signature.should.have.property('timestamp');
           done();
-        });
+        })
+        .catch(() => done());
     });
     it('@MongoStore should get signature', function (done) {
       const url = 'http://localhost?' + Math.random();
@@ -85,7 +88,8 @@ describe('JSSDK', function () {
           signature.should.have.property('signature');
           signature.should.have.property('timestamp');
           done();
-        });
+        })
+        .catch(() => done());
     });
 
     it('should get new signature even if signature is not expired', function (done) {
@@ -98,7 +102,8 @@ describe('JSSDK', function () {
           signature.should.have.property('signature');
           signature.should.have.property('timestamp');
           done();
-        });
+        })
+        .catch(() => done());
     });
     it('@MongoStore should get new signature even if signature is not expired', function (done) {
       const url = 'http://localhost?test_signature';
@@ -175,13 +180,16 @@ describe('JSSDK', function () {
           result.url.should.be.equal(url);
           done();
         })
+        .catch(() => done());
     });
   });
 
+  const mockUrl = 'http://localhost/saveNewSignature?' + Math.random();
+  const mongoMockUrl = 'http://localhost/saveNewSignature?' + Math.random();
+
   describe('#saveNewSignature()', function () {
     this.timeout(20000);
-    it('should update existing signature', function (done) {
-      const mockUrl = 'http://localhost/saveNewSignature';
+    it('should save new signature', function (done) {
       const mock = {
         url: mockUrl,
         signature: 'old_mock_signature',
@@ -198,30 +206,30 @@ describe('JSSDK', function () {
           newSig.signature.should.be.equal('new_mock_signature');
           newSig.url.should.be.equal(mockUrl);
           done();
-        });
+        })
+        .catch(() => done());
     });
-    it('@MongoStore should update existing signature', function (done) {
-      const mockUrl = 'http://localhost/saveNewSignature';
+
+    it('@MongoStore should save new signature', function (done) {
       const mock = {
-        url: mockUrl,
+        url: mongoMockUrl,
         signature: 'old_mock_signature',
       };
       wxMongo.jssdk.store.saveSignature(mock.url, mock)
         .then(() => {
           return wxMongo.jssdk.saveSignature({
-            url: mockUrl,
+            url: mock.url,
             signature: 'new_mock_signature',
           });
         })
-        .then(() => wxMongo.jssdk.store.getSignature(mockUrl))
+        .then(() => wxMongo.jssdk.store.getSignature(mongoMockUrl))
         .then((newSig) => {
           newSig.signature.should.be.equal('new_mock_signature');
-          newSig.url.should.be.equal(mockUrl);
+          newSig.url.should.be.equal(mongoMockUrl);
           done();
-        });
+        })
+        .catch(() => done());
     });
   });
-
-
 
 });
