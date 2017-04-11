@@ -74,7 +74,7 @@ For other url configuration, there are default values, you can checkout the `./l
 
 
 ## Browser Side Usage
-`var WechatJSSDK = require('wechat-jssdk/lib/client')`  
+`var WechatJSSDK = require('wechat-jssdk/dist/client.min')`
 in your client side js, or any other way you like to include this.  
 `var wechatObj = new WechatJSSDK(config)`  
 or in traditional environment, use the prebuilt `./dist/client.min.js`:  
