@@ -13,6 +13,8 @@ For v2.x(node >= 0.10), pls checkout the [Readme on v2.x](https://github.com/Jas
 
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
+![wechat-jssdk-demo](https://raw.githubusercontent.com/JasonBoy/wechat-jssdk/master/demo/wechat-jssdk-demo.gif)
+
 ## Features
 
   1. [JSSDK](#setup-your-wechat-env)
