@@ -37,8 +37,11 @@ app.use(session({name: "sid", secret: 'wechat-app', saveUninitialized: true, res
 
 app.get('/', function (req, res) {
   //also you can generate one at runtime:
-  //const oauthUrl = wx.oauth.generateOAuthUrl(customRedirectUrl, scope, state);
-  res.render('index', {oauthUrl: wx.oauth.snsUserInfoUrl});
+  const implicitOAuthUrl = wx.oauth.generateOAuthUrl("http://127.0.0.1/implicit-oauth", "snsapi_base");
+  res.render('index', {
+    oauthUrl: wx.oauth.snsUserInfoUrl,
+    implicitOAuth: implicitOAuthUrl,
+  });
 });
 
 app.get('/api/wechat', function (req, res) {
@@ -77,6 +80,17 @@ app.get('/oauth', function (req, res) {
       req.session.openid = userProfile.openid;
       res.render("oauth", {
         wechatInfo: JSON.stringify(userProfile)
+      });
+    });
+});
+
+app.get('/implicit-oauth', function (req, res) {
+  wx.oauth.getUserBaseInfo(req.query.code)
+    .then(function (tokenInfo) {
+      console.log('implicit oauth: ', tokenInfo);
+      // console.log('implicit oauth: ', JSON.stringify(tokenInfo));
+      res.render("oauth", {
+        wechatInfo: JSON.stringify(tokenInfo, null, 2)
       });
     });
 });
