@@ -13,6 +13,8 @@
   <p><a href="{{ oauthUrl }}">OAuth</a></p>
   <p><a href="{{ implicitOAuth }}">Implicit OAuth</a></p>
   <p><a href="/oauth-cache">OAuth without new code</a></p>
+  <p><a id="choose-card" href="#">ChooseCard</a></p>
+  <p><a id="open-card" href="#">OpenCard</a></p>
   <script type="text/javascript">
     var config = {
       "appId": "wxfc9c5237ebf480aa",
@@ -63,9 +65,32 @@
         config.nonceStr = data.nonceStr;
         config.signature = data.signature;
         config.timestamp = data.timestamp;
-        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline'];
-        var w = new window.WechatJSSDK(config);
+        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline', 'chooseCard', 'addCard', 'openCard'];
+        window.wechatObj = new window.WechatJSSDK(config);
       }
+    });
+    $('#choose-card').on('click', function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: 'GET',
+        url: '/choose-card',
+        success: function(data) {
+          window.wechatObj.callWechatApi('chooseCard', Object.assign(data, {
+            success: function (res) {
+              console.log(res.cardList);
+            }
+          }));
+        }
+      })
+    });
+    $('#open-card').on('click', function (e) {
+      e.preventDefault();
+      window.wechatObj.callWechatApi('openCard', {
+        cardList: [{
+          cardId: 'pVI6xjmqRLg8y58MRpDQQangdmuY',
+          code: 'xxx',
+        }],
+      })
     });
   </script>
 </body>

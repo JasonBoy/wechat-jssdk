@@ -118,6 +118,17 @@ app.get('/oauth-cache', function (req, res) {
     });
 });
 
+app.get('/choose-card', function (req, res) {
+  wx.card.getCardSignature()
+    .then(sigInfo => {
+      res.json(sigInfo);
+    })
+    .catch(reason => {
+      res.json(reason);
+    })
+  ;
+});
+
 app.get('/client.js', function (req, res) {
   res.sendFile(path.join(__dirname, '../dist/client.min.js'));
 });
