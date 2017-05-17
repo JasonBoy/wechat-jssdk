@@ -62,7 +62,10 @@ For other url configuration, there are default values, you can checkout the `./l
   });
   ```
   if everything is OK, wechat will save your settings :).
-
+  
+  But usually wechat will provide you a `MP_verify_XHZon7GAGRdcAFxx.txt` like file to ask you to put that on your website root,  
+  which will be accessed by wechat on `http://yourdomain.com/MP_verify_XHZon7GAGRdcAFxx.txt` to verify that you own the domain.
+  
 2.You should also provide a api for your browser to get token for the current url  
 
   ```javascript
