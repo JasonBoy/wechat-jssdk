@@ -37,7 +37,8 @@
     "lodash.isempty": "^4.4.0",
     "mongoose": "^4.7.4",
     "request": "^2.81.0",
-    "request-promise": "^4.1.1"
+    "request-promise": "^4.1.1",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
