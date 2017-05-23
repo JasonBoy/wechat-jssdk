@@ -7,7 +7,7 @@ const should = bootstrap.should;
 
 const Wechat = require('../lib');
 const Payment = Wechat.Payment;
-const util = require('../lib/utils');
+const utils = require('../lib/utils');
 
 describe('Payment', function () {
 
@@ -18,6 +18,7 @@ describe('Payment', function () {
     paymentNotifyUrl: customNotifyUrl,
     paymentKey: 'test_key',
     paymentCertificate: 'test_certificate',
+    merchantId: 'test_merchant_id',
   }));
 
   describe('@constructor', function () {
@@ -46,6 +47,15 @@ describe('Payment', function () {
     it('should generate signature for passed parameters', function () {
       const data = payment.generateSignature(params);
       data.sign.should.equal('EC00CE08DD7396EF70AE7D659D2A1D3A');
+    });
+  });
+
+  describe('#generatePaySign()', function () {
+    it('should generate paySign related info', function () {
+      const data = payment.generatePaySign('test_prepay_id');
+      data.should.have.property('timestamp');
+      data.should.have.property('paySign');
+      data.should.have.property('signType').equal('MD5');
     });
   });
 
