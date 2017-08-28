@@ -41,3 +41,4 @@ wechat-info*.json
 Gemfile
 Gemfile.lock
 _site/
+package-lock.json

@@ -8,8 +8,8 @@
   },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
-    "test": "mocha",
-    "coverage": "istanbul cover _mocha -- -R spec test/**/*",
+    "test": "_mocha test/**/*.js",
+    "coverage": "istanbul cover _mocha -- -R spec test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "build": "webpack --progress",
     "prod": "NODE_ENV=production webpack --progress"
@@ -33,11 +33,13 @@
   "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
   "dependencies": {
     "bluebird": "^3.4.6",
+    "dateformat": "^2.0.0",
     "debug": "^2.6.8",
     "lodash.isempty": "^4.4.0",
     "mongoose": "^4.10.2",
     "request": "^2.81.0",
-    "request-promise": "^4.1.1"
+    "request-promise": "^4.1.1",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
