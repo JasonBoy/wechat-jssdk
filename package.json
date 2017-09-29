@@ -12,7 +12,9 @@
     "coverage": "istanbul cover _mocha -- -R spec test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "build": "webpack --progress",
-    "prod": "NODE_ENV=production webpack --progress"
+    "prod": "NODE_ENV=production webpack --progress",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -39,7 +41,8 @@
     "mongoose": "^4.10.2",
     "request": "^2.81.0",
     "request-promise": "^4.1.1",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.17",
+    "snyk": "^1.41.1"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -55,5 +58,6 @@
     "mocha": "^3.2.0",
     "swig": "^1.4.2",
     "webpack": "^2.2.1"
-  }
+  },
+  "snyk": true
 }
