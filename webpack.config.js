@@ -8,7 +8,7 @@ const config = {
   entry: path.resolve(__dirname, 'lib/client.js'),
   output: {
     path: path.resolve(__dirname, 'dist/'),
-    filename: 'client.min.js',
+    filename: PROD_MODE ? 'client.min.js' : 'client.js',
     library: 'WechatJSSDK',
     libraryTarget: 'umd',
   },
