@@ -54,8 +54,8 @@ Required `wechatConfig` info:
 
   ```javascript
   //express app for example:
-  router.get('/get-signature', function(req, res) {
-    wx.jssdk.getSignature(req.query.url).then(function(signatureData) {
+  router.get('/get-signature', (req, res) => {
+    wx.jssdk.getSignature(req.query.url).then(signatureData => {
       res.json(signatureData);
     });  
   });
@@ -78,10 +78,12 @@ const config = {
   'signature': 'url_signature',
   'timestamp': 'your_timestamp',
   //below are optional
-  //invoked if wechat signature sign succeeds
-  'success': function(){}, //'this' will be the jssdk instance, in v3.1, jssdk instance will be pass to the func, (wxObj) => {}
-  //invoked if sign failed
-  'error': function(err){}, //in v3.1, jssdk instance will be pass to the func, (err, wxObj) => {}
+  //invoked if wechat signature sign succeeds,
+  //'this' will be the jssdk instance if it's a normal function, 
+  // in v3.0.10+, jssdk instance will be passed to the callback, (wxObj) => {}
+  'success': jssdkInstance => {},
+  //invoked if sign failed, in v3.0.10+, jssdk instance will be pass to the func, (err, wxObj) => {}
+  'error': (err, jssdkInstance) => {},
   //enable debug mode, same as debug
   'debug': true,
   'jsApiList': [], //optional, pass all the jsapi you want, the default will be ['onMenuShareTimeline', 'onMenuShareAppMessage']
