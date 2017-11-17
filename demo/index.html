@@ -15,9 +15,9 @@
   <script type="text/javascript">
     var config = {
       "appId": "wxfc9c5237ebf480aa",
-      success: function() {
+      success: function(w) {
         console.log('success');
-        var w = this;
+//        var w = this;
         var img = 'http://pic1.ooopic.com/uploadfilepic/shiliang/2009-10-05/OOOPIC_00cyl_20091005e2c6eb1c889e342e.jpg';
         //sugar method
         w.shareOnMoment({
@@ -33,7 +33,7 @@
         });
 
         //or call directly
-        w.callWechatApi('onMenuShareAppMessage', {
+        w.wx.onMenuShareAppMessage({
           title: 'test title',
           type: 'link',
           desc: 'share description',
@@ -63,7 +63,7 @@
         config.signature = data.signature;
         config.timestamp = data.timestamp;
         config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline'];
-        var w = new window.WechatJSSDK(config);
+        new window.WechatJSSDK(config);
       }
     });
   </script>
