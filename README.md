@@ -215,4 +215,4 @@ Use `npm start` to start the demo.
 
 ## LICENSE
 
-MIT @ 2016-2017 [jason](http://blog.lovemily.me)
+MIT @ 2016-2018 [jason](http://blog.lovemily.me)
