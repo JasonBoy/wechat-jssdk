@@ -9,7 +9,9 @@ const Wechat = require('../lib');
 
 const util = require('../lib/utils');
 
-const wx = new Wechat(config);
+const wx = new Wechat(Object.assign({}, config, {
+  card: true,
+}));
 
 describe('Card', function () {
 
