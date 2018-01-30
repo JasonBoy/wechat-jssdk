@@ -33,17 +33,19 @@ describe('Card', function () {
 
   });
 
-  describe('#getApiTicket()', function (done) {
+  describe('#getApiTicket()', function () {
     setTimeout(() => {
-      const store = wx.card.store;
-      store.store.card = {};
-      store.store.globalToken.modifyDate = new Date(0);
-      wx.card.getApiTicket()
-        .then(ticket => {
-          ticket.should.have.property('ticket');
-          done();
-        })
-        .catch(() => done());
+      it('should get api ticket', function (done) {
+        const store = wx.card.store;
+        store.store.card = {};
+        store.store.globalToken.modifyDate = new Date(0);
+        wx.card.getApiTicket()
+          .then(ticket => {
+            ticket.should.have.property('ticket');
+            done();
+          })
+          .catch(() => done());
+      });
     }, 1000);
   });
 
