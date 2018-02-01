@@ -20,6 +20,8 @@ const wx = new Wechat({
   "wechatRedirectUrl": "http://127.0.0.1/oauth",
   // store: new MongoStore({limit: 5}),
   store: new FileStore({interval: 1000 * 60 * 3}),
+  card: true,
+  payment: true,
 });
 
 const app = express();
