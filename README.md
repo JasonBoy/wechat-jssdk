@@ -65,7 +65,7 @@ Required `wechatConfig` info:
 
 
 ## Browser Side Usage
-`var WechatJSSDK = require('wechat-jssdk/dist/client.min')`
+`var WechatJSSDK = require('wechat-jssdk/dist/client')`
 in your client side js, or any other way you like to include this.  
 `var wechatObj = new WechatJSSDK(config)`  
 where config will be:
@@ -114,7 +114,7 @@ wechatObj.shareOnMoment({
   imgUrl: '/logo.png'
 });
 ```
-You can also access the original wechat object `wx` from `window.wx` or from instance `wechatObj.wx` to call other apis.
+You can also access the original wechat object `wx` from `wechatObj.getOriginalWx()`.
 
 Call other wechat apis: `wechatObj.callWechatApi(apiName, config)`:
 
@@ -130,7 +130,7 @@ wechatObj.callWechatApi('onMenuShareAppMessage', {
 });
 ```
 or with the original one:  
-`wechatObj.wx.onMenuShareAppMessage(config)`
+`wechatObj.getOriginalWx().onMenuShareAppMessage(config)`
 
 ## OAuth
 Wechat support web OAuth to get user profile in wechat app.
@@ -190,7 +190,7 @@ const wx = new Wechat({
 
 ### Create your own Store
 
-You can also create own Store to store tokens anywhere you want, by doing that, you may need to extend the base `Store` class, and reimplement the apis you need(take a look at Store.js):
+You can also create own Store to store tokens anywhere you want, by doing that, you may need to extend the base `Store` class, and reimplement the [apis](https://github.com/JasonBoy/wechat-jssdk/wiki/Store) you need:
 
 ```javascript
 const Store = require('wechat-jssdk').Store;
