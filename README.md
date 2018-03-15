@@ -207,6 +207,10 @@ see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 
 [A Blog About This](http://blog.lovemily.me/next-generation-wechat-jssdk-integration-with-nodejs/)
 
+## Debug
+
+Add `DEBUG=wechat*` when start your app to enable wechat-jssdk debug  
+`DEBUG=wechat* node your-app.js`
 
 ## Demo
 
