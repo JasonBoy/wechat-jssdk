@@ -14,12 +14,15 @@ describe('Payment', function () {
   const customNotifyUrl = 'http://custom.com/api/wechat/payment/';
   const sandboxUnifiedOrder = 'https://api.mch.weixin.qq.com/sandboxnew/pay/unifiedorder';
   const payment = new Payment(Object.assign({}, config, {
+    appId: 'wx2421b1c4370ec43b',
     paymentSandBox: true,
     paymentNotifyUrl: customNotifyUrl,
-    paymentKey: 'test_key',
+    // paymentKey: 'test_key',
+    paymentKey: '192006250b4c09247ec02edce69f6a2d',
     paymentCertificate: 'test_certificate',
     merchantId: 'test_merchant_id',
   }));
+  console.log(payment.paymentUrls);
 
   describe('@constructor', function () {
     it('should successfully init the Payment instance', function (done) {
@@ -30,6 +33,14 @@ describe('Payment', function () {
   });
 
   describe('#generateSignature()', function () {
+    const params2 = {
+      appid: 'wxd930ea5d5a258f4f',
+      mch_id: 10000100,
+      device_info: 1000,
+      body: 'test',
+      nonce_str: 'ibuaiVcKdpRxkhJA',
+    };
+
     const params = {
       appid: 'wx2421b1c4370ec43b',
       attach: '支付测试',
@@ -45,17 +56,26 @@ describe('Payment', function () {
       trade_type: 'JSAPI',
     };
     it('should generate signature for passed parameters', function () {
-      const data = payment.generateSignature(params);
-      data.sign.should.equal('EC00CE08DD7396EF70AE7D659D2A1D3A');
+      const data = payment.generateSignature(params2);
+      // data.sign.should.equal('EC00CE08DD7396EF70AE7D659D2A1D3A');
+      data.sign.should.equal('9A0A8659F005D6984697E2CA0A9CF3B7');
+      utils.buildXML(data).then(info => console.log(info));
+      utils.buildXML(params).then(info => console.log(info));
     });
   });
 
-  describe('#generatePaySign()', function () {
+  describe('#generateGeneralPaymentSignature()', function () {
     it('should generate paySign related info', function () {
-      const data = payment.generatePaySign('test_prepay_id');
-      data.should.have.property('timestamp');
-      data.should.have.property('paySign');
-      data.should.have.property('signType').equal('MD5');
+      //paymentKey: '192006250b4c09247ec02edce69f6a2d',
+      const data = payment.generateGeneralPaymentSignature({
+        appId: 'wx2421b1c4370ec43b',
+        timeStamp: '1395712654',
+        nonceStr: 'e61463f8efa94090b1f366cccfbbb444',
+        package: 'prepay_id=u802345jgfjsdfgsdg888',
+        signType: 'MD5',
+      });
+      // console.log(data);
+      data.should.have.property('paySign').equal('0784A14C2CD35747364F62512E724FD8');
     });
   });
 
