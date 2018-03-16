@@ -5,6 +5,7 @@ const http = require("http");
 const swig = require('swig');
 const Wechat = require('../lib');
 const path = require("path");
+const fs = require("fs");
 const debug = require('debug')('wechat');
 
 const cookieParser = require('cookie-parser');
@@ -12,16 +13,28 @@ const session = require('express-session');
 
 const MongoStore = Wechat.MongoStore;
 const FileStore = Wechat.FileStore;
+const Card = Wechat.Card;
+
+const pfxPath = path.join(process.cwd(), 'cert/apiclient_cert.p12');
 
 const wx = new Wechat({
-  "wechatToken": "6mwdIm9p@Wg7$Oup",
-  "appId": "wxfc9c5237ebf480aa",
-  "appSecret": "2038576336804a90992b8dbe46cd5948",
-  "wechatRedirectUrl": "http://127.0.0.1/oauth",
+  // "wechatToken": "6mwdIm9p@Wg7$Oup",
+  // "appId": "wxfc9c5237ebf480aa",
+  // "appSecret": "2038576336804a90992b8dbe46cd5948",
+  //=====a service account test=====
+  "wechatToken": "1af9dVSfCr2NEspNu9FJthq68Hf6m6U4",
+  "appId": "wxee7f6cc5d88ceae6",
+  "appSecret": "8acf3d3ba8c3d6275e86edc3d3904265",
+  "wechatRedirectUrl": "http://beautytest.yjyyun.com/oauth",
   // store: new MongoStore({limit: 5}),
   store: new FileStore({interval: 1000 * 60 * 3}),
   card: true,
-  payment: true,
+  payment: false,
+  merchantId: '1485613302',
+  paymentSandBox: true,
+  paymentKey: 'dRlrDsK8Pu1ZLnLP7Yr63KmZI62AJk3J',
+  paymentCertificate: fs.readFileSync(pfxPath),
+  paymentNotifyUrl: "http://beautytest.yjyyun.com/api/wechat/payment/",
 });
 
 const app = express();
@@ -39,7 +52,7 @@ app.use(session({name: "sid", secret: 'wechat-app', saveUninitialized: true, res
 
 app.get('/', function (req, res) {
   //also you can generate one at runtime:
-  const implicitOAuthUrl = wx.oauth.generateOAuthUrl("http://127.0.0.1/implicit-oauth", "snsapi_base");
+  const implicitOAuthUrl = wx.oauth.generateOAuthUrl("http://beautytest.yjyyun.com/implicit-oauth", "snsapi_base");
   res.render('index', {
     oauthUrl: wx.oauth.snsUserInfoUrl,
     implicitOAuth: implicitOAuthUrl,
@@ -121,7 +134,8 @@ app.get('/oauth-cache', function (req, res) {
 });
 
 app.get('/choose-card', function (req, res) {
-  wx.card.getCardSignature()
+  const qs = req.query;
+  wx.card.getCardSignature(qs.shopId, qs.cardType, qs.cardId)
     .then(sigInfo => {
       res.json(sigInfo);
     })
@@ -131,8 +145,30 @@ app.get('/choose-card', function (req, res) {
   ;
 });
 
+app.get('/get-card-ext', function (req, res) {
+  const qs = req.query;
+  wx.card.getCardExt(qs.cardId, '', '', '', 'wechat-jssdk')
+    .then(sigInfo => {
+      res.json({data: sigInfo});
+    })
+    .catch(reason => {
+      res.json(reason);
+    })
+  ;
+});
+
+app.get('/decode-card-code', function (req, res) {
+  wx.card.decodeCardCode(req.query.encryptCode)
+    .then(data => {
+      res.json(data);
+    })
+    .catch(data => {
+      res.json(data);
+    })
+});
+
 app.get('/client.js', function (req, res) {
-  res.sendFile(path.join(__dirname, '../dist/client.min.js'));
+  res.sendFile(path.join(__dirname, '../dist/client.js'));
 });
 
 const server = http.createServer(app);
