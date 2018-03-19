@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
+    "dev": "DEBUG=wechat* nodemon -w ./lib ./demo/index.js",
     "test": "_mocha test/**/*.js",
     "coverage": "istanbul cover _mocha -- -R spec test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
@@ -53,6 +54,7 @@
     "express-session": "^1.14.2",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
+    "nodemon": "^1.17.2",
     "swig": "^1.4.2",
     "webpack": "^2.2.1"
   }
