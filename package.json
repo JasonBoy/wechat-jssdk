@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
-    "dev": "DEBUG=wechat* nodemon -w ./lib ./demo/index.js",
+    "dev": "DEBUG=wechat* nodemon -w ./lib -w ./demo ./demo/index.js",
     "test": "_mocha test/**/*.js",
     "coverage": "istanbul cover _mocha -- -R spec test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",

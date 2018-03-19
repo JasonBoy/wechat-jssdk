@@ -16,6 +16,8 @@
   <p><a id="choose-card" href="#">ChooseCard 选择卡券并打开</a></p>
   <p><a id="open-card" href="#">OpenCard 打开卡券</a></p>
   <p><a id="add-card" href="#">AddCard 添加卡券</a></p>
+  <h5>=====Payment 支付=====</h5>
+  <p><a id="create-order" href="#">UnifiedOrder 创建订单</a></p>
   <script type="text/javascript">
     const config = {
       // "appId": "wxfc9c5237ebf480aa",
@@ -59,7 +61,9 @@
 
     const demoCardId = 'py5F1wWko7pRFaXBMGJD1vK6PdjE';
 
-    window.fetch(`/get-signature?url=${encodeURIComponent(location.href)}`)
+    window.fetch(`/get-signature?url=${encodeURIComponent(location.href)}`, {
+        credentials: "same-origin",
+      })
       .then(res => res.json())
       .then(data => {
         config.nonceStr = data.nonceStr;
@@ -71,7 +75,9 @@
 
     document.getElementById('choose-card').addEventListener('click', (e) => {
       e.preventDefault();
-      window.fetch(`/choose-card?cardId=${demoCardId}`)
+      window.fetch(`/choose-card?cardId=${demoCardId}`, {
+          credentials: "same-origin",
+        })
         .then(res => res.json())
         .then(data => {
           window.wechatObj.callWechatApi('chooseCard', Object.assign(data, {
@@ -106,7 +112,9 @@
 
     document.getElementById('add-card').addEventListener('click', (e) => {
       e.preventDefault();
-      window.fetch(`/get-card-ext?cardId=${demoCardId}`)
+      window.fetch(`/get-card-ext?cardId=${demoCardId}`, {
+          credentials: "same-origin",
+        })
         .then(res => res.json())
         .then(data => {
           window.wechatObj.callWechatApi('addCard', {
@@ -119,6 +127,18 @@
               console.log(typeof cardList, cardList);
             }
           })
+        });
+
+    }, false);
+
+    document.getElementById('create-order').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.fetch(`/create-order`, {
+          credentials: "same-origin",
+        })
+        .then(res => res.json())
+        .then(data => {
+
         });
 
     }, false);

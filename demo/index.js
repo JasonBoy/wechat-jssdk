@@ -11,6 +11,8 @@ const debug = require('debug')('wechat');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+const Order = require('./Order');
+
 const MongoStore = Wechat.MongoStore;
 const FileStore = Wechat.FileStore;
 const Card = Wechat.Card;
@@ -18,24 +20,27 @@ const Card = Wechat.Card;
 const pfxPath = path.join(process.cwd(), 'cert/apiclient_cert.p12');
 
 const wx = new Wechat({
-  // "wechatToken": "6mwdIm9p@Wg7$Oup",
-  // "appId": "wxfc9c5237ebf480aa",
-  // "appSecret": "2038576336804a90992b8dbe46cd5948",
+  // wechatToken: "6mwdIm9p@Wg7$Oup",
+  // appId: "wxfc9c5237ebf480aa",
+  // appSecret: "2038576336804a90992b8dbe46cd5948",
   //=====a service account test=====
-  "wechatToken": "1af9dVSfCr2NEspNu9FJthq68Hf6m6U4",
-  "appId": "wxee7f6cc5d88ceae6",
-  "appSecret": "8acf3d3ba8c3d6275e86edc3d3904265",
-  "wechatRedirectUrl": "http://beautytest.yjyyun.com/oauth",
+  wechatToken: "1af9dVSfCr2NEspNu9FJthq68Hf6m6U4",
+  appId: "wxee7f6cc5d88ceae6",
+  appSecret: "8acf3d3ba8c3d6275e86edc3d3904265",
+  wechatRedirectUrl: "http://beautytest.yjyyun.com/oauth",
   // store: new MongoStore({limit: 5}),
   store: new FileStore({interval: 1000 * 60 * 3}),
   card: true,
-  payment: false,
+  payment: true,
   merchantId: '1485613302',
   paymentSandBox: true,
   paymentKey: 'dRlrDsK8Pu1ZLnLP7Yr63KmZI62AJk3J',
+  paymentSandBoxKey: 'ab518e04106346a8e94dd4ffe067005c',
   paymentCertificate: fs.readFileSync(pfxPath),
   paymentNotifyUrl: "http://beautytest.yjyyun.com/api/wechat/payment/",
 });
+
+const order = new Order({payment: wx.payment});
 
 const app = express();
 swig.setDefaults({
@@ -90,9 +95,10 @@ app.get('/oauth', function (req, res) {
   // console.log('oauth sessionID: %s', key);
   wx.oauth.getUserInfo(req.query.code, key)
     .then(function(userProfile) {
-      console.log(userProfile);
+      console.log('userProfile:', userProfile);
       //set openid to session to use in following request
       req.session.openid = userProfile.openid;
+      console.log(req.session.openid);
       res.render("oauth", {
         wechatInfo: JSON.stringify(userProfile)
       });
@@ -100,10 +106,16 @@ app.get('/oauth', function (req, res) {
 });
 
 app.get('/implicit-oauth', function (req, res) {
+  const redirect = req.query.from;
   wx.oauth.getUserBaseInfo(req.query.code)
     .then(function (tokenInfo) {
       console.log('implicit oauth: ', tokenInfo);
       // console.log('implicit oauth: ', JSON.stringify(tokenInfo));
+      req.session.openid = tokenInfo.openid;
+      if(redirect) {
+        res.redirect(redirect);
+        return;
+      }
       res.render("oauth", {
         wechatInfo: JSON.stringify(tokenInfo, null, 2)
       });
@@ -169,6 +181,27 @@ app.get('/decode-card-code', function (req, res) {
 
 app.get('/client.js', function (req, res) {
   res.sendFile(path.join(__dirname, '../dist/client.js'));
+});
+
+app.get('/create-order', function (req, res) {
+  const openid = req.session.openid;
+  console.log('req.session.openid:', openid);
+
+  // if(!openid) {
+  //   const implicitOAuthUrl = wx.oauth.generateOAuthUrl('http://beautytest.yjyyun.com/?from=' + encodeURIComponent('/'), "snsapi_base");
+  //   res.redirect(implicitOAuthUrl);
+  //   return;
+  // }
+
+  order.createOrder({
+      openid: req.session.openid,
+    })
+    .then(data => {
+      res.json(data);
+    })
+    .catch(err => {
+      res.json(err);
+    })
 });
 
 const server = http.createServer(app);
