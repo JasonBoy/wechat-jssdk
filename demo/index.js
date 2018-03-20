@@ -189,7 +189,7 @@ app.get('/create-order', function (req, res) {
   console.log('req.session.openid:', openid);
 
   order.createOrder({
-      openid: req.session.openid,
+      openid: req.session.openid || 'oy5F1wQTfhx4-V3L5TcUn5V9v2Lo',
       spbill_create_ip: '104.247.128.2', //req.ip,
     })
     .then(data => {

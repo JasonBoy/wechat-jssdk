@@ -18,6 +18,7 @@
   <p><a id="add-card" href="#">AddCard 添加卡券</a></p>
   <h5>=====Payment 支付=====</h5>
   <p><a id="create-order" href="#">UnifiedOrder 创建订单</a></p>
+  <p><a id="pay-now" href="#">PayNow 微信支付</a></p>
   <p><a id="query-order" href="#">QueryOrder 查询上面创建的订单</a></p>
   <script type="text/javascript">
     const config = {
@@ -132,6 +133,8 @@
 
     }, false);
 
+    let wxData = {};
+
     document.getElementById('create-order').addEventListener('click', (e) => {
       e.preventDefault();
       window.fetch(`/create-order`, {
@@ -139,12 +142,13 @@
         })
         .then(res => res.json())
         .then(data => {
+          wxData = data;
           alert(JSON.stringify(data));
-          window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
-            success: res => {
-              console.log(res);
-            }
-          }, data));
+          // window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
+          //   success: res => {
+          //     console.log(res);
+          //   }
+          // }, data));
         });
 
     }, false);
@@ -158,6 +162,16 @@
           console.log(data);
           alert(JSON.stringify(data));
         });
+
+    }, false);
+
+    document.getElementById('pay-now').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
+        success: res => {
+          console.log(res);
+        }
+      }, wxData));
 
     }, false);
 
