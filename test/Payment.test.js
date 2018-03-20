@@ -18,7 +18,8 @@ describe('Payment', function () {
     paymentSandBox: true,
     paymentNotifyUrl: customNotifyUrl,
     // paymentKey: 'test_key',
-    paymentKey: '192006250b4c09247ec02edce69f6a2d',
+    // paymentKey: '192006250b4c09247ec02edce69f6a2d',
+    paymentKey: 'c790c109f688b01807617821ed9f1193',
     paymentCertificate: 'test_certificate',
     merchantId: 'test_merchant_id',
   }));
@@ -65,17 +66,22 @@ describe('Payment', function () {
   });
 
   describe('#generateGeneralPaymentSignature()', function () {
-    it('should generate paySign related info', function () {
+    it('should generate paySign related info', function (done) {
       //paymentKey: '192006250b4c09247ec02edce69f6a2d',
-      const data = payment.generateGeneralPaymentSignature({
-        appId: 'wx2421b1c4370ec43b',
-        timeStamp: '1395712654',
-        nonceStr: 'e61463f8efa94090b1f366cccfbbb444',
-        package: 'prepay_id=u802345jgfjsdfgsdg888',
+      payment.generateGeneralPaymentSignature({
+        appId: 'wxee7f6cc5d88ceae6',
+        timeStamp: '1521537075',
+        nonceStr: '5qrp1lghxau',
+        package: 'prepay_id=wx20180320171114464556',
         signType: 'MD5',
-      });
-      // console.log(data);
-      data.should.have.property('paySign').equal('0784A14C2CD35747364F62512E724FD8');
+      }, true)
+        .then(data => {
+          console.log(data);
+          data.should.have.property('paySign').equal('AA044AE801114117CD5008F586A0F32F');
+          done();
+        })
+      ;
+
     });
   });
 

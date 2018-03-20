@@ -49,6 +49,7 @@ swig.setDefaults({
 
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
+app.enable('trust proxy');
 app.set('views', path.join(__dirname));
 
 app.use(cookieParser());
@@ -187,15 +188,24 @@ app.get('/create-order', function (req, res) {
   const openid = req.session.openid;
   console.log('req.session.openid:', openid);
 
-  // if(!openid) {
-  //   const implicitOAuthUrl = wx.oauth.generateOAuthUrl('http://beautytest.yjyyun.com/?from=' + encodeURIComponent('/'), "snsapi_base");
-  //   res.redirect(implicitOAuthUrl);
-  //   return;
-  // }
-
   order.createOrder({
       openid: req.session.openid,
+      spbill_create_ip: '104.247.128.2', //req.ip,
     })
+    .then(data => {
+      console.log(data.orderId);
+      req.session.orderId = data.orderId;
+      res.json(data.chooseWXPay);
+    })
+    .catch(err => {
+      res.json(err);
+    })
+});
+
+app.get('/query-order', function (req, res) {
+  const orderId = req.session.orderId;
+
+  order.queryOrder(orderId)
     .then(data => {
       res.json(data);
     })

@@ -18,6 +18,7 @@
   <p><a id="add-card" href="#">AddCard 添加卡券</a></p>
   <h5>=====Payment 支付=====</h5>
   <p><a id="create-order" href="#">UnifiedOrder 创建订单</a></p>
+  <p><a id="query-order" href="#">QueryOrder 查询上面创建的订单</a></p>
   <script type="text/javascript">
     const config = {
       // "appId": "wxfc9c5237ebf480aa",
@@ -69,7 +70,7 @@
         config.nonceStr = data.nonceStr;
         config.signature = data.signature;
         config.timestamp = data.timestamp;
-        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline', 'chooseCard', 'addCard', 'openCard'];
+        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline', 'chooseCard', 'addCard', 'openCard', 'chooseWXPay'];
         window.wechatObj = new window.WechatJSSDK(config);
       });
 
@@ -138,7 +139,24 @@
         })
         .then(res => res.json())
         .then(data => {
+          alert(JSON.stringify(data));
+          window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
+            success: res => {
+              console.log(res);
+            }
+          }, data));
+        });
 
+    }, false);
+    document.getElementById('query-order').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.fetch(`/query-order`, {
+          credentials: "same-origin",
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          alert(JSON.stringify(data));
         });
 
     }, false);
