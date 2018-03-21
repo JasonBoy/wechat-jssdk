@@ -9,16 +9,18 @@ const Wechat = require('../lib');
 
 const util = require('../lib/utils');
 
-const wx = new Wechat(Object.assign({}, config, {
-  card: true,
-}));
+const wx = new Wechat(
+  Object.assign({}, config, {
+    card: true,
+  })
+);
 
-describe('Card', function () {
-
-  describe('#getCardSignature()', function () {
+describe('Card', function() {
+  describe('#getCardSignature()', function() {
     this.timeout(20000);
-    it('should get cardSign', function (done) {
-      wx.card.getCardSignature('myShopId', 'myCardType', 'myCardId')
+    it('should get cardSign', function(done) {
+      wx.card
+        .getCardSignature('myShopId', 'myCardType', 'myCardId')
         .then(sigInfo => {
           // console.log(sigInfo);
           sigInfo.should.have.property('cardSign');
@@ -30,16 +32,16 @@ describe('Card', function () {
         })
         .then(() => done());
     });
-
   });
 
-  describe('#getApiTicket()', function () {
+  describe('#getApiTicket()', function() {
     setTimeout(() => {
-      it('should get api ticket', function (done) {
+      it('should get api ticket', function(done) {
         const store = wx.card.store;
         store.store.card = {};
         store.store.globalToken.modifyDate = new Date(0);
-        wx.card.getApiTicket()
+        wx.card
+          .getApiTicket()
           .then(ticket => {
             ticket.should.have.property('ticket');
             done();
@@ -49,10 +51,17 @@ describe('Card', function () {
     }, 1000);
   });
 
-  describe('#getCardExt()', function () {
+  describe('#getCardExt()', function() {
     this.timeout(20000);
-    it('should get cardExt', function (done) {
-      wx.card.getCardExt('myCardId', 'myCode', 'myOpenId', util.timestamp(), util.nonceStr())
+    it('should get cardExt', function(done) {
+      wx.card
+        .getCardExt(
+          'myCardId',
+          'myCode',
+          'myOpenId',
+          util.timestamp(),
+          util.nonceStr()
+        )
         .then(cardExt => {
           // console.log(cardExt);
           const extObj = JSON.parse(cardExt);
@@ -66,5 +75,4 @@ describe('Card', function () {
         .then(() => done());
     });
   });
-
 });

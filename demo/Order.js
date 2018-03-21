@@ -11,8 +11,8 @@ const db = low(adapter);
 
 const utils = require('../lib/utils');
 
-db.defaults(
-  {
+db
+  .defaults({
     //our own system orders
     orders: [],
     //wechat unified orders
@@ -24,21 +24,20 @@ db.defaults(
     //save wechat payment notify result
     wechatNotifyOrders: [],
     wechatNotifyRefunds: [],
-  }
-  ).write();
+  })
+  .write();
 
 /**
  * A demo implementation for order & payment
  */
 class Order {
-
   constructor(options) {
     this.payment = options.payment;
   }
 
   createOrder(info) {
-    const now = new Date;
-    const now2 = new Date;
+    const now = new Date();
+    const now2 = new Date();
     const hour = now2.getHours();
     const nowPlusTwoHours = now2.setHours(hour + 2);
     const temp = utils.nonceStr();
@@ -46,18 +45,18 @@ class Order {
       device_info: 'wechat_test_web',
       body: `ORDER_测试_${temp}`,
       detail: JSON.stringify({
-        "details_id": temp,
-        "goods_detail": [
+        details_id: temp,
+        goods_detail: [
           {
-            "goods_id": "iphone6s_16G",
-            "wxpay_goods_id": "1001",
-            "goods_name": "iPhone6s 16G",
-            "quantity": 1,
-            "price": 528800,
-            "goods_category": "123456",
-            "body": "苹果手机"
+            goods_id: 'iphone6s_16G',
+            wxpay_goods_id: '1001',
+            goods_name: 'iPhone6s 16G',
+            quantity: 1,
+            price: 528800,
+            goods_category: '123456',
+            body: '苹果手机',
           },
-        ]
+        ],
       }),
       attach: '上海分店',
       total_fee: '101',
@@ -70,28 +69,37 @@ class Order {
       // limit_pay: '',
       // openid: info.openId,
       scene_info: JSON.stringify({
-        "id": "SH001",
-        "name": "上大餐厅",
-        "area_code": "200100",
-        "address": "广中路引力楼1楼"
-      })
+        id: 'SH001',
+        name: '上大餐厅',
+        area_code: '200100',
+        address: '广中路引力楼1楼',
+      }),
     };
     Object.assign(order, info);
-    return this.payment.unifiedOrder(order)
+    return this.payment
+      .unifiedOrder(order)
       .then(result => {
-        const requestData = Object.assign({id: result.requestData.out_trade_no}, result.requestData);
-        const responseData = Object.assign({id: result.responseData.out_trade_no}, result.responseData);
-        const hasOrder = db.get('orders')
-          .find({id: requestData.id})
+        const requestData = Object.assign(
+          { id: result.requestData.out_trade_no },
+          result.requestData
+        );
+        const responseData = Object.assign(
+          { id: result.responseData.out_trade_no },
+          result.responseData
+        );
+        const hasOrder = db
+          .get('orders')
+          .find({ id: requestData.id })
           .has('id')
           .value();
-        if(hasOrder) {
-
+        if (hasOrder) {
         } else {
-          db.get('orders')
+          db
+            .get('orders')
             .push(requestData)
             .write();
-          db.get('unifiedOrders')
+          db
+            .get('unifiedOrders')
             .push(responseData)
             .write();
           debug('add new order & unified order finished!');
@@ -99,7 +107,8 @@ class Order {
         return Promise.resolve(responseData);
       })
       .then(data => {
-        return this.payment.generateChooseWXPayInfo(data.prepay_id)
+        return this.payment
+          .generateChooseWXPayInfo(data.prepay_id)
           .then(chooseWXPayData => {
             console.log('parsed data:', data);
             console.log('WXpaydata data:', chooseWXPayData);
@@ -107,62 +116,78 @@ class Order {
               orderId: data.out_trade_no,
               chooseWXPay: chooseWXPayData,
             });
-          })
-      })
+          });
+      });
   }
 
-  queryOrder (tradeNo) {
-    return this.payment.queryOrder({
-      out_trade_no: tradeNo
-    })
+  queryOrder(tradeNo) {
+    return this.payment
+      .queryOrder({
+        out_trade_no: tradeNo,
+      })
       .then(result => {
-        const temp = Object.assign({id: result.responseData.out_trade_no}, result.responseData);
-        db.get('wechatOrders')
+        const temp = Object.assign(
+          { id: result.responseData.out_trade_no },
+          result.responseData
+        );
+        db
+          .get('wechatOrders')
           .push(temp)
           .write();
         debug('write wechat query order finished!');
         return Promise.resolve(result);
-      })
+      });
   }
 
   updateNotifyResult(data) {
-    const order = db.get('wechatNotifiesOrders')
-      .find({id: data.out_trade_no})
+    const order = db
+      .get('wechatNotifiesOrders')
+      .find({ id: data.out_trade_no })
       .value();
-    if(!isEmpty(order)) {
-      if(order.processed) return;
+    if (!isEmpty(order)) {
+      if (order.processed) return;
       //update existing order info
-      db.get('wechatNotifiesOrders')
-        .find({id: data.out_trade_no})
+      db
+        .get('wechatNotifiesOrders')
+        .find({ id: data.out_trade_no })
         .assign(data)
         .write();
       return;
     }
-    const temp = Object.assign({id: data.out_trade_no, processed: true}, data);
-    db.get('wechatNotifiesOrders')
+    const temp = Object.assign(
+      { id: data.out_trade_no, processed: true },
+      data
+    );
+    db
+      .get('wechatNotifiesOrders')
       .push(temp)
       .write();
   }
 
   updateNotifyRefundResult(data) {
-    const order = db.get('wechatNotifyRefunds')
-      .find({id: data.out_trade_no})
+    const order = db
+      .get('wechatNotifyRefunds')
+      .find({ id: data.out_trade_no })
       .value();
-    if(!isEmpty(order)) {
-      if(order.processed) return;
+    if (!isEmpty(order)) {
+      if (order.processed) return;
       //update existing order info
-      db.get('wechatNotifyRefunds')
-        .find({id: data.out_trade_no})
+      db
+        .get('wechatNotifyRefunds')
+        .find({ id: data.out_trade_no })
         .assign(data)
         .write();
       return;
     }
-    const temp = Object.assign({id: data.out_trade_no, processed: true}, data);
-    db.get('wechatNotifyRefunds')
+    const temp = Object.assign(
+      { id: data.out_trade_no, processed: true },
+      data
+    );
+    db
+      .get('wechatNotifyRefunds')
       .push(temp)
       .write();
   }
-
 }
 
 module.exports = Order;
