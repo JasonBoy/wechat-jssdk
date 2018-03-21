@@ -44,3 +44,4 @@ Gemfile.lock
 _site/
 package-lock.json
 cert
+db_*.json

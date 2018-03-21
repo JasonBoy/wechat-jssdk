@@ -25,10 +25,11 @@ describe('XML', function () {
     it('should build the xml data with xml root', function (done) {
       const objData = {
         appid: 'appid',
-        sign: 'xyz',
+        sign: '{ "goods_detail":[ { "goods_id":"iphone6s_16G", "wxpay_goods_id":"1001", "goods_name":"iPhone6s 16G", "quantity":1, "price":528800, "goods_category":"123456", "body":"苹果手机" }, { "goods_id":"iphone6s_32G", "wxpay_goods_id":"1002", "goods_name":"iPhone6s 32G", "quantity":1, "price":608800, "goods_category":"123789", "body":"苹果手机" } ] }',
       };
       utils.buildXML(objData)
         .then(data => {
+          console.log(data);
           return utils.parseXML(data);
         })
         .then(result => {

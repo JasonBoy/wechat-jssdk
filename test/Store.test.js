@@ -17,12 +17,8 @@ const fileStore = new FileStore({
 const mongoStore = new MongoStore();
 
 describe('FileStore', function () {
-  it('should flush the store', function (done) {
-    fileStore.on(Store.StoreEvents.STORE_FLUSHED, function (result) {
-      result.should.be.equal(true);
-      done();
-    });
-    fileStore.emit(Store.StoreEvents.FLUSH_STORE);
+  it('should flush the store', function () {
+    fileStore.flush();
   });
 
   it('should failed to flush file store', function (done) {
@@ -31,15 +27,9 @@ describe('FileStore', function () {
     done();
   });
 
-  it('should destroy the store', function (done) {
-    fileStore.on(Store.StoreEvents.DESTROYED, function (result) {
-      result.should.be.equal(true);
-      should.not.exist(fileStore.store);
-      done();
-    });
-    fileStore.emit(Store.StoreEvents.DESTROY);
+  it('should destroy the store', function () {
+    fileStore.destroy();
   });
-
 
 });
 
@@ -47,20 +37,11 @@ mongoStore.on('initialized', function () {
   describe('MongoStore', function () {
     this.timeout(20000);
     it('should flush the store', function (done) {
-      mongoStore.on(Store.StoreEvents.STORE_FLUSHED, function (result) {
-        result.should.be.equal(true);
-        done();
-      });
-      mongoStore.emit(Store.StoreEvents.FLUSH_STORE);
+      mongoStore.flush().then(() => done());
     });
 
-    it('should destroy the store', function (done) {
-      mongoStore.on(Store.StoreEvents.DESTROYED, function (result) {
-        result.should.be.equal(true);
-        should.not.exist(mongoStore.store);
-        done();
-      });
-      mongoStore.emit(Store.StoreEvents.DESTROY);
+    it('should destroy the store', function () {
+      mongoStore.destroy();
     });
 
   });
@@ -262,11 +243,7 @@ mongoStore2.on('initialized', function () {
         oauthKeys.forEach((key) => {
           store.oauth[key].updated = true;
         });
-        mongoStore2.on(Store.StoreEvents.STORE_FLUSHED, function (result) {
-          result.should.be.equal(true);
-          done();
-        });
-        mongoStore2.emit(Store.StoreEvents.FLUSH_STORE);
+        mongoStore2.flush().then(() => done());
       }, 4000);
     });
 

@@ -259,15 +259,4 @@ describe('OAuth', function () {
     });
   });
 
-  describe('OAuth.store#flush()', function () {
-    it('should flush OAuth with mongoStore', function (done) {
-      const mongoStore = wxMongo.oauth.store;
-      mongoStore.on(Store.StoreEvents.STORE_FLUSHED, function (result) {
-        result.should.be.equal(true);
-        done();
-      });
-      mongoStore.emit(Store.StoreEvents.FLUSH_STORE);
-    });
-  });
-
 });

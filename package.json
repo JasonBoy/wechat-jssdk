@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
+    "dev": "DEBUG=wechat* nodemon -w ./lib -w ./demo ./demo/index.js",
     "test": "_mocha test/**/*.js",
     "coverage": "istanbul cover _mocha -- -R spec test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
@@ -33,6 +34,7 @@
   "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
   "dependencies": {
     "bluebird": "^3.4.6",
+    "crypto-js": "^3.1.9-1",
     "dateformat": "^2.0.0",
     "debug": "^2.6.8",
     "lodash.isempty": "^4.4.0",
@@ -45,14 +47,17 @@
     "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
-    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-env": "^1.6.1",
+    "body-parser": "^1.18.2",
     "chai": "^3.5.0",
     "cookie-parser": "^1.4.3",
     "coveralls": "^2.11.15",
     "express": "^4.14.0",
     "express-session": "^1.14.2",
     "istanbul": "^0.4.5",
+    "lowdb": "^1.0.0",
     "mocha": "^3.2.0",
+    "nodemon": "^1.17.2",
     "swig": "^1.4.2",
     "webpack": "^2.2.1"
   }

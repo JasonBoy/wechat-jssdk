@@ -4,32 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1.0, user-scalable=no">
   <title>Wechat JSSDK DEMO</title>
-  <!--<script src="//res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>-->
-  <script src="//cdn.bootcss.com/zepto/1.1.6/zepto.min.js"></script>
   <script src="/client.js"></script>
 </head>
 <body>
-  <p>点击右上角分享!</p>
-  <p><a href="{{ oauthUrl }}">OAuth</a></p>
-  <p><a href="{{ implicitOAuth }}">Implicit OAuth</a></p>
-  <p><a href="/oauth-cache">OAuth without new code</a></p>
-  <p><a id="choose-card" href="#">ChooseCard</a></p>
-  <p><a id="open-card" href="#">OpenCard</a></p>
+  <h5>点击右上角分享!</h5>
+  <h5>=====OAuth 网页授权=====</h5>
+  <p><a id="oauth-1" href="{{ oauthUrl }}">OAuth 用户信息授权</a></p>
+  <p><a id="oauth-2" href="{{ implicitOAuth }}">Implicit OAuth 静默授权</a></p>
+  <p><a id="oauth-3" href="/oauth-cache">OAuth without new code 用缓存code直接拿用户信息</a></p>
+  <h5>=====CARD 卡券=====</h5>
+  <p><a id="choose-card" href="#">ChooseCard 选择卡券并打开</a></p>
+  <p><a id="open-card" href="#">OpenCard 打开卡券</a></p>
+  <p><a id="add-card" href="#">AddCard 添加卡券</a></p>
+  <h5>=====Payment 支付=====</h5>
+  <p><a id="create-order" href="#">UnifiedOrder 创建订单</a></p>
+  <p><a id="pay-now" href="#">PayNow 微信支付</a></p>
+  <p><a id="query-order" href="#">QueryOrder 查询上面创建的订单</a></p>
   <script type="text/javascript">
-    var config = {
-      "appId": "wxfc9c5237ebf480aa",
-      success: function(w) {
+    const config = {
+      // "appId": "wxfc9c5237ebf480aa",
+      "appId": "wxee7f6cc5d88ceae6",
+      success: function (w) {
         console.log('success');
 //        var w = this;
-        var img = 'http://pic1.ooopic.com/uploadfilepic/shiliang/2009-10-05/OOOPIC_00cyl_20091005e2c6eb1c889e342e.jpg';
+        const img = 'http://pic1.ooopic.com/uploadfilepic/shiliang/2009-10-05/OOOPIC_00cyl_20091005e2c6eb1c889e342e.jpg';
         //sugar method
         w.shareOnMoment({
           title: 'test title',
           type: 'link',
-          success: function() {
+          success: function () {
             console.log('share on moment success');
           },
-          cancel: function() {
+          cancel: function () {
             console.log('share on moment canceled');
           },
           imgUrl: img
@@ -40,58 +46,135 @@
           title: 'test title',
           type: 'link',
           desc: 'share description',
-          success: function() {
+          success: function () {
             console.log('share on chat success');
           },
-          cancel: function() {
+          cancel: function () {
             console.log('share on chat canceled');
           },
           imgUrl: img
         });
       },
-      error: function(err) {
+      error: function (err) {
         console.error(err)
       },
       debug: true
     };
-    $.ajax({
-      type: 'GET',
-      url: '/get-signature',
-      dataType: 'json',
-      data: {
-        url: location.href
-      },
-      success: function(data) {
+
+    const demoCardId = 'py5F1wWko7pRFaXBMGJD1vK6PdjE';
+
+    window.fetch(`/get-signature?url=${encodeURIComponent(location.href)}`, {
+        credentials: "same-origin",
+      })
+      .then(res => res.json())
+      .then(data => {
         config.nonceStr = data.nonceStr;
         config.signature = data.signature;
         config.timestamp = data.timestamp;
-        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline', 'chooseCard', 'addCard', 'openCard'];
+        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline', 'chooseCard', 'addCard', 'openCard', 'chooseWXPay'];
         window.wechatObj = new window.WechatJSSDK(config);
-      }
-    });
-    $('#choose-card').on('click', function(e) {
+      });
+
+    document.getElementById('choose-card').addEventListener('click', (e) => {
       e.preventDefault();
-      $.ajax({
-        type: 'GET',
-        url: '/choose-card',
-        success: function(data) {
+      window.fetch(`/choose-card?cardId=${demoCardId}`, {
+          credentials: "same-origin",
+        })
+        .then(res => res.json())
+        .then(data => {
           window.wechatObj.callWechatApi('chooseCard', Object.assign(data, {
-            success: function (res) {
+            success: res => {
               console.log(res.cardList);
+              const list = JSON.parse(res.cardList);
+              //open the selected card
+              window.fetch(`/decode-card-code?encryptCode=${list[0].encrypt_code}`)
+                .then(res => res.json())
+                .then(data => {
+                  window.wechatObj.callWechatApi('openCard', {
+                    cardList: [{
+                      cardId: demoCardId,
+                      code: data.code,
+                    }],
+                  })
+                });
             }
           }));
-        }
-      })
-    });
-    $('#open-card').on('click', function (e) {
+        });
+    }, false);
+
+    document.getElementById('open-card').addEventListener('click', (e) => {
       e.preventDefault();
       window.wechatObj.callWechatApi('openCard', {
         cardList: [{
-          cardId: 'pVI6xjmqRLg8y58MRpDQQangdmuY',
-          code: 'xxx',
+          cardId: demoCardId,
+          code: '739456048118',
         }],
       })
-    });
+    }, false);
+
+    document.getElementById('add-card').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.fetch(`/get-card-ext?cardId=${demoCardId}`, {
+          credentials: "same-origin",
+        })
+        .then(res => res.json())
+        .then(data => {
+          window.wechatObj.callWechatApi('addCard', {
+            cardList: [{
+              cardId: demoCardId,
+              cardExt: data.data,
+            }],
+            success: function (res) {
+              const cardList = res.cardList; // 添加的卡券列表信息
+              console.log(typeof cardList, cardList);
+            }
+          })
+        });
+
+    }, false);
+
+    let wxData = {};
+
+    document.getElementById('create-order').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.fetch(`/create-order`, {
+          credentials: "same-origin",
+        })
+        .then(res => res.json())
+        .then(data => {
+          wxData = data;
+          alert(JSON.stringify(data));
+          // window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
+          //   success: res => {
+          //     console.log(res);
+          //   }
+          // }, data));
+        });
+
+    }, false);
+    document.getElementById('query-order').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.fetch(`/query-order`, {
+          credentials: "same-origin",
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          alert(JSON.stringify(data));
+        });
+
+    }, false);
+
+    document.getElementById('pay-now').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
+        success: res => {
+          console.log(res);
+        }
+      }, wxData));
+
+    }, false);
+
   </script>
 </body>
 </html>
