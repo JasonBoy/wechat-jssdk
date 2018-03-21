@@ -10,6 +10,7 @@ const adapter = new FileSync(path.join(__dirname, '../db_demo.json'));
 const db = low(adapter);
 
 const utils = require('../lib/utils');
+const Payment = require('../lib/Payment');
 
 db
   .defaults({
@@ -64,6 +65,7 @@ class Order {
       time_start: utils.simpleDate(now),
       time_expire: utils.simpleDate(nowPlusTwoHours),
       goods_tag: 'wx_test',
+      trade_type: Payment.PAYMENT_TYPE.JSAPI,
       // notify_url: 'http://beautytest.yjyyun.com/payment/',
       // product_id: '',
       // limit_pay: '',

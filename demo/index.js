@@ -18,7 +18,7 @@ const MongoStore = Wechat.MongoStore;
 const FileStore = Wechat.FileStore;
 const Card = Wechat.Card;
 
-const pfxPath = path.join(process.cwd(), 'cert/apiclient_cert.p12');
+// const pfxPath = path.join(process.cwd(), 'cert/apiclient_cert.p12');
 // const certPath = path.join(process.cwd(), 'cert/apiclient_cert.pem');
 // const keyPath = path.join(process.cwd(), 'cert/apiclient_key.pem');
 
