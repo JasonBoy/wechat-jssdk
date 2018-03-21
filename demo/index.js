@@ -23,26 +23,26 @@ const pfxPath = path.join(process.cwd(), 'cert/apiclient_cert.p12');
 // const keyPath = path.join(process.cwd(), 'cert/apiclient_key.pem');
 
 const wx = new Wechat({
-  // wechatToken: "6mwdIm9p@Wg7$Oup",
-  // appId: "wxfc9c5237ebf480aa",
-  // appSecret: "2038576336804a90992b8dbe46cd5948",
+  wechatToken: "6mwdIm9p@Wg7$Oup",
+  appId: "wxfc9c5237ebf480aa",
+  appSecret: "2038576336804a90992b8dbe46cd5948",
   //=====a service account test=====
-  wechatToken: "1af9dVSfCr2NEspNu9FJthq68Hf6m6U4",
-  appId: "wxee7f6cc5d88ceae6",
-  appSecret: "8acf3d3ba8c3d6275e86edc3d3904265",
-  wechatRedirectUrl: "http://beautytest.yjyyun.com/oauth",
-  // store: new MongoStore({limit: 5}),
-  store: new FileStore({interval: 1000 * 60 * 3}),
-  card: true,
-  payment: true,
-  merchantId: '1485613302',
-  paymentSandBox: true,
-  paymentKey: 'dRlrDsK8Pu1ZLnLP7Yr63KmZI62AJk3J',
-  paymentSandBoxKey: 'ab518e04106346a8e94dd4ffe067005c',
-  paymentCertificatePfx: fs.readFileSync(pfxPath),
-  // paymentCertificateCert: fs.readFileSync(certPath),
-  // paymentCertificateKey: fs.readFileSync(keyPath),
-  paymentNotifyUrl: "http://beautytest.yjyyun.com/api/wechat/payment/",
+  // wechatToken: "",
+  // appId: "",
+  // appSecret: "",
+  // wechatRedirectUrl: "",
+  // // store: new MongoStore({limit: 5}),
+  // store: new FileStore({interval: 1000 * 60 * 3}),
+  // card: true,
+  // payment: true,
+  // merchantId: '',
+  // paymentSandBox: true,
+  // paymentKey: '', //API SIGN KEY
+  // paymentSandBoxKey: '',
+  // paymentCertificatePfx: fs.readFileSync(pfxPath),
+  // // paymentCertificateCert: fs.readFileSync(certPath),
+  // // paymentCertificateKey: fs.readFileSync(keyPath),
+  // paymentNotifyUrl: "",
 });
 
 const order = new Order({payment: wx.payment});
