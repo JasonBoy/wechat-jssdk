@@ -266,7 +266,7 @@ describe('OAuth', function () {
         result.should.be.equal(true);
         done();
       });
-      mongoStore.emit(Store.StoreEvents.FLUSH_STORE);
+      mongoStore.emit(Store.StoreEvents.FLUSH_STORE, true);
     });
   });
 

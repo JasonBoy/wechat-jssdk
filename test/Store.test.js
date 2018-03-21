@@ -22,7 +22,7 @@ describe('FileStore', function () {
       result.should.be.equal(true);
       done();
     });
-    fileStore.emit(Store.StoreEvents.FLUSH_STORE);
+    fileStore.emit(Store.StoreEvents.FLUSH_STORE, true);
   });
 
   it('should failed to flush file store', function (done) {
@@ -37,7 +37,7 @@ describe('FileStore', function () {
       should.not.exist(fileStore.store);
       done();
     });
-    fileStore.emit(Store.StoreEvents.DESTROY);
+    fileStore.emit(Store.StoreEvents.DESTROY, true);
   });
 
 
@@ -51,7 +51,7 @@ mongoStore.on('initialized', function () {
         result.should.be.equal(true);
         done();
       });
-      mongoStore.emit(Store.StoreEvents.FLUSH_STORE);
+      mongoStore.emit(Store.StoreEvents.FLUSH_STORE, true);
     });
 
     it('should destroy the store', function (done) {
@@ -60,7 +60,7 @@ mongoStore.on('initialized', function () {
         should.not.exist(mongoStore.store);
         done();
       });
-      mongoStore.emit(Store.StoreEvents.DESTROY);
+      mongoStore.emit(Store.StoreEvents.DESTROY, true);
     });
 
   });
@@ -266,7 +266,7 @@ mongoStore2.on('initialized', function () {
           result.should.be.equal(true);
           done();
         });
-        mongoStore2.emit(Store.StoreEvents.FLUSH_STORE);
+        mongoStore2.emit(Store.StoreEvents.FLUSH_STORE, true);
       }, 4000);
     });
 
