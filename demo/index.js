@@ -7,6 +7,7 @@ const Wechat = require('../lib');
 const path = require("path");
 const fs = require("fs");
 const debug = require('debug')('wechat');
+const bodyParser = require('body-parser');
 
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -18,6 +19,8 @@ const FileStore = Wechat.FileStore;
 const Card = Wechat.Card;
 
 const pfxPath = path.join(process.cwd(), 'cert/apiclient_cert.p12');
+// const certPath = path.join(process.cwd(), 'cert/apiclient_cert.pem');
+// const keyPath = path.join(process.cwd(), 'cert/apiclient_key.pem');
 
 const wx = new Wechat({
   // wechatToken: "6mwdIm9p@Wg7$Oup",
@@ -36,7 +39,9 @@ const wx = new Wechat({
   paymentSandBox: true,
   paymentKey: 'dRlrDsK8Pu1ZLnLP7Yr63KmZI62AJk3J',
   paymentSandBoxKey: 'ab518e04106346a8e94dd4ffe067005c',
-  paymentCertificate: fs.readFileSync(pfxPath),
+  paymentCertificatePfx: fs.readFileSync(pfxPath),
+  // paymentCertificateCert: fs.readFileSync(certPath),
+  // paymentCertificateKey: fs.readFileSync(keyPath),
   paymentNotifyUrl: "http://beautytest.yjyyun.com/api/wechat/payment/",
 });
 
@@ -54,7 +59,6 @@ app.set('views', path.join(__dirname));
 
 app.use(cookieParser());
 app.use(session({name: "sid", secret: 'wechat-app', saveUninitialized: true, resave: true}));
-
 
 app.get('/', function (req, res) {
   //also you can generate one at runtime:
@@ -212,6 +216,55 @@ app.get('/query-order', function (req, res) {
     .catch(err => {
       res.json(err);
     })
+});
+
+//demo: unified order pay result notify_url goes here
+app.post('/pay-result-notify', bodyParser.text(), function (req, res) {
+  wx.payment.parseNotifyData(req.body)
+    .then(data => {
+      const sign = data.sign;
+      data.sign = undefined;
+      const genSignData = wx.payment.generateSignature(data, data.sign_type);
+      if(sign === genSignData.sign) {
+        order.updateNotifyResult(data);
+        //sign check and send back
+        wx.payment.replyData(true)
+          .then(ret => {
+            res.send(ret);
+          });
+        return;
+      }
+      return Promise.reject(new Error('notify sign not matched!'));
+    })
+    .catch(err => {
+      console.error(err);
+      wx.payment.replyData(false)
+        .then(ret => {
+          res.send(ret);
+        })
+    })
+});
+//process refund notify result
+app.post('/refund-result-notify', bodyParser.text(), function (req, res) {
+  wx.payment.decryptRefundNotifyResult(req.body)
+    .then(result => {
+      const parsedXMLData = result.parsedXMLData;
+      const decryptedReqInfoData = result.decryptedData;
+      order.updateNotifyRefundResult(Object.assign(parsedXMLData, decryptedReqInfoData));
+
+      wx.payment.replyData(true)
+        .then(ret => {
+          res.send(ret);
+        });
+    })
+    .catch(err => {
+      console.error(err);
+      wx.payment.replyData(false)
+        .then(ret => {
+          res.send(ret);
+        });
+    })
+  ;
 });
 
 const server = http.createServer(app);

@@ -34,6 +34,7 @@
   "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
   "dependencies": {
     "bluebird": "^3.4.6",
+    "crypto-js": "^3.1.9-1",
     "dateformat": "^2.0.0",
     "debug": "^2.6.8",
     "lodash.isempty": "^4.4.0",
@@ -47,6 +48,7 @@
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
     "babel-preset-env": "^1.6.1",
+    "body-parser": "^1.18.2",
     "chai": "^3.5.0",
     "cookie-parser": "^1.4.3",
     "coveralls": "^2.11.15",

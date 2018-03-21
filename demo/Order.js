@@ -4,6 +4,7 @@ const debug = require('debug')('wechat-Order');
 const path = require('path');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const isEmpty = require('lodash.isempty');
 
 const adapter = new FileSync(path.join(__dirname, '../db_demo.json'));
 const db = low(adapter);
@@ -18,6 +19,11 @@ db.defaults(
     unifiedOrders: [],
     //wechat notified order states
     wechatOrders: [],
+    //refund
+    refundOrders: [],
+    //save wechat payment notify result
+    wechatNotifyOrders: [],
+    wechatNotifyRefunds: [],
   }
   ).write();
 
@@ -93,7 +99,7 @@ class Order {
         return Promise.resolve(responseData);
       })
       .then(data => {
-        return this.payment.generatePaySign(data.prepay_id)
+        return this.payment.generateChooseWXPayInfo(data.prepay_id)
           .then(chooseWXPayData => {
             console.log('parsed data:', data);
             console.log('WXpaydata data:', chooseWXPayData);
@@ -117,6 +123,44 @@ class Order {
         debug('write wechat query order finished!');
         return Promise.resolve(result);
       })
+  }
+
+  updateNotifyResult(data) {
+    const order = db.get('wechatNotifiesOrders')
+      .find({id: data.out_trade_no})
+      .value();
+    if(!isEmpty(order)) {
+      if(order.processed) return;
+      //update existing order info
+      db.get('wechatNotifiesOrders')
+        .find({id: data.out_trade_no})
+        .assign(data)
+        .write();
+      return;
+    }
+    const temp = Object.assign({id: data.out_trade_no, processed: true}, data);
+    db.get('wechatNotifiesOrders')
+      .push(temp)
+      .write();
+  }
+
+  updateNotifyRefundResult(data) {
+    const order = db.get('wechatNotifyRefunds')
+      .find({id: data.out_trade_no})
+      .value();
+    if(!isEmpty(order)) {
+      if(order.processed) return;
+      //update existing order info
+      db.get('wechatNotifyRefunds')
+        .find({id: data.out_trade_no})
+        .assign(data)
+        .write();
+      return;
+    }
+    const temp = Object.assign({id: data.out_trade_no, processed: true}, data);
+    db.get('wechatNotifyRefunds')
+      .push(temp)
+      .write();
   }
 
 }
