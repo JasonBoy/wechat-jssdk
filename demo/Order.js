@@ -28,6 +28,41 @@ db
   })
   .write();
 
+const defaultInfo = {
+  device_info: 'wechat_test_web',
+  body: `ORDER_测试`,
+  detail: JSON.stringify({
+    goods_detail: [
+      {
+        goods_id: 'iphone6s_16G',
+        wxpay_goods_id: '1001',
+        goods_name: 'iPhone6s 16G',
+        quantity: 1,
+        price: 528800,
+        goods_category: '123456',
+        body: '苹果手机',
+      },
+    ],
+  }),
+  attach: '上海分店',
+  total_fee: '101',
+  spbill_create_ip: '127.0.0.1',
+  // time_start: utils.simpleDate(now),
+  // time_expire: utils.simpleDate(nowPlusTwoHours),
+  // goods_tag: 'wx_test',
+  trade_type: Payment.PAYMENT_TYPE.JSAPI,
+  // notify_url: 'http://beautytest.yjyyun.com/payment/',
+  // product_id: '',
+  // limit_pay: '',
+  // openid: info.openId,
+  scene_info: JSON.stringify({
+    id: 'SH001',
+    name: '上大餐厅',
+    area_code: '200100',
+    address: '广中路引力楼1楼',
+  }),
+};
+
 /**
  * A demo implementation for order & payment
  */
@@ -36,48 +71,96 @@ class Order {
     this.payment = options.payment;
   }
 
-  createOrder(info) {
+  createOrderCase1(info) {
     const now = new Date();
-    const now2 = new Date();
-    const hour = now2.getHours();
-    const nowPlusTwoHours = now2.setHours(hour + 2);
-    const temp = utils.nonceStr();
-    const order = {
-      device_info: 'wechat_test_web',
-      body: `ORDER_测试_${temp}`,
-      detail: JSON.stringify({
-        details_id: temp,
-        goods_detail: [
-          {
-            goods_id: 'iphone6s_16G',
-            wxpay_goods_id: '1001',
-            goods_name: 'iPhone6s 16G',
-            quantity: 1,
-            price: 528800,
-            goods_category: '123456',
-            body: '苹果手机',
-          },
-        ],
-      }),
-      attach: '上海分店',
-      total_fee: '101',
-      spbill_create_ip: '127.0.0.1',
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_1',
       time_start: utils.simpleDate(now),
-      time_expire: utils.simpleDate(nowPlusTwoHours),
+      total_fee: '101',
+      // goods_tag: 'wx_test',
+    }, info);
+    return this.createOrder(order);
+  }
+
+  createOrderCase2(info) {
+    const now = new Date();
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_2',
+      time_start: utils.simpleDate(now),
+      total_fee: '102',
       goods_tag: 'wx_test',
-      trade_type: Payment.PAYMENT_TYPE.JSAPI,
-      // notify_url: 'http://beautytest.yjyyun.com/payment/',
-      // product_id: '',
-      // limit_pay: '',
-      // openid: info.openId,
-      scene_info: JSON.stringify({
-        id: 'SH001',
-        name: '上大餐厅',
-        area_code: '200100',
-        address: '广中路引力楼1楼',
-      }),
-    };
-    Object.assign(order, info);
+    }, info);
+    return this.createOrder(order);
+  }
+
+  createOrderCase3(info) {
+    const now = new Date();
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_3',
+      time_start: utils.simpleDate(now),
+      total_fee: '130',
+      goods_tag: 'wx_test',
+    }, info);
+    return this.createOrder(order);
+  }
+
+  createOrderCase4(info) {
+    const now = new Date();
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_4',
+      time_start: utils.simpleDate(now),
+      total_fee: '131',
+      goods_tag: 'wx_test',
+    }, info);
+    return this.createOrder(order);
+  }
+
+  createOrderCase5(info) {
+    const now = new Date();
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_5',
+      time_start: utils.simpleDate(now),
+      total_fee: '132',
+      goods_tag: 'wx_test',
+    }, info);
+    return this.createOrder(order);
+  }
+
+  createOrderCase6(info) {
+    const now = new Date();
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_6',
+      time_start: utils.simpleDate(now),
+      total_fee: '133',
+      goods_tag: 'wx_test',
+    }, info);
+    return this.createOrder(order);
+  }
+
+  createOrderCase7(info) {
+    const now = new Date();
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_7',
+      time_start: utils.simpleDate(now),
+      total_fee: '134',
+      goods_tag: 'wx_test',
+    }, info);
+    return this.createOrder(order);
+  }
+
+  //optional
+  createOrderCase8(info) {
+    const now = new Date();
+    const order = Object.assign({}, defaultInfo, {
+      body: defaultInfo.body + '_8',
+      time_start: utils.simpleDate(now),
+      total_fee: '179',
+      goods_tag: 'wx_test',
+    }, info);
+    return this.createOrder(order);
+  }
+
+  createOrder(order) {
     return this.payment
       .unifiedOrder(order)
       .then(result => {
@@ -141,11 +224,24 @@ class Order {
       });
   }
 
+  getOrderFromDB(tradeNo) {
+    return db.get('orders')
+      .find({id: tradeNo})
+      .value()
+      ;
+  }
+
   updateNotifyResult(data) {
     const order = db
       .get('wechatNotifiesOrders')
       .find({ id: data.out_trade_no })
       .value();
+    db
+      .get('orders')
+      .find({ id: data.out_trade_no })
+      .assign({processed: true})
+      .value();
+
     if (!isEmpty(order)) {
       if (order.processed) return;
       //update existing order info

@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const debug = require('debug')('wechat');
 const bodyParser = require('body-parser');
+const isEmpty = require('lodash.isempty');
 
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -18,7 +19,6 @@ const MongoStore = Wechat.MongoStore;
 const FileStore = Wechat.FileStore;
 const Card = Wechat.Card;
 
-// const pfxPath = path.join(process.cwd(), 'cert/apiclient_cert.p12');
 // const certPath = path.join(process.cwd(), 'cert/apiclient_cert.pem');
 // const keyPath = path.join(process.cwd(), 'cert/apiclient_key.pem');
 
@@ -204,12 +204,43 @@ app.get('/client.js', function(req, res) {
 app.get('/create-order', function(req, res) {
   const openid = req.session.openid;
   console.log('req.session.openid:', openid);
+  const orderCase = req.query.case;
+  const orderInfo = {
+    openid: req.session.openid || 'oy5F1wQTfhx4-V3L5TcUn5V9v2Lo',
+    spbill_create_ip: '104.247.128.2', //req.ip,
+  };
+  let p = undefined;
+  switch (orderCase) {
+    case '1':
+      p = order.createOrderCase1(orderInfo);
+      break;
+    case '2':
+      p = order.createOrderCase2(orderInfo);
+      break;
+    case '3':
+      p = order.createOrderCase3(orderInfo);
+      break;
+    case '4':
+      p = order.createOrderCase4(orderInfo);
+      break;
+    case '5':
+      p = order.createOrderCase5(orderInfo);
+      break;
+    case '6':
+      p = order.createOrderCase6(orderInfo);
+      break;
+    case '7':
+      p = order.createOrderCase7(orderInfo);
+      break;
+    case '8':
+      p = order.createOrderCase8(orderInfo);
+      break;
+    default:
+      p = order.createOrderCase1(orderInfo);
+      break;
+  }
 
-  order
-    .createOrder({
-      openid: req.session.openid || 'oy5F1wQTfhx4-V3L5TcUn5V9v2Lo',
-      spbill_create_ip: '104.247.128.2', //req.ip,
-    })
+  p
     .then(data => {
       console.log(data.orderId);
       req.session.orderId = data.orderId;
@@ -221,7 +252,13 @@ app.get('/create-order', function(req, res) {
 });
 
 app.get('/query-order', function(req, res) {
-  const orderId = req.session.orderId;
+  const orderId = req.query.tradeNo || req.session.orderId;
+  if(!orderId) {
+    res.json({
+      msg: 'no available out_trade_no!'
+    });
+    return;
+  }
 
   order
     .queryOrder(orderId)
@@ -233,6 +270,22 @@ app.get('/query-order', function(req, res) {
     });
 });
 
+app.get('/download-bill', function (req, res) {
+  const query = req.query;
+  wx.payment.downloadBill(query.billDate)
+    .then(result => {
+      console.log('digest: ', result.digest);
+      if(result.data) {
+        result.data.pipe(res);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      res.json(err);
+    })
+
+});
+
 //demo: unified order pay result notify_url goes here
 app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
   wx.payment
@@ -241,7 +294,21 @@ app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
       const sign = data.sign;
       data.sign = undefined;
       const genSignData = wx.payment.generateSignature(data, data.sign_type);
-      if (sign === genSignData.sign) {
+      //case test, only case 6 will return sign
+      if (!sign ||  (sign && sign === genSignData.sign)) {
+        const tradeNo = data.out_trade_no;
+        if(tradeNo) {
+          const order = order.getOrderFromDB(tradeNo);
+          //order info inconsistent
+          if(isEmpty(order) || order.total_fee != data.total_fee) {
+            return Promise.reject(new Error('notify data not consistent!'));
+          }
+          //already processed
+          if(order && order.processed) {
+            return;
+          }
+        }
+
         order.updateNotifyResult(data);
         //sign check and send back
         wx.payment.replyData(true).then(ret => {
@@ -253,9 +320,9 @@ app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
     })
     .catch(err => {
       console.error(err);
-      wx.payment.replyData(false).then(ret => {
-        res.send(ret);
-      });
+      // wx.payment.replyData(false).then(ret => {
+      //   res.send(ret);
+      // });
     });
 });
 //process refund notify result

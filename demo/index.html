@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <title>Wechat JSSDK DEMO</title>
   <script src="/client.js"></script>
 </head>
-<body>
-  <h5>点击右上角分享!</h5>
+<body class="container pt-3">
+  <h5>=====点击右上角分享!=====</h5>
   <h5>=====OAuth 网页授权=====</h5>
   <p><a id="oauth-1" href="{{ oauthUrl }}">OAuth 用户信息授权</a></p>
   <p><a id="oauth-2" href="{{ implicitOAuth }}">Implicit OAuth 静默授权</a></p>
@@ -17,9 +18,21 @@
   <p><a id="open-card" href="#">OpenCard 打开卡券</a></p>
   <p><a id="add-card" href="#">AddCard 添加卡券</a></p>
   <h5>=====Payment 支付=====</h5>
-  <p><a id="create-order" href="#">UnifiedOrder 创建订单</a></p>
-  <p><a id="pay-now" href="#">PayNow 微信支付</a></p>
-  <p><a id="query-order" href="#">QueryOrder 查询上面创建的订单</a></p>
+  <div class="d-flex justify-content-between">
+    <input class="form-control mr-2" id="order-id" name="orderId" placeholder="输入out_trade_no"/>
+    <button class="btn btn-primary" onclick="queryOrder()">查询订单</button>
+  </div>
+  <p><a id="query-order" href="#">QueryOrder 查询上一个创建的订单</a></p>
+  <p><a class="create-order" data-case="1" href="#">UnifiedOrder 创建订单用例1</a></p>
+  <p><a class="create-order create-order-2" data-case="2" href="#">UnifiedOrder 创建订单用例2</a></p>
+  <p><a class="create-order create-order-3" data-case="3" href="#">UnifiedOrder 创建订单用例3</a></p>
+  <p><a class="create-order create-order-4" data-case="4" href="#">UnifiedOrder 创建订单用例4</a></p>
+  <p><a class="create-order create-order-5" data-case="5" href="#">UnifiedOrder 创建订单用例5</a></p>
+  <p><a class="create-order create-order-6" data-case="6" href="#">UnifiedOrder 创建订单用例6</a></p>
+  <p><a class="create-order create-order-7" data-case="7" href="#">UnifiedOrder 创建订单用例7</a></p>
+  <p><a class="create-order create-order-8" data-case="8" href="#">UnifiedOrder 创建订单用例8(可选)</a></p>
+  <p><a id="download-order" href="#">下载对账单</a></p>
+  <p><a id="pay-now" href="#">chooseWXPay 微信支付上一个订单</a></p>
   <script type="text/javascript">
     const config = {
       // "appId": "wxfc9c5237ebf480aa",
@@ -134,24 +147,27 @@
     }, false);
 
     let wxData = {};
+    Array.from(document.querySelectorAll('.create-order'))
+      .forEach(ele => {
+        ele.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.fetch(`/create-order?case=${e.target.dataset.case}`, {
+              credentials: "same-origin",
+            })
+            .then(res => res.json())
+            .then(data => {
+              wxData = data;
+              alert(JSON.stringify(data));
+              // window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
+              //   success: res => {
+              //     console.log(res);
+              //   }
+              // }, data));
+            });
 
-    document.getElementById('create-order').addEventListener('click', (e) => {
-      e.preventDefault();
-      window.fetch(`/create-order`, {
-          credentials: "same-origin",
-        })
-        .then(res => res.json())
-        .then(data => {
-          wxData = data;
-          alert(JSON.stringify(data));
-          // window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
-          //   success: res => {
-          //     console.log(res);
-          //   }
-          // }, data));
-        });
+        }, false);
+      });
 
-    }, false);
     document.getElementById('query-order').addEventListener('click', (e) => {
       e.preventDefault();
       window.fetch(`/query-order`, {
@@ -165,6 +181,14 @@
 
     }, false);
 
+    document.getElementById('download-order').addEventListener('click', (e) => {
+      e.preventDefault();
+      const date = new Date;
+      date.setDate(date.getDate() - 1);
+      const d = `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
+      location.href = `/download-bill?billDate=${d}`;
+    }, false);
+
     document.getElementById('pay-now').addEventListener('click', (e) => {
       e.preventDefault();
       window.wechatObj.callWechatApi('chooseWXPay', Object.assign({
@@ -175,6 +199,21 @@
 
     }, false);
 
+    const input = document.getElementById('order-id');
+    function queryOrder() {
+      window.fetch(`/query-order?tradeNo=${input.value}`, {
+          credentials: "same-origin",
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          alert(JSON.stringify(data));
+        });
+    }
+
+    function pad(input) {
+      return input >= 10 ? input : `0${input}`;
+    }
   </script>
 </body>
 </html>
