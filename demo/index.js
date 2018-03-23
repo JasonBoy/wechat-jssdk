@@ -172,7 +172,7 @@ app.get('/get-card-ext', function(req, res) {
 
 app.get('/decode-card-code', function(req, res) {
   wx.card
-    .decodeCardCode(req.query.encryptCode)
+    .decryptCardCode(req.query.encryptCode)
     .then(data => {
       res.json(data);
     })
