@@ -13,37 +13,15 @@ const isEmpty = require('lodash.isempty');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+const wechatConfig = require('./wechat-config');
 const Order = require('./Order');
 
-const MongoStore = Wechat.MongoStore;
-const FileStore = Wechat.FileStore;
 const Card = Wechat.Card;
+const Payment = Wechat.Payment;
 
-// const certPath = path.join(process.cwd(), 'cert/apiclient_cert.pem');
-// const keyPath = path.join(process.cwd(), 'cert/apiclient_key.pem');
+const DOMAIN = 'http://beautytest.yjyyun.com';
 
-const wx = new Wechat({
-  wechatToken: '6mwdIm9p@Wg7$Oup',
-  appId: 'wxfc9c5237ebf480aa',
-  appSecret: '2038576336804a90992b8dbe46cd5948',
-  //=====a service account test=====
-  // wechatToken: "",
-  // appId: "",
-  // appSecret: "",
-  // wechatRedirectUrl: "",
-  // // store: new MongoStore({limit: 5}),
-  // store: new FileStore({interval: 1000 * 60 * 3}),
-  // card: true,
-  // payment: true,
-  // merchantId: '',
-  // paymentSandBox: true,
-  // paymentKey: '', //API SIGN KEY
-  // paymentSandBoxKey: '',
-  // paymentCertificatePfx: fs.readFileSync(pfxPath),
-  // // paymentCertificateCert: fs.readFileSync(certPath),
-  // // paymentCertificateKey: fs.readFileSync(keyPath),
-  // paymentNotifyUrl: "",
-});
+const wx = new Wechat(wechatConfig);
 
 const order = new Order({ payment: wx.payment });
 
@@ -67,10 +45,16 @@ app.use(
   })
 );
 
+app.use(function(req, res, next) {
+  res.locals.appId = wechatConfig.appId;
+  res.locals.domain = wechatConfig.domain;
+  next();
+});
+
 app.get('/', function(req, res) {
   //also you can generate one at runtime:
   const implicitOAuthUrl = wx.oauth.generateOAuthUrl(
-    'http://beautytest.yjyyun.com/implicit-oauth',
+    DOMAIN + '/implicit-oauth',
     'snsapi_base'
   );
   res.render('index', {
@@ -272,7 +256,7 @@ app.get('/query-order', function(req, res) {
 
 app.get('/download-bill', function (req, res) {
   const query = req.query;
-  wx.payment.downloadBill(query.billDate)
+  wx.payment.downloadBill(query.billDate, Payment.DOWNLOAD_BILL_TYPE.SUCCESS)
     .then(result => {
       console.log('digest: ', result.digest);
       if(result.data) {
