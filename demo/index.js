@@ -19,7 +19,7 @@ const Order = require('./Order');
 const Card = Wechat.Card;
 const Payment = Wechat.Payment;
 
-const DOMAIN = 'http://beautytest.yjyyun.com';
+const DOMAIN = wechatConfig.domain;
 
 const wx = new Wechat(wechatConfig);
 
@@ -47,7 +47,7 @@ app.use(
 
 app.use(function(req, res, next) {
   res.locals.appId = wechatConfig.appId;
-  res.locals.domain = wechatConfig.domain;
+  res.locals.domain = DOMAIN;
   next();
 });
 
