@@ -1,6 +1,5 @@
 # wechat-jssdk
 [![npm](https://img.shields.io/npm/v/wechat-jssdk.svg)](https://www.npmjs.com/package/wechat-jssdk)
-[![npm (tag)](https://img.shields.io/npm/v/wechat-jssdk/next.svg)](https://www.npmjs.com/package/wechat-jssdk)
 [![node](https://img.shields.io/node/v/wechat-jssdk.svg)](https://nodejs.org/)
 [![Building Status](https://travis-ci.org/JasonBoy/wechat-jssdk.svg?branch=master)](https://travis-ci.org/JasonBoy/wechat-jssdk)
 [![Coverage Status](https://coveralls.io/repos/github/JasonBoy/wechat-jssdk/badge.svg?branch=master)](https://coveralls.io/github/JasonBoy/wechat-jssdk?branch=master)
@@ -8,10 +7,7 @@
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 
-Next-Generation WeChat JS-SDK integration with NodeJS(node >= 4),
-with support for web OAuth to retrieve wechat user profile.
-
-For v2.x(node >= 0.10), pls checkout the [Readme on v2.x](https://github.com/JasonBoy/wechat-jssdk/tree/2.x)
+Next-Generation WeChat JS-SDK integration with NodeJS(node >= 4).
 
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
@@ -19,10 +15,13 @@ For v2.x(node >= 0.10), pls checkout the [Readme on v2.x](https://github.com/Jas
 
 ## Features
 
-  1. [JSSDK](#setup-your-wechat-env)
-  1. [Browser-Side Usage](#browser-side-usage)
-  1. [OAuth](#oauth)
-  1. [Using Stores](#using-stores)
+  - [Server-Side](#usage)
+  - [Browser-Side](#browser-side-usage)
+  - [OAuth](#oauth)
+  - [Cards and Offers(v3.1+)](#cards-and-offers)
+  - [Wechat Payment(v3.1+)](#payment)
+  - [Using Stores](#using-stores)
+  - [Full Featured Demo](#demo)
 
 ## Usage
 
@@ -34,6 +33,8 @@ const Wechat = require('wechat-jssdk');
 const wx = new Wechat(wechatConfig);
 ```
 
+## Wechat Config
+
 Required `wechatConfig` info:  
 
 ```
@@ -43,16 +44,24 @@ Required `wechatConfig` info:
   //"wechatToken": "wechat_token", //not necessary required
   "appId": "appid",
   "appSecret": "app_secret",
+  card: true, //enable cards
+  payment: true, //enable payment support
+  merchantId: '', //
+  paymentSandBox: true, //dev env
+  paymentKey: '', //API key to gen payment sign
+  paymentCertificatePfx: fs.readFileSync(path.join(process.cwd(), 'cert/apiclient_cert.p12')),
+  //default payment notify url
+  paymentNotifyUrl: `http://your.domain.com/api/wechat/payment/`,
 }
 ```
 
-## Setup your Wechat ENV  
+### Setup your Wechat ENV  
 1.Set your own URL in [Wechat Website](https://mp.weixin.qq.com)  
   
   Usually wechat will provide you a `MP_verify_XHZon7GAGRdcAFxx.txt` like file to ask you to put that on your website root,  
   which will be accessed by wechat on `http://yourdomain.com/MP_verify_XHZon7GAGRdcAFxx.txt` to verify that you own the domain.
   
-2.You should also provide a api for your browser to get token for the current url  
+2.You should also provide a api for your browser to get token for the current url, see [demo](#demo)  
 
   ```javascript
   //express app for example:
@@ -66,9 +75,9 @@ Required `wechatConfig` info:
 
 
 ## Browser Side Usage
-`var WechatJSSDK = require('wechat-jssdk/dist/client')`
+`const WechatJSSDK = require('wechat-jssdk/dist/client')`
 in your client side js, or any other way you like to include this.  
-`var wechatObj = new WechatJSSDK(config)`  
+`const wechatObj = new window.WechatJSSDK(config)`  
 where config will be:
 
 ```javascript
@@ -159,6 +168,15 @@ router.get('/oauth-callback', function (req, res) {
 });
 ```
 
+## Cards and Offers
+
+Set `card: true` in config to enable the cards support on server side, see [demo](#demo).
+
+## Payment
+
+Set `payment: true` in config to enable the payment support on server side, you should also provide payment related info.  
+See [demo](#demo).
+
 ## Using Stores
 
 *New in V3*  
@@ -215,9 +233,11 @@ Add `DEBUG=wechat*` when start your app to enable wechat-jssdk debug
 
 ## Demo
 
-Use your own `appId` and `appSecret` in `./demo/index.js` to test
+In v3.1.0, the demo page is updated to test the new added `Cards & Offers` and `Payment` support.  
+Copy the `demo/wechat-config-sample.js` to `demo/wechat-config.js`,  
+and use your own `appId`, `appSecret`, and other [configs](#wechat-config) like payment if your want to enable them. 
 
-Use `npm start` to start the demo.
+Use `npm start` or `npm run dev` to start the demo.
 
 ## LICENSE
 
