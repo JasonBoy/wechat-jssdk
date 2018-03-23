@@ -35,7 +35,7 @@ const wx = new Wechat(wechatConfig);
 
 ## Wechat Config
 
-Required `wechatConfig` info:  
+`wechatConfig` info:  
 
 ```
 {
@@ -170,12 +170,14 @@ router.get('/oauth-callback', function (req, res) {
 
 ## Cards and Offers
 
-Set `card: true` in config to enable the cards support on server side, see [demo](#demo).
+Set `card: true` in config to enable the cards support on server side, see [demo](#demo).  
+For cards APIs, see [cards apis](https://github.com/JasonBoy/wechat-jssdk/wiki/API#cards)
 
 ## Payment
 
 Set `payment: true` in config to enable the payment support on server side, you should also provide payment related info.  
-See [demo](#demo).
+See [demo](#demo).  
+For payment APIs, see [payment apis](https://github.com/JasonBoy/wechat-jssdk/wiki/API#payment)
 
 ## Using Stores
 
