@@ -11,17 +11,17 @@ Next-Generation WeChat JS-SDK integration with NodeJS(node >= 4).
 
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
-![wechat-jssdk-demo](https://raw.githubusercontent.com/JasonBoy/wechat-jssdk/master/demo/wechat-jssdk-demo.gif)
+![wechat-jssdk-demo](https://raw.githubusercontent.com/JasonBoy/wechat-jssdk/master/demo/wechat-jssdk-demo-new.gif)
 
 ## Features
 
-  - [Server-Side](#usage)
-  - [Browser-Side](#browser-side-usage)
-  - [OAuth](#oauth)
-  - [Cards and Offers(v3.1+)](#cards-and-offers)
-  - [Wechat Payment(v3.1+)](#payment)
-  - [Using Stores](#using-stores)
-  - [Full Featured Demo](#demo)
+  - [:heartbeat:Server-Side](#usage)
+  - [:heartpulse:Browser-Side](#browser-side-usage)
+  - [:unlock:OAuth](#oauth)
+  - [:fries:Cards and Offers(v3.1+)](#cards-and-offers)
+  - [:credit_card:Wechat Payment(v3.1+)](#payment)
+  - [:cd:Using Stores](#using-stores)
+  - [:movie_camera:Full Featured Demo](#demo)
 
 ## Usage
 
