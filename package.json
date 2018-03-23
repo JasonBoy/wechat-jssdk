@@ -1,6 +1,6 @@
 {
   "name": "wechat-jssdk",
-  "version": "3.1.0-rc.0",
+  "version": "3.1.0",
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "./lib/index.js",
   "engines": {
