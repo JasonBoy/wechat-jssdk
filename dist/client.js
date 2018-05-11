@@ -97,7 +97,7 @@ var document = window.document;
 var location = window.location;
 
 //default wechat script url
-var defaultScriptUrl = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.2.0.js';
+var defaultScriptUrl = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.3.2.js';
 
 //default apis with share-on-moment and share-on-chat
 var defaultApiList = ['onMenuShareTimeline', 'onMenuShareAppMessage'];
@@ -208,7 +208,7 @@ var WechatJSSDK = function () {
       var _this2 = this;
 
       var ele = document.createElement('script');
-      ele.type = 'text\/javascript';
+      ele.type = 'text/javascript';
       ele.async = true;
       ele.onload = function () {
         console.log('Wechat script loaded successfully!');
