@@ -81,6 +81,7 @@
       })
       .then(res => res.json())
       .then(data => {
+        config.appId = data.appId;
         config.nonceStr = data.nonceStr;
         config.signature = data.signature;
         config.timestamp = data.timestamp;
