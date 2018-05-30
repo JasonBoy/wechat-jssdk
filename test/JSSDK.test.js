@@ -144,11 +144,11 @@ describe('JSSDK', function() {
 
   describe('#signatureResult()', function() {
     it('should return empty object', function() {
-      const result = JSSDK.filterSignature(undefined);
+      const result = wx.jssdk.filterSignature(undefined);
       result.should.be.deep.equal({});
     });
     it('should return filtered object', function() {
-      const result = JSSDK.filterSignature({
+      const result = wx.jssdk.filterSignature({
         timestamp: 'aaa',
         nonceStr: 'bbb',
         signature: 'ccc',
@@ -156,6 +156,7 @@ describe('JSSDK', function() {
         extra: 'should not include this',
       });
       result.should.not.have.property('extra');
+      result.should.have.property('appId');
       result.should.have.property('signature').be.equal('ccc');
     });
   });
