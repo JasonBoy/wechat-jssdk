@@ -30,7 +30,7 @@ function init() {
 }
 
 function getState() {
-  console.log(db.getState());
+  /*console.log(db.getState());
   console.log(db.has('orders').value());
   console.log(db.has('orders2').value());
   console.log(
@@ -52,7 +52,7 @@ function getState() {
       .find({ id: 1 })
       .has('id2')
       .value()
-  );
+  );*/
 }
 
 getState();

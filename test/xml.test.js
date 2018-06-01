@@ -32,7 +32,7 @@ describe('XML', function() {
       utils
         .buildXML(objData)
         .then(data => {
-          console.log(data);
+          // console.log(data);
           return utils.parseXML(data);
         })
         .then(result => {

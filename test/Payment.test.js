@@ -25,7 +25,7 @@ describe('Payment', function() {
       merchantId: 'test_merchant_id',
     })
   );
-  console.log(payment.paymentUrls);
+  // console.log(payment.paymentUrls);
 
   describe('@constructor', function() {
     it('should successfully init the Payment instance', function(done) {
@@ -65,7 +65,7 @@ describe('Payment', function() {
         Payment.SIGN_TYPE.MD5,
         true
       );
-      console.log(data);
+      // console.log(data);
       // data.sign.should.equal('EC00CE08DD7396EF70AE7D659D2A1D3A');
       data.sign.should.equal('925DDC574F094D26A39C4A1952B645D1');
       // utils.buildXML(data).then(info => console.log(info));
@@ -93,7 +93,7 @@ describe('Payment', function() {
         Payment.SIGN_TYPE.MD5,
         true
       );
-      console.log(data);
+      // console.log(data);
       data.should.have
         .property('paySign')
         .equal('AA044AE801114117CD5008F586A0F32F');
@@ -113,7 +113,7 @@ describe('Payment', function() {
         Payment.SIGN_TYPE.HMAC_SHA256,
         true
       );
-      console.log(data);
+      // console.log(data);
       data.should.have
         .property('paySign')
         .equal(
