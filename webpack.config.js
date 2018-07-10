@@ -10,6 +10,7 @@ const config = {
     filename: PROD_MODE ? 'client.min.js' : 'client.js',
     library: 'WechatJSSDK',
     libraryTarget: 'umd',
+    libraryExport: 'default',
   },
   module: {
     rules: [
@@ -36,13 +37,9 @@ if (PROD_MODE) {
       },
     })
   );
-  plugins.push(
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: true,
-      },
-    })
-  );
+  config.optimization = {
+    minimize: true,
+  };
 }
 
 module.exports = config;

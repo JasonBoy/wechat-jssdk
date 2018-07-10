@@ -12,8 +12,8 @@
     "test": "_mocha test/**/*.js",
     "coverage": "istanbul cover _mocha -- -R spec test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
-    "prod": "NODE_ENV=production webpack --progress",
-    "build": "webpack --progress && npm run prod",
+    "prod": "NODE_ENV=production webpack --progress --mode production",
+    "build": "webpack --progress --mode development && npm run prod",
     "precommit": "lint-staged"
   },
   "lint-staged": {
@@ -53,10 +53,10 @@
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
-    "babel-loader": "^6.2.10",
+    "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.6.1",
     "body-parser": "^1.18.2",
-    "chai": "^3.5.0",
+    "chai": "^4.1.2",
     "cookie-parser": "^1.4.3",
     "coveralls": "^2.11.15",
     "express": "^4.14.0",
@@ -67,8 +67,9 @@
     "lowdb": "^1.0.0",
     "mocha": "^3.2.0",
     "nodemon": "^1.17.2",
-    "prettier": "1.11.1",
+    "prettier": "1.13.7",
     "swig": "^1.4.2",
-    "webpack": "^2.7.0"
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8"
   }
 }
