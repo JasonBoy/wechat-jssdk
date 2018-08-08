@@ -258,9 +258,9 @@ app.get('/download-bill', function (req, res) {
   const query = req.query;
   wx.payment.downloadBill(query.billDate, Payment.DOWNLOAD_BILL_TYPE.SUCCESS)
     .then(result => {
-      console.log('digest: ', result.digest);
-      if(result.data) {
-        result.data.pipe(res);
+      if(result.body) {
+        res.type('zip');
+        res.send(result.body);
       }
     })
     .catch(err => {
