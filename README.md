@@ -7,7 +7,8 @@
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 
-Next-Generation WeChat JS-SDK integration with NodeJS(node >= 4).
+Next-Generation WeChat JS-SDK integration with NodeJS.  
+> The next major version(v4) will drop node v4 support(may still work, but won't test against v4)
 
 [中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
