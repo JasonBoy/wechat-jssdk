@@ -270,6 +270,29 @@ app.get('/download-bill', function (req, res) {
 
 });
 
+app.get('/settlements', function (req, res) {
+  const {
+    usetag, //int 1 -> settled, 2 -> unsettled
+    offset, //int
+    limit, //int
+    date_start, //string e.g. '20180701'
+    date_end, //string e.g. '20180820'
+    // visit https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_14&index=9 for more info
+  } = req.query;
+  wx.payment.settlementQuery({
+    usetag,
+    offset,
+    limit,
+    date_start,
+    date_end,
+  }).then(result => {
+    res.json(result.responseData);
+  }).catch(err => {
+    console.error(err);
+    res.json(err);
+  });
+});
+
 //demo: unified order pay result notify_url goes here
 app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
   wx.payment
