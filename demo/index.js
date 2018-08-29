@@ -9,6 +9,7 @@ const fs = require('fs');
 const debug = require('debug')('wechat');
 const bodyParser = require('body-parser');
 const isEmpty = require('lodash.isempty');
+const utils = require('../lib/utils');
 
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -285,6 +286,23 @@ app.get('/settlements', function (req, res) {
     limit,
     date_start,
     date_end,
+  }).then(result => {
+    res.json(result.responseData);
+  }).catch(err => {
+    console.error(err);
+    res.json(err);
+  });
+});
+
+app.get('/exchange-rate', (req, res) => {
+  const {
+    fee_type, //string 'USD'
+    date, //string '20180801'
+    // visit https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_15&index=10 for more info
+    } = req.query;
+  wx.payment.queryexchagerate({
+    fee_type: fee_type || 'GBP',
+    date: date || utils.simpleDate(new Date(), 'yyyyMMdd'),
   }).then(result => {
     res.json(result.responseData);
   }).catch(err => {
