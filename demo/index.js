@@ -302,7 +302,7 @@ app.get('/exchange-rate', (req, res) => {
     } = req.query;
   wx.payment.queryexchagerate({
     fee_type: fee_type || 'GBP',
-    date: date || utils.simpleDate(new Date(), 'yyyyMMdd'),
+    date: date || utils.simpleDate(new Date(), 'yyyymmdd'),
   }).then(result => {
     res.json(result.responseData);
   }).catch(err => {
