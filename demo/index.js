@@ -280,7 +280,7 @@ app.get('/settlements', function (req, res) {
     date_end, //string e.g. '20180820'
     // visit https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_14&index=9 for more info
   } = req.query;
-  wx.payment.settlementQuery({
+  wx.payment.querySettlement({
     usetag,
     offset,
     limit,
@@ -300,7 +300,7 @@ app.get('/exchange-rate', (req, res) => {
     date, //string '20180801'
     // visit https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_15&index=10 for more info
     } = req.query;
-  wx.payment.queryexchagerate({
+  wx.payment.queryExchangeRate({
     fee_type: fee_type || 'GBP',
     date: date || utils.simpleDate(new Date(), 'yyyymmdd'),
   }).then(result => {
