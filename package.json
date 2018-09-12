@@ -17,10 +17,12 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "lib/**/*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "linters": {
+      "lib/**/*.js": [
+        "prettier --write",
+        "git add"
+      ]
+    }
   },
   "repository": {
     "type": "git",
@@ -42,13 +44,13 @@
   "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
   "dependencies": {
     "crypto-js": "^3.1.9-1",
-    "dateformat": "^2.0.0",
-    "debug": "^2.6.8",
+    "date-fns": "^1.29.0",
+    "debug": "^4.0.1",
     "lodash.isempty": "^4.4.0",
-    "mongoose": "^4.10.2",
-    "request": "^2.81.0",
-    "request-promise": "^4.1.1",
-    "xml2js": "^0.4.17"
+    "mongoose": "^5.2.14",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -58,16 +60,16 @@
     "body-parser": "^1.18.2",
     "chai": "^4.1.2",
     "cookie-parser": "^1.4.3",
-    "coveralls": "^2.11.15",
+    "coveralls": "^3.0.2",
     "express": "^4.14.0",
     "express-session": "^1.14.2",
     "husky": "^0.14.3",
     "istanbul": "^0.4.5",
-    "lint-staged": "^7.0.0",
+    "lint-staged": "^7.2.2",
     "lowdb": "^1.0.0",
-    "mocha": "^3.2.0",
-    "nodemon": "^1.17.2",
-    "prettier": "1.13.7",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.4",
+    "prettier": "1.14.2",
     "swig": "^1.4.2",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8"
