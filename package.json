@@ -4,7 +4,7 @@
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "./lib/index.js",
   "engines": {
-    "node": ">= 4.0"
+    "node": ">= 6.0"
   },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
@@ -31,7 +31,8 @@
     "weixin",
     "node",
     "jssdk",
-    "wechat share"
+    "wechat share",
+    "mini program"
   ],
   "author": "Jason Jiang",
   "license": "MIT",
