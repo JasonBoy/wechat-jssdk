@@ -225,22 +225,20 @@ app.get('/create-order', function(req, res) {
       break;
   }
 
-  p
-    .then(data => {
-      console.log(data.orderId);
-      req.session.orderId = data.orderId;
-      res.json(data.chooseWXPay);
-    })
-    .catch(err => {
-      res.json(err);
-    });
+  p.then(data => {
+    console.log(data.orderId);
+    req.session.orderId = data.orderId;
+    res.json(data.chooseWXPay);
+  }).catch(err => {
+    res.json(err);
+  });
 });
 
 app.get('/query-order', function(req, res) {
   const orderId = req.query.tradeNo || req.session.orderId;
-  if(!orderId) {
+  if (!orderId) {
     res.json({
-      msg: 'no available out_trade_no!'
+      msg: 'no available out_trade_no!',
     });
     return;
   }
@@ -255,11 +253,12 @@ app.get('/query-order', function(req, res) {
     });
 });
 
-app.get('/download-bill', function (req, res) {
+app.get('/download-bill', function(req, res) {
   const query = req.query;
-  wx.payment.downloadBill(query.billDate, Payment.DOWNLOAD_BILL_TYPE.SUCCESS)
+  wx.payment
+    .downloadBill(query.billDate, Payment.DOWNLOAD_BILL_TYPE.SUCCESS)
     .then(result => {
-      if(result.body) {
+      if (result.body) {
         res.type('zip');
         res.send(result.body);
       }
@@ -267,11 +266,10 @@ app.get('/download-bill', function (req, res) {
     .catch(err => {
       console.error(err);
       res.json(err);
-    })
-
+    });
 });
 
-app.get('/settlements', function (req, res) {
+app.get('/settlements', function(req, res) {
   const {
     usetag, //int 1 -> settled, 2 -> unsettled
     offset, //int
@@ -280,18 +278,21 @@ app.get('/settlements', function (req, res) {
     date_end, //string e.g. '20180820'
     // visit https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_14&index=9 for more info
   } = req.query;
-  wx.payment.querySettlement({
-    usetag,
-    offset,
-    limit,
-    date_start,
-    date_end,
-  }).then(result => {
-    res.json(result.responseData);
-  }).catch(err => {
-    console.error(err);
-    res.json(err);
-  });
+  wx.payment
+    .querySettlement({
+      usetag,
+      offset,
+      limit,
+      date_start,
+      date_end,
+    })
+    .then(result => {
+      res.json(result.responseData);
+    })
+    .catch(err => {
+      console.error(err);
+      res.json(err);
+    });
 });
 
 app.get('/exchange-rate', (req, res) => {
@@ -299,16 +300,19 @@ app.get('/exchange-rate', (req, res) => {
     fee_type, //string 'USD'
     date, //string '20180801'
     // visit https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_15&index=10 for more info
-    } = req.query;
-  wx.payment.queryExchangeRate({
-    fee_type: fee_type || 'GBP',
-    date: date || utils.simpleDate(new Date(), 'YYYYMMDD'),
-  }).then(result => {
-    res.json(result.responseData);
-  }).catch(err => {
-    console.error(err);
-    res.json(err);
-  });
+  } = req.query;
+  wx.payment
+    .queryExchangeRate({
+      fee_type: fee_type || 'GBP',
+      date: date || utils.simpleDate(new Date(), 'YYYYMMDD'),
+    })
+    .then(result => {
+      res.json(result.responseData);
+    })
+    .catch(err => {
+      console.error(err);
+      res.json(err);
+    });
 });
 
 //demo: unified order pay result notify_url goes here
@@ -320,16 +324,16 @@ app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
       data.sign = undefined;
       const genSignData = wx.payment.generateSignature(data, data.sign_type);
       //case test, only case 6 will return sign
-      if (!sign ||  (sign && sign === genSignData.sign)) {
+      if (!sign || (sign && sign === genSignData.sign)) {
         const tradeNo = data.out_trade_no;
-        if(tradeNo) {
+        if (tradeNo) {
           const order = order.getOrderFromDB(tradeNo);
           //order info inconsistent
-          if(isEmpty(order) || order.total_fee != data.total_fee) {
+          if (isEmpty(order) || order.total_fee != data.total_fee) {
             return Promise.reject(new Error('notify data not consistent!'));
           }
           //already processed
-          if(order && order.processed) {
+          if (order && order.processed) {
             return;
           }
         }

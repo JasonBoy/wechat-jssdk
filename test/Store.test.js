@@ -243,7 +243,9 @@ mongoStore2.on('initialized', function() {
         oauthKeys.forEach(key => {
           store.oauth[key].updated = true;
         });
-        mongoStore2.flush().then(() => done())
+        mongoStore2
+          .flush()
+          .then(() => done())
           .catch(() => done());
       }, 4000);
     });

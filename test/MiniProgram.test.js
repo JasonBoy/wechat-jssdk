@@ -21,20 +21,23 @@ const mp = new MiniProgram({
 });
 
 const mock = {
-  "errMsg": "getUserInfo:ok",
-  "rawData": "{\"nickName\":\"jason\",\"gender\":1,\"language\":\"en\",\"city\":\"Jing\",\"province\":\"Shanghai\",\"country\":\"China\",\"avatarUrl\":\"https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJTl0Fa4Pzo4jMq5DoIZia7geHq15C1iapVWE57mIyqSoqq3T8LzavQtEpabaKn6UzSKxogEvs8hic0A/132\"}",
-  "userInfo": {
-    "nickName": "jason",
-    "gender": 1,
-    "language": "en",
-    "city": "Jing",
-    "province": "Shanghai",
-    "country": "China",
-    "avatarUrl": "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJTl0Fa4Pzo4jMq5DoIZia7geHq15C1iapVWE57mIyqSoqq3T8LzavQtEpabaKn6UzSKxogEvs8hic0A/132"
+  errMsg: 'getUserInfo:ok',
+  rawData:
+    '{"nickName":"jason","gender":1,"language":"en","city":"Jing","province":"Shanghai","country":"China","avatarUrl":"https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJTl0Fa4Pzo4jMq5DoIZia7geHq15C1iapVWE57mIyqSoqq3T8LzavQtEpabaKn6UzSKxogEvs8hic0A/132"}',
+  userInfo: {
+    nickName: 'jason',
+    gender: 1,
+    language: 'en',
+    city: 'Jing',
+    province: 'Shanghai',
+    country: 'China',
+    avatarUrl:
+      'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJTl0Fa4Pzo4jMq5DoIZia7geHq15C1iapVWE57mIyqSoqq3T8LzavQtEpabaKn6UzSKxogEvs8hic0A/132',
   },
-  "signature": "59f8338219f036c32d048b6ff28e36f5bb70589e",
-  "encryptedData": "Itpx4bsAwofdR2mDIjuA1LKh8iBLxxq6UKmuH498QU7kAjNekkBAVUNCENq/urgvH1Hm47gevYWnZaTj1dOZIoHq1eueKtdpaFKD+akBbm+c7HP/PjRR87O99cJk0zgVogplnKkZWJT6IX4rai7IaSG5fIZNTAHflCmXcmSQPQtV4+kEvRPtigiTfgseLGhKhzBgM5JbeyYhYH6kqCYfigUgG88o1cENCYCylD5dSh6+zTvvpqHsgsCOtLTHunQClvuhmHiMWgx6Z+DPq5kQg+IcpelxbIlW1DLsRkqk8LWKeYRrR0AesGDDn9Pb34sOznIF5Ii2UsMtameGMEZeUMtxDAVDPf46GwAqxcRP2LtOx3xW1OZow/FJgyFmG7T1BHZahGd0Ge+j1bG/hyZDEGm62+hCI2NXkQkGxtgss21EJgyLBEPnZ/mrIGFPYN3qiZk0zLLgDiMmuSFc+UCeGw==",
-  "iv": "s8gf9aH5iVIJmmpowjrrUw=="
+  signature: '59f8338219f036c32d048b6ff28e36f5bb70589e',
+  encryptedData:
+    'Itpx4bsAwofdR2mDIjuA1LKh8iBLxxq6UKmuH498QU7kAjNekkBAVUNCENq/urgvH1Hm47gevYWnZaTj1dOZIoHq1eueKtdpaFKD+akBbm+c7HP/PjRR87O99cJk0zgVogplnKkZWJT6IX4rai7IaSG5fIZNTAHflCmXcmSQPQtV4+kEvRPtigiTfgseLGhKhzBgM5JbeyYhYH6kqCYfigUgG88o1cENCYCylD5dSh6+zTvvpqHsgsCOtLTHunQClvuhmHiMWgx6Z+DPq5kQg+IcpelxbIlW1DLsRkqk8LWKeYRrR0AesGDDn9Pb34sOznIF5Ii2UsMtameGMEZeUMtxDAVDPf46GwAqxcRP2LtOx3xW1OZow/FJgyFmG7T1BHZahGd0Ge+j1bG/hyZDEGm62+hCI2NXkQkGxtgss21EJgyLBEPnZ/mrIGFPYN3qiZk0zLLgDiMmuSFc+UCeGw==',
+  iv: 's8gf9aH5iVIJmmpowjrrUw==',
 };
 
 const code = '081LGZDT0Aad3X1hvMET0Ze7ET0LGZDW';
@@ -83,8 +86,7 @@ describe('MiniProgram', function() {
         .catch(err => {
           console.error(err);
           cb(err);
-        })
-      ;
+        });
     });
   });
 
@@ -100,7 +102,7 @@ describe('MiniProgram', function() {
         .catch(err => {
           console.error(err);
           cb(err);
-        })
+        });
     });
   });
 });
