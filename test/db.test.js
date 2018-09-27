@@ -12,13 +12,11 @@ function init() {
   db.defaults({ posts: [], orders: [], user: {}, count: 0 }).write();
 
   // Add a post
-  db
-    .get('posts')
+  db.get('posts')
     .push({ id: utils.nonceStr(), title: 'lowdb is awesome2' })
     .write();
 
-  db
-    .get('orders')
+  db.get('orders')
     .push({ id: utils.nonceStr(), title: 'order 1' })
     .write();
 

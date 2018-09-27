@@ -12,21 +12,19 @@ const db = low(adapter);
 const utils = require('../lib/utils');
 const Payment = require('../lib/Payment');
 
-db
-  .defaults({
-    //our own system orders
-    orders: [],
-    //wechat unified orders
-    unifiedOrders: [],
-    //wechat notified order states
-    wechatOrders: [],
-    //refund
-    refundOrders: [],
-    //save wechat payment notify result
-    wechatNotifyOrders: [],
-    wechatNotifyRefunds: [],
-  })
-  .write();
+db.defaults({
+  //our own system orders
+  orders: [],
+  //wechat unified orders
+  unifiedOrders: [],
+  //wechat notified order states
+  wechatOrders: [],
+  //refund
+  refundOrders: [],
+  //save wechat payment notify result
+  wechatNotifyOrders: [],
+  wechatNotifyRefunds: [],
+}).write();
 
 const defaultInfo = {
   device_info: 'wechat_test_web',
@@ -73,90 +71,130 @@ class Order {
 
   createOrderCase1(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_1',
-      time_start: utils.simpleDate(now),
-      total_fee: '101',
-      // goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_1',
+        time_start: utils.simpleDate(now),
+        total_fee: '101',
+        // goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
   createOrderCase2(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_2',
-      time_start: utils.simpleDate(now),
-      total_fee: '102',
-      goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_2',
+        time_start: utils.simpleDate(now),
+        total_fee: '102',
+        goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
   createOrderCase3(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_3',
-      time_start: utils.simpleDate(now),
-      total_fee: '130',
-      goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_3',
+        time_start: utils.simpleDate(now),
+        total_fee: '130',
+        goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
   createOrderCase4(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_4',
-      time_start: utils.simpleDate(now),
-      total_fee: '131',
-      goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_4',
+        time_start: utils.simpleDate(now),
+        total_fee: '131',
+        goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
   createOrderCase5(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_5',
-      time_start: utils.simpleDate(now),
-      total_fee: '132',
-      goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_5',
+        time_start: utils.simpleDate(now),
+        total_fee: '132',
+        goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
   createOrderCase6(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_6',
-      time_start: utils.simpleDate(now),
-      total_fee: '133',
-      goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_6',
+        time_start: utils.simpleDate(now),
+        total_fee: '133',
+        goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
   createOrderCase7(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_7',
-      time_start: utils.simpleDate(now),
-      total_fee: '134',
-      goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_7',
+        time_start: utils.simpleDate(now),
+        total_fee: '134',
+        goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
   //optional
   createOrderCase8(info) {
     const now = new Date();
-    const order = Object.assign({}, defaultInfo, {
-      body: defaultInfo.body + '_8',
-      time_start: utils.simpleDate(now),
-      total_fee: '179',
-      goods_tag: 'wx_test',
-    }, info);
+    const order = Object.assign(
+      {},
+      defaultInfo,
+      {
+        body: defaultInfo.body + '_8',
+        time_start: utils.simpleDate(now),
+        total_fee: '179',
+        goods_tag: 'wx_test',
+      },
+      info
+    );
     return this.createOrder(order);
   }
 
@@ -179,12 +217,10 @@ class Order {
           .value();
         if (hasOrder) {
         } else {
-          db
-            .get('orders')
+          db.get('orders')
             .push(requestData)
             .write();
-          db
-            .get('unifiedOrders')
+          db.get('unifiedOrders')
             .push(responseData)
             .write();
           debug('add new order & unified order finished!');
@@ -215,8 +251,7 @@ class Order {
           { id: result.responseData.out_trade_no },
           result.responseData
         );
-        db
-          .get('wechatOrders')
+        db.get('wechatOrders')
           .push(temp)
           .write();
         debug('write wechat query order finished!');
@@ -225,10 +260,10 @@ class Order {
   }
 
   getOrderFromDB(tradeNo) {
-    return db.get('orders')
-      .find({id: tradeNo})
-      .value()
-      ;
+    return db
+      .get('orders')
+      .find({ id: tradeNo })
+      .value();
   }
 
   updateNotifyResult(data) {
@@ -236,17 +271,15 @@ class Order {
       .get('wechatNotifiesOrders')
       .find({ id: data.out_trade_no })
       .value();
-    db
-      .get('orders')
+    db.get('orders')
       .find({ id: data.out_trade_no })
-      .assign({processed: true})
+      .assign({ processed: true })
       .value();
 
     if (!isEmpty(order)) {
       if (order.processed) return;
       //update existing order info
-      db
-        .get('wechatNotifiesOrders')
+      db.get('wechatNotifiesOrders')
         .find({ id: data.out_trade_no })
         .assign(data)
         .write();
@@ -256,8 +289,7 @@ class Order {
       { id: data.out_trade_no, processed: true },
       data
     );
-    db
-      .get('wechatNotifiesOrders')
+    db.get('wechatNotifiesOrders')
       .push(temp)
       .write();
   }
@@ -270,8 +302,7 @@ class Order {
     if (!isEmpty(order)) {
       if (order.processed) return;
       //update existing order info
-      db
-        .get('wechatNotifyRefunds')
+      db.get('wechatNotifyRefunds')
         .find({ id: data.out_trade_no })
         .assign(data)
         .write();
@@ -281,8 +312,7 @@ class Order {
       { id: data.out_trade_no, processed: true },
       data
     );
-    db
-      .get('wechatNotifyRefunds')
+    db.get('wechatNotifyRefunds')
       .push(temp)
       .write();
   }
