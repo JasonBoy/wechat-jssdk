@@ -2,19 +2,14 @@
 
 const bootstrap = require('./bootstrap');
 
-const should = bootstrap.should;
-
 const Wechat = require('../lib');
 const util = require('../lib/utils');
-const Store = Wechat.Store;
 const FileStore = Wechat.FileStore;
 const MongoStore = Wechat.MongoStore;
 
 const fileStore = new FileStore({
   fileStorePath: './wechat-info-' + Math.random() + '.json',
 });
-
-const mongoStore = new MongoStore();
 
 describe('FileStore', function() {
   it('should flush the store', function() {
@@ -32,21 +27,28 @@ describe('FileStore', function() {
   });
 });
 
-mongoStore.on('initialized', function() {
-  describe('MongoStore', function() {
-    this.timeout(20000);
-    it('should flush the store', function(done) {
-      mongoStore.flush().then(() => done());
+describe('MongoStore', function() {
+  const mongoStore = new MongoStore();
+  let p = new Promise(resolve => {
+    mongoStore.on('initialized', function() {
+      resolve();
     });
+  });
 
-    it('should destroy the store', function() {
-      mongoStore.destroy();
-    });
+  before(function() {
+    return p;
+  });
+  this.timeout(20000);
+  it('should flush the store', function(done) {
+    mongoStore.flush().then(() => done());
+  });
+
+  it('should destroy the store', function() {
+    mongoStore.destroy();
   });
 });
 
-const mongoStore2 = new MongoStore();
-mongoStore2.on('initialized', function() {
+describe('MongoStore2', function() {
   const mockUrl = 'http://localhost/?' + Math.random();
   const mockSignature = {
     jsapi_ticket:
@@ -76,178 +78,187 @@ mongoStore2.on('initialized', function() {
     modifyDate: '2016-12-01T09:25:43.781Z',
   };
 
-  describe('MongoStore2', function() {
-    this.timeout(20000);
+  const mongoStore2 = new MongoStore();
+  let p = new Promise(resolve => {
+    mongoStore2.on('initialized', function() {
+      resolve();
+    });
+  });
 
-    it('should save new signature to mongodb', function(done) {
-      mongoStore2.saveSignature(mockUrl, mockSignature).then(sig => {
+  before(function() {
+    return p;
+  });
+
+  this.timeout(20000);
+
+  it('should save new signature to mongodb', function(done) {
+    mongoStore2.saveSignature(mockUrl, mockSignature).then(sig => {
+      sig.should.have.property('jsapi_ticket');
+      done();
+    });
+  });
+
+  it('should get the saved signature', function(done) {
+    setTimeout(() => {
+      mongoStore2.getSignature(mockUrl).then(sig => {
         sig.should.have.property('jsapi_ticket');
+        sig.should.have.property('url');
+        sig.url.should.be.equal(mockUrl);
         done();
       });
-    });
+    }, 1500);
+  });
 
-    it('should get the saved signature', function(done) {
-      setTimeout(() => {
-        mongoStore2.getSignature(mockUrl).then(sig => {
-          sig.should.have.property('jsapi_ticket');
-          sig.should.have.property('url');
-          sig.url.should.be.equal(mockUrl);
-          done();
-        });
-      }, 1500);
-    });
+  it('should get the saved signature from db', function(done) {
+    setTimeout(() => {
+      delete mongoStore2.store.urls[mockUrl];
+      mongoStore2.getSignature(mockUrl).then(sig => {
+        sig.should.have.property('jsapi_ticket');
+        sig.should.have.property('url');
+        sig.url.should.be.equal(mockUrl);
+        done();
+      });
+    }, 2000);
+  });
 
-    it('should get the saved signature from db', function(done) {
-      setTimeout(() => {
-        delete mongoStore2.store.urls[mockUrl];
-        mongoStore2.getSignature(mockUrl).then(sig => {
-          sig.should.have.property('jsapi_ticket');
-          sig.should.have.property('url');
-          sig.url.should.be.equal(mockUrl);
-          done();
-        });
-      }, 2000);
-    });
+  it('should save new oauth access token to mongodb', function(done) {
+    mongoStore2
+      .saveOAuthAccessToken(mockOAuthToken.key, mockOAuthToken)
+      .then(sig => {
+        sig.should.have.property('access_token');
+        done();
+      });
+  });
 
-    it('should save new oauth access token to mongodb', function(done) {
+  it('should update signature to mongodb', function(done) {
+    const newSignature = util.nonceStr();
+    const newSig = Object.assign({}, mockUrl, { signature: newSignature });
+    setTimeout(() => {
       mongoStore2
-        .saveOAuthAccessToken(mockOAuthToken.key, mockOAuthToken)
+        .updateSignature(mockUrl, newSig)
         .then(sig => {
-          sig.should.have.property('access_token');
+          sig.should.have.property('signature');
+          sig.signature.should.be.equal(newSignature);
           done();
-        });
-    });
-
-    it('should update signature to mongodb', function(done) {
-      const newSignature = util.nonceStr();
-      const newSig = Object.assign({}, mockUrl, { signature: newSignature });
-      setTimeout(() => {
-        mongoStore2
-          .updateSignature(mockUrl, newSig)
-          .then(sig => {
-            sig.should.have.property('signature');
-            sig.signature.should.be.equal(newSignature);
-            done();
-          })
-          .catch(() => done());
-      }, 1500);
-    });
-
-    it('should get saved oauth access token', function(done) {
-      setTimeout(() => {
-        mongoStore2
-          .getOAuthAccessToken(mockOAuthToken.key)
-          .then(tokenInfo => {
-            tokenInfo.should.have.property('access_token');
-            tokenInfo.key.should.be.equal(mockOAuthToken.key);
-            tokenInfo.access_token.should.be.equal(mockOAuthToken.access_token);
-            done();
-          })
-          .catch(() => done());
-      }, 1000);
-    });
-
-    it('should get saved oauth access token from db', function(done) {
-      setTimeout(() => {
-        delete mongoStore2.store.oauth[mockOAuthToken.key];
-        mongoStore2
-          .getOAuthAccessToken(mockOAuthToken.key)
-          .then(tokenInfo => {
-            tokenInfo.should.have.property('access_token');
-            tokenInfo.key.should.be.equal(mockOAuthToken.key);
-            tokenInfo.access_token.should.be.equal(mockOAuthToken.access_token);
-            done();
-          })
-          .catch(() => done());
-      }, 1500);
-    });
-
-    it('should update the oauth access token', function(done) {
-      const newToken = util.nonceStr();
-      setTimeout(() => {
-        mongoStore2
-          .updateOAuthAccessToken(mockOAuthToken.key, {
-            access_token: newToken,
-          })
-          .then(newTokenInfo => {
-            newTokenInfo.access_token.should.be.equal(newToken);
-            done();
-          })
-          .catch(() => done());
-      }, 1500);
-    });
-
-    it('should update the global token', function(done) {
-      mongoStore2
-        .getGlobalToken()
-        .then(oldToken => {
-          const newToken = {
-            accessToken: 'mock_access_token',
-          };
-          return mongoStore2.updateGlobalToken(newToken).then(updatedToken => {
-            updatedToken.should.have.property('accessToken');
-            updatedToken.accessToken.should.be.equal('mock_access_token');
-            const newCount = oldToken.count + 1;
-            newCount.should.be.equal(updatedToken.count);
-          });
         })
-        .then(() => done())
         .catch(() => done());
-    });
+    }, 1500);
+  });
 
-    it('should save the card ticket', function(done) {
+  it('should get saved oauth access token', function(done) {
+    setTimeout(() => {
       mongoStore2
-        .updateCardTicket(mockCardTicket)
+        .getOAuthAccessToken(mockOAuthToken.key)
+        .then(tokenInfo => {
+          tokenInfo.should.have.property('access_token');
+          tokenInfo.key.should.be.equal(mockOAuthToken.key);
+          tokenInfo.access_token.should.be.equal(mockOAuthToken.access_token);
+          done();
+        })
+        .catch(() => done());
+    }, 1000);
+  });
+
+  it('should get saved oauth access token from db', function(done) {
+    setTimeout(() => {
+      delete mongoStore2.store.oauth[mockOAuthToken.key];
+      mongoStore2
+        .getOAuthAccessToken(mockOAuthToken.key)
+        .then(tokenInfo => {
+          tokenInfo.should.have.property('access_token');
+          tokenInfo.key.should.be.equal(mockOAuthToken.key);
+          tokenInfo.access_token.should.be.equal(mockOAuthToken.access_token);
+          done();
+        })
+        .catch(() => done());
+    }, 1500);
+  });
+
+  it('should update the oauth access token', function(done) {
+    const newToken = util.nonceStr();
+    setTimeout(() => {
+      mongoStore2
+        .updateOAuthAccessToken(mockOAuthToken.key, {
+          access_token: newToken,
+        })
+        .then(newTokenInfo => {
+          newTokenInfo.access_token.should.be.equal(newToken);
+          done();
+        })
+        .catch(() => done());
+    }, 1500);
+  });
+
+  it('should update the global token', function(done) {
+    mongoStore2
+      .getGlobalToken()
+      .then(oldToken => {
+        const newToken = {
+          accessToken: 'mock_access_token',
+        };
+        return mongoStore2.updateGlobalToken(newToken).then(updatedToken => {
+          updatedToken.should.have.property('accessToken');
+          updatedToken.accessToken.should.be.equal('mock_access_token');
+          const newCount = oldToken.count + 1;
+          newCount.should.be.equal(updatedToken.count);
+        });
+      })
+      .then(() => done())
+      .catch(() => done());
+  });
+
+  it('should save the card ticket', function(done) {
+    mongoStore2
+      .updateCardTicket(mockCardTicket)
+      .then(cardTicket => {
+        cardTicket.ticket.should.be.equal(mockCardTicket.ticket);
+        done();
+      })
+      .catch(() => done());
+  });
+
+  it('should get the card ticket', function(done) {
+    setTimeout(() => {
+      mongoStore2
+        .getCardTicket()
         .then(cardTicket => {
           cardTicket.ticket.should.be.equal(mockCardTicket.ticket);
           done();
         })
         .catch(() => done());
-    });
+    }, 1500);
+  });
 
-    it('should get the card ticket', function(done) {
-      setTimeout(() => {
-        mongoStore2
-          .getCardTicket()
-          .then(cardTicket => {
-            cardTicket.ticket.should.be.equal(mockCardTicket.ticket);
-            done();
-          })
-          .catch(() => done());
-      }, 1500);
+  it('should update the card ticket', function(done) {
+    const newTicket = Object.assign({}, mockCardTicket, {
+      ticket: util.nonceStr(),
     });
+    setTimeout(() => {
+      mongoStore2
+        .updateCardTicket(newTicket)
+        .then(cardTicket => {
+          cardTicket.ticket.should.be.equal(newTicket.ticket);
+          done();
+        })
+        .catch(() => done());
+    }, 2000);
+  });
 
-    it('should update the card ticket', function(done) {
-      const newTicket = Object.assign({}, mockCardTicket, {
-        ticket: util.nonceStr(),
+  it('should flush in memory data', function(done) {
+    setTimeout(() => {
+      const store = mongoStore2.store;
+      const signatureKeys = Object.keys(store.urls);
+      const oauthKeys = Object.keys(store.oauth);
+      signatureKeys.forEach(url => {
+        store.urls[url].updated = true;
       });
-      setTimeout(() => {
-        mongoStore2
-          .updateCardTicket(newTicket)
-          .then(cardTicket => {
-            cardTicket.ticket.should.be.equal(newTicket.ticket);
-            done();
-          })
-          .catch(() => done());
-      }, 2000);
-    });
-
-    it('should flush in memory data', function(done) {
-      setTimeout(() => {
-        const store = mongoStore2.store;
-        const signatureKeys = Object.keys(store.urls);
-        const oauthKeys = Object.keys(store.oauth);
-        signatureKeys.forEach(url => {
-          store.urls[url].updated = true;
-        });
-        oauthKeys.forEach(key => {
-          store.oauth[key].updated = true;
-        });
-        mongoStore2
-          .flush()
-          .then(() => done())
-          .catch(() => done());
-      }, 4000);
-    });
+      oauthKeys.forEach(key => {
+        store.oauth[key].updated = true;
+      });
+      mongoStore2
+        .flush()
+        .then(() => done())
+        .catch(() => done());
+    }, 4000);
   });
 });
