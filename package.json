@@ -10,7 +10,7 @@
     "start": "DEBUG=wechat* node ./demo/index.js",
     "dev": "DEBUG=wechat* nodemon -w ./lib -w ./demo ./demo/index.js",
     "test": "_mocha --exit test/**/*.js",
-    "coverage": "istanbul cover _mocha --report lcovonly -- -R spec --exit test/**/*.js",
+    "coverage": "istanbul cover _mocha --report lcov -- -R spec --exit test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "prod": "NODE_ENV=production webpack --progress --mode production",
     "build": "webpack --progress --mode development && npm run prod",
