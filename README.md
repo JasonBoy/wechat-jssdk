@@ -66,21 +66,32 @@ const wx = new Wechat(wechatConfig);
 
   ```javascript
   //express app for example:
-  router.get('/get-signature', (req, res) => {
+  router.get('/get-signature', async (req, res) => {
     wx.jssdk.getSignature(req.query.url).then(signatureData => {
       res.json(signatureData);
-    });  
+    });
+    //use async/await
+    //const signatureData = await wx.jssdk.getSignature(req.query.url);
+    //res.json(signatureData);
   });
   ```
 3.Now you can get to the next step in your browser to pass the verification.
 
 
 ## Browser Side Usage
-`const WechatJSSDK = require('wechat-jssdk/dist/client')`
-in your client side js, or any other way you like to include this.  
-`const wechatObj = new window.WechatJSSDK(config)`  
-where config will be:
+```javascript
+const WechatJSSDK = require('wechat-jssdk/dist/client');
+//ES6 import
+import WechatJSSDK from 'wechat-jssdk/dist/client';
+//or import the original ES6 module from 'lib/client', 
+// in which case you may need to include this into your webpack babel-loader process 
+import WechatJSSDK from 'wechat-jssdk/lib/client';
+const wechatObj = new WechatJSSDK(config)
 
+// or if you do not have a bundle process, just add the script tag, and access "WechatJSSDK" from window, e.g:
+const wechatObj = new window.WechatJSSDK(config)
+```
+where config will be:
 ```javascript
 const config = {
   //below are mandatory options to finish the wechat signature verification
@@ -93,6 +104,7 @@ const config = {
   //invoked if wechat signature sign succeeds,
   //'this' will be the jssdk instance if it's a normal function, 
   // in v3.0.10+, jssdk instance will be passed to the callback, (wxObj) => {}
+  // in the up coming v4, "success"/"error" init callback will be replace by #initialize() which will return Promise, see below
   'success': jssdkInstance => {},
   //invoked if sign failed, in v3.0.10+, jssdk instance will be pass to the func, (err, wxObj) => {}
   'error': (err, jssdkInstance) => {},
@@ -101,6 +113,16 @@ const config = {
   'jsApiList': [], //optional, pass all the jsapi you want, the default will be ['onMenuShareTimeline', 'onMenuShareAppMessage']
   'customUrl': '' //set custom weixin js script url, usually you don't need to add this js manually
 }
+const wechatObj = new WechatJSSDK(config);
+//in the up coming v4, use "initialize" as Promise:
+const wechatObj2 = new WechatJSSDK(config);
+wechatObj2.initialize()
+  .then(w => {
+    //set up your share info just like in "success" function in config above
+  })
+  .catch(err => {
+    console.error(err);
+  });
 ```
 after signature signed successfully, you can customize the share information:
 

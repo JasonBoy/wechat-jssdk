@@ -14,6 +14,7 @@
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "prod": "NODE_ENV=production webpack --progress --mode production",
     "build": "webpack --progress --mode development && npm run prod",
+    "watch": "webpack --progress --mode development --watch",
     "precommit": "lint-staged",
     "prepublish": "npm run build"
   },
