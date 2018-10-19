@@ -95,8 +95,8 @@ where config will be:
 ```javascript
 const config = {
   //below are mandatory options to finish the wechat signature verification
+  //the 4 options below should be received like api '/get-signature' above
   'appId': 'app_id',
-  //the 3 options below should be received like api '/get-signature' above
   'nonceStr': 'your_nonceStr',
   'signature': 'url_signature',
   'timestamp': 'your_timestamp',
