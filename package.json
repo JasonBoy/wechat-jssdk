@@ -14,7 +14,8 @@
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "prod": "NODE_ENV=production webpack --progress --mode production",
     "build": "webpack --progress --mode development && npm run prod",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "prepublish": "npm run build"
   },
   "lint-staged": {
     "linters": {
