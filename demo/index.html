@@ -35,42 +35,6 @@
   <p><a id="pay-now" href="#">chooseWXPay 微信支付上一个订单</a></p>
   <script type="text/javascript">
     const config = {
-      // "appId": "wxfc9c5237ebf480aa",
-      "appId": "{{ appId }}",
-      success: function (w) {
-        console.log('success');
-//        var w = this;
-        const img = 'http://pic1.ooopic.com/uploadfilepic/shiliang/2009-10-05/OOOPIC_00cyl_20091005e2c6eb1c889e342e.jpg';
-        //sugar method
-        w.shareOnMoment({
-          title: 'test title',
-          type: 'link',
-          success: function () {
-            console.log('share on moment success');
-          },
-          cancel: function () {
-            console.log('share on moment canceled');
-          },
-          imgUrl: img
-        });
-
-        //or call directly
-        w.wx.onMenuShareAppMessage({
-          title: 'test title',
-          type: 'link',
-          desc: 'share description',
-          success: function () {
-            console.log('share on chat success');
-          },
-          cancel: function () {
-            console.log('share on chat canceled');
-          },
-          imgUrl: img
-        });
-      },
-      error: function (err) {
-        console.error(err)
-      },
       debug: true
     };
 
@@ -85,8 +49,67 @@
         config.nonceStr = data.nonceStr;
         config.signature = data.signature;
         config.timestamp = data.timestamp;
-        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline', 'chooseCard', 'addCard', 'openCard', 'chooseWXPay'];
+        config.jsApiList = [
+          'hideMenuItems',
+          'onMenuShareTimeline',
+          'chooseCard',
+          'addCard',
+          'openCard',
+          'chooseWXPay',
+          // 'updateAppMessageShareData',
+          // 'updateTimelineShareData',
+        ];
         window.wechatObj = new window.WechatJSSDK(config);
+        window.wechatObj.initialize()
+          .then(w => {
+            //w is same as window.wechatObj
+            console.log('success');
+            const img = 'http://pic1.ooopic.com/uploadfilepic/shiliang/2009-10-05/OOOPIC_00cyl_20091005e2c6eb1c889e342e.jpg';
+            //sugar method
+            window.wechatObj.shareOnMoment({
+              title: 'onMenuShareTimeline test title',
+              type: 'link',
+              success: function () {
+                console.log('share on moment success');
+              },
+              cancel: function () {
+                console.log('share on moment canceled');
+              },
+              imgUrl: img
+            });
+            w.callWechatApi('onMenuShareAppMessage', {
+              title: 'onMenuShareAppMessage test title',
+              type: 'link',
+              desc: 'onMenuShareAppMessage share description',
+              success: function () {
+                console.log('share on chat success');
+              },
+              cancel: function () {
+                console.log('share on chat canceled');
+              },
+              imgUrl: img
+            });
+
+            //v1.4.0 new api
+            // w.callWechatApi('updateTimelineShareData', {
+            //   title: 'updateTimelineShareData test title',
+            //   type: 'link',
+            //   imgUrl: img
+            // }, res => {
+            //   console.log('updateTimelineShareData callback: ', res);
+            // });
+            // w.callWechatApi('updateTimelineShareData', {
+            //   title: 'updateTimelineShareData test title',
+            //   type: 'link',
+            //   desc: 'updateTimelineShareData share description',
+            //   imgUrl: img
+            // }, res => {
+            //   console.log('updateTimelineShareData callback: ', res);
+            // });
+          })
+          .catch(err => {
+            console.error(err);
+          })
       });
 
     document.getElementById('choose-card').addEventListener('click', (e) => {

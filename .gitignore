@@ -33,7 +33,6 @@ node_modules
 .node_repl_history
 
 *.map
-!dist/*.map
 --no-cache
 .idea
 config.json
@@ -46,3 +45,4 @@ package-lock.json
 cert
 db_*.json
 demo/wechat-config.js
+dist
