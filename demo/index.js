@@ -3,10 +3,9 @@
 const express = require('express');
 const http = require('http');
 const swig = require('swig');
-const Wechat = require('../lib');
+const { Wechat, Payment } = require('../lib');
 const path = require('path');
-const fs = require('fs');
-const debug = require('debug')('wechat');
+const debug = require('debug')('wechat-demo');
 const bodyParser = require('body-parser');
 const isEmpty = require('lodash.isempty');
 const utils = require('../lib/utils');
@@ -16,9 +15,6 @@ const session = require('express-session');
 
 const wechatConfig = require('./wechat-config');
 const Order = require('./Order');
-
-const Card = Wechat.Card;
-const Payment = Wechat.Payment;
 
 const DOMAIN = wechatConfig.domain;
 
