@@ -5,9 +5,7 @@ const bootstrap = require('./bootstrap');
 const config = bootstrap.config;
 const should = bootstrap.should;
 
-const Wechat = require('../lib');
-const JSSDK = Wechat.JSSDK;
-const MongoStore = Wechat.MongoStore;
+const { Wechat, JSSDK, MongoStore } = require('../lib');
 
 const wx = new Wechat(config);
 const wxMongo = new Wechat(

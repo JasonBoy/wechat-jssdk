@@ -5,10 +5,7 @@ const bootstrap = require('./bootstrap');
 const config = bootstrap.config;
 const should = bootstrap.should;
 
-const Wechat = require('../lib');
-const Store = Wechat.Store;
-const OAuth = Wechat.OAuth;
-const MongoStore = Wechat.MongoStore;
+const { Wechat, OAuth, MongoStore } = require('../lib');
 
 const wx = new Wechat(config);
 const wxMongo = new Wechat(

@@ -5,7 +5,7 @@ const bootstrap = require('./bootstrap');
 const config = bootstrap.config;
 const should = bootstrap.should;
 
-const Wechat = require('../lib');
+const { Wechat } = require('../lib');
 
 const util = require('../lib/utils');
 

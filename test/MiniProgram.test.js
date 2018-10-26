@@ -5,10 +5,7 @@ const bootstrap = require('./bootstrap');
 const config = bootstrap.config;
 const should = bootstrap.should;
 
-const Wechat = require('../lib');
-const MiniProgram = Wechat.MiniProgram;
-const utils = require('../lib/utils');
-
+const { MiniProgram } = require('../lib');
 const mpConfig = {
   appId: 'wxeb9dbcfcd5015935',
   appSecret: '23aeb29179539e43dea19fbdc409a117',
