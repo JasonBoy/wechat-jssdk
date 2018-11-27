@@ -1,11 +1,8 @@
 'use strict';
+require('./bootstrap');
 
-const bootstrap = require('./bootstrap');
-
-const Wechat = require('../lib');
+const { FileStore, MongoStore } = require('../lib');
 const util = require('../lib/utils');
-const FileStore = Wechat.FileStore;
-const MongoStore = Wechat.MongoStore;
 
 const fileStore = new FileStore({
   fileStorePath: './wechat-info-' + Math.random() + '.json',

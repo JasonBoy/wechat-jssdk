@@ -3,11 +3,10 @@
 const bootstrap = require('./bootstrap');
 
 const config = bootstrap.config;
-const should = bootstrap.should;
+// const should = bootstrap.should;
 
-const Wechat = require('../lib');
-const Payment = Wechat.Payment;
-const utils = require('../lib/utils');
+const { Payment } = require('../lib');
+// const utils = require('../lib/utils');
 
 describe('Payment', function() {
   const customNotifyUrl = 'http://custom.com/api/wechat/payment/';
