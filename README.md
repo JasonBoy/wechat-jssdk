@@ -31,10 +31,14 @@ Next-Generation WeChat JS-SDK integration with NodeJS.
 
 ## Usage
 
-`npm install wechat-jssdk --save` or
-`yarn add wechat-jssdk`
-
+```bash
+# use "next" tag to try the v4
+npm install wechat-jssdk@next --save
+# or
+yarn add wechat-jssdk@next
 ```
+
+```javascript
 const {Wechat} = require('wechat-jssdk');
 const wx = new Wechat(wechatConfig);
 ```
@@ -43,7 +47,7 @@ const wx = new Wechat(wechatConfig);
 
 `wechatConfig` info:
 
-```
+```javascript
 {
   //set your oauth redirect url, defaults to localhost
   "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback",
