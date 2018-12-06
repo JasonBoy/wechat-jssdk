@@ -41,7 +41,7 @@ wechat-info*.json
 Gemfile
 Gemfile.lock
 _site/
-package-lock.json
+#package-lock.json
 cert
 db_*.json
 demo/wechat-config.js
