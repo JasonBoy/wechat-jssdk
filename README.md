@@ -76,13 +76,14 @@ const wx = new Wechat(wechatConfig);
 
   ```javascript
   //express app for example:
-  router.get('/get-signature', async (req, res) => {
+  router.get('/get-signature', (req, res) => {
     wx.jssdk.getSignature(req.query.url).then(signatureData => {
       res.json(signatureData);
     });
-    //use async/await
-    //const signatureData = await wx.jssdk.getSignature(req.query.url);
-    //res.json(signatureData);
+  });
+  //koa2/koa-router app for example:
+  router.get('/get-signature', async ctx => {
+    ctx.body = await wx.jssdk.getSignature(ctx.request.query.url);
   });
   ```
 3.Now you can get to the next step in your browser to pass the verification.
