@@ -226,8 +226,10 @@ wx.miniProgram.getSession('code');
 
 //Use MiniProgram directly
 const miniProgram = new MiniProgram({
-  "appId": "mp_appid",
-  "appSecret": "mp_app_secret",
+  miniProgram: {
+    "appId": "mp_appid",
+    "appSecret": "mp_app_secret",
+  }
 })
 ```
 
