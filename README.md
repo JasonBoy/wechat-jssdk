@@ -242,9 +242,7 @@ Built in Stores: `FileStore`, `MongoStore`,
 
 ```javascript
 ...
-const Wechat = require('wechat-jssdk');
-const MongoStore = Wechat.MongoStore;
-const FileStore = Wechat.FileStore;
+const {Wechat, MongoStore, FileStore} = require('wechat-jssdk');
 const wx = new Wechat({
 	appId: 'xxx',
 	...,
@@ -267,7 +265,7 @@ const wx = new Wechat({
 You can also create own Store to store tokens anywhere you want, by doing that, you may need to extend the base `Store` class, and reimplement the [apis](https://github.com/JasonBoy/wechat-jssdk/wiki/Store) you need:
 
 ```javascript
-const Store = require('wechat-jssdk').Store;
+const {Store} = require('wechat-jssdk');
 class CustomStore extends Store {
 	constructor (options) {
 		super();
