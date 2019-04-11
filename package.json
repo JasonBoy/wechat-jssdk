@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "source": "./lib/client.js",
   "engines": {
-    "node": ">= 6.0"
+    "node": ">= 8.6"
   },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
