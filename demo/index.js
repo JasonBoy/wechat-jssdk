@@ -182,7 +182,7 @@ app.get('/decode-card-code', function(req, res) {
 });
 
 app.get('/client.js', function(req, res) {
-  res.sendFile(path.join(__dirname, '../dist/client.js'));
+  res.sendFile(path.join(__dirname, '../dist/client.umd.js'));
 });
 
 app.get('/create-order', function(req, res) {

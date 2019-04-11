@@ -3,6 +3,7 @@
   "version": "4.0.2",
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "./lib/index.js",
+  "source": "./lib/client.js",
   "engines": {
     "node": ">= 6.0"
   },
@@ -13,8 +14,8 @@
     "coverage": "istanbul cover _mocha --report lcov -- -R spec --exit test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "prod": "NODE_ENV=production webpack --progress --mode production",
-    "build": "webpack --progress --mode development && npm run prod",
-    "watch": "webpack --progress --mode development --watch",
+    "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
+    "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
     "prepublish": "npm run build"
   },
   "husky": {
@@ -72,6 +73,7 @@
     "istanbul": "0.4.5",
     "lint-staged": "8.1.0",
     "lowdb": "1.0.0",
+    "microbundle": "0.11.0",
     "mocha": "5.2.0",
     "mocha-lcov-reporter": "1.3.0",
     "nodemon": "1.18.7",
