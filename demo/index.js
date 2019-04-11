@@ -2,7 +2,7 @@
 
 const express = require('express');
 const http = require('http');
-const swig = require('swig');
+const nunjucks = require('nunjucks');
 const { Wechat, Payment } = require('../lib');
 const path = require('path');
 const debug = require('debug')('wechat-demo');
@@ -23,14 +23,17 @@ const wx = new Wechat(wechatConfig);
 const order = new Order({ payment: wx.payment });
 
 const app = express();
-swig.setDefaults({
-  cache: false,
+
+nunjucks.configure(__dirname, {
+  autoescape: true,
+  express: app,
+  noCache: true,
 });
 
-app.engine('html', swig.renderFile);
+// app.engine('html', nunjucks);
 app.set('view engine', 'html');
 app.enable('trust proxy');
-app.set('views', path.join(__dirname));
+app.set('views', __dirname);
 
 app.use(cookieParser());
 app.use(
@@ -54,7 +57,7 @@ app.get('/', function(req, res) {
     DOMAIN + '/implicit-oauth',
     'snsapi_base'
   );
-  res.render('index', {
+  res.render('index.html', {
     oauthUrl: wx.oauth.snsUserInfoUrl,
     implicitOAuth: implicitOAuthUrl,
   });
@@ -97,7 +100,7 @@ app.get('/oauth', function(req, res) {
     //set openid to session to use in following request
     req.session.openid = userProfile.openid;
     console.log(req.session.openid);
-    res.render('oauth', {
+    res.render('oauth.html', {
       wechatInfo: JSON.stringify(userProfile),
     });
   });
@@ -113,7 +116,7 @@ app.get('/implicit-oauth', function(req, res) {
       res.redirect(redirect);
       return;
     }
-    res.render('oauth', {
+    res.render('oauth.html', {
       wechatInfo: JSON.stringify(tokenInfo, null, 2),
     });
   });
@@ -133,7 +136,7 @@ app.get('/oauth-cache', function(req, res) {
     .getUserInfo(null, key)
     .then(function(userProfile) {
       console.log(userProfile);
-      res.render('oauth', {
+      res.render('oauth.html', {
         wechatInfo: JSON.stringify(userProfile),
       });
     })
