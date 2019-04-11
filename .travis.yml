@@ -2,8 +2,8 @@ language: node_js
 repo_token: iUSiEgqT1o1NNeHUvMQz2bxetC1NzTbZG
 services: mongodb
 node_js:
-  - 6
   - 8
+  - 10
   - stable
 script: npm run coverage
 after_success: 'npm run coveralls'
