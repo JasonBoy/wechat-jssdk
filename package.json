@@ -13,7 +13,7 @@
     "test": "_mocha --exit test/**/*.js",
     "coverage": "istanbul cover _mocha --report lcov -- -R spec --exit test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
-    "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
+    "build": "rm -rf dist/ && microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
     "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
     "prepublishOnly": "npm run build"
   },
