@@ -13,7 +13,7 @@
     "test": "_mocha --exit test/**/*.js",
     "coverage": "istanbul cover _mocha --report lcov -- -R spec --exit test/**/*.js",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
-    "build": "rm -rf dist/ && microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
+    "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
     "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
     "prepublishOnly": "npm run build"
   },
@@ -73,5 +73,16 @@
     "nodemon": "1.19.0",
     "nunjucks": "3.2.0",
     "prettier": "1.17.0"
-  }
+  },
+  "files": [
+    "dist/client.umd.js",
+    "lib",
+    "test",
+    ".coveralls.yml",
+    ".travis.yml",
+    "LICENSE",
+    "package.json",
+    "package-lock.json",
+    "README.md"
+  ]
 }
