@@ -15,7 +15,9 @@
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
     "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "husky": {
     "hooks": {
@@ -54,7 +56,8 @@
     "got": "9.6.0",
     "lodash.isempty": "4.4.0",
     "mongoose": "5.6.2",
-    "xml2js": "0.4.19"
+    "xml2js": "0.4.19",
+    "snyk": "^1.192.0"
   },
   "devDependencies": {
     "body-parser": "1.19.0",
@@ -85,5 +88,6 @@
     "package.json",
     "package-lock.json",
     "README.md"
-  ]
+  ],
+  "snyk": true
 }
