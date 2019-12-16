@@ -7,6 +7,7 @@
   "engines": {
     "node": ">= 8.6"
   },
+  "types": "index.d.ts",
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
     "dev": "DEBUG=wechat* nodemon -w ./lib -w ./demo ./demo/index.js",
