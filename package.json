@@ -61,7 +61,6 @@
     "coveralls": "3.0.9",
     "express": "4.17.1",
     "express-session": "1.17.0",
-    "fsevents": "1.2.11",
     "husky": "3.0.9",
     "istanbul": "0.4.5",
     "lint-staged": "9.4.2",
