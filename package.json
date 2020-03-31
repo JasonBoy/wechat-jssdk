@@ -1,6 +1,6 @@
 {
   "name": "wechat-jssdk",
-  "version": "5.0.4",
+  "version": "6.0.0-alpha.0",
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "./lib/index.js",
   "source": "./lib/client.js",
@@ -48,7 +48,7 @@
   "dependencies": {
     "date-fns": "2.11.1",
     "debug": "4.1.1",
-    "got": "9.6.0",
+    "got": "10.7.0",
     "lodash.isempty": "4.4.0",
     "mongoose": "5.9.7",
     "xml2js": "0.4.23"
@@ -63,12 +63,13 @@
     "husky": "4.2.3",
     "lint-staged": "10.1.0",
     "lowdb": "1.0.0",
-    "microbundle": "0.12.0-next.3",
+    "microbundle": "0.12.0-next.8",
     "mocha": "6.2.1",
     "nodemon": "2.0.2",
     "nunjucks": "3.2.1",
     "nyc": "15.0.0",
-    "prettier": "2.0.2"
+    "prettier": "2.0.2",
+    "typescript": "3.8.3"
   },
   "files": [
     "dist/client.umd.js",
