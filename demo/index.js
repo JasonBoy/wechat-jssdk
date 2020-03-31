@@ -42,20 +42,20 @@ app.use(
     secret: 'wechat-app',
     saveUninitialized: true,
     resave: true,
-  })
+  }),
 );
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.locals.appId = wechatConfig.appId;
   res.locals.domain = DOMAIN;
   next();
 });
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   //also you can generate one at runtime:
   const implicitOAuthUrl = wx.oauth.generateOAuthUrl(
     DOMAIN + '/implicit-oauth',
-    'snsapi_base'
+    'snsapi_base',
   );
   res.render('index.html', {
     oauthUrl: wx.oauth.snsUserInfoUrl,
@@ -63,7 +63,7 @@ app.get('/', function(req, res) {
   });
 });
 
-app.get('/api/wechat', function(req, res) {
+app.get('/api/wechat', function (req, res) {
   if (wx.jssdk.verifySignature(req.query)) {
     res.send(req.query.echostr);
     return;
@@ -71,31 +71,31 @@ app.get('/api/wechat', function(req, res) {
   res.send('error');
 });
 
-app.get('/get-signature', function(req, res) {
+app.get('/get-signature', function (req, res) {
   console.log(req.query);
   wx.jssdk.getSignature(req.query.url).then(
-    data => {
+    (data) => {
       console.log('OK', data);
       res.json(data);
     },
-    reason => {
+    (reason) => {
       console.error(reason);
       res.json(reason);
-    }
+    },
   );
 });
 
 /**
  * @see wechatRedirectUrl in Wechat config
  */
-app.get('/oauth', function(req, res) {
+app.get('/oauth', function (req, res) {
   //use default openid as the key
   const key = req.session.openid;
 
   //use custom key for oauth token store
   // const key = req.sessionID;
   // console.log('oauth sessionID: %s', key);
-  wx.oauth.getUserInfo(req.query.code, key).then(function(userProfile) {
+  wx.oauth.getUserInfo(req.query.code, key).then(function (userProfile) {
     console.log('userProfile:', userProfile);
     //set openid to session to use in following request
     req.session.openid = userProfile.openid;
@@ -106,9 +106,9 @@ app.get('/oauth', function(req, res) {
   });
 });
 
-app.get('/implicit-oauth', function(req, res) {
+app.get('/implicit-oauth', function (req, res) {
   const redirect = req.query.from;
-  wx.oauth.getUserBaseInfo(req.query.code).then(function(tokenInfo) {
+  wx.oauth.getUserBaseInfo(req.query.code).then(function (tokenInfo) {
     console.log('implicit oauth: ', tokenInfo);
     // console.log('implicit oauth: ', JSON.stringify(tokenInfo));
     req.session.openid = tokenInfo.openid;
@@ -122,7 +122,7 @@ app.get('/implicit-oauth', function(req, res) {
   });
 });
 
-app.get('/oauth-cache', function(req, res) {
+app.get('/oauth-cache', function (req, res) {
   const key = req.session.openid;
   console.log('openid: ', key);
 
@@ -134,7 +134,7 @@ app.get('/oauth-cache', function(req, res) {
   //it will redirect to the "/oauth" router above in catch handler to get new code
   wx.oauth
     .getUserInfo(null, key)
-    .then(function(userProfile) {
+    .then(function (userProfile) {
       console.log(userProfile);
       res.render('oauth.html', {
         wechatInfo: JSON.stringify(userProfile),
@@ -146,46 +146,46 @@ app.get('/oauth-cache', function(req, res) {
     });
 });
 
-app.get('/choose-card', function(req, res) {
+app.get('/choose-card', function (req, res) {
   const qs = req.query;
   wx.card
     .getCardSignature(qs.shopId, qs.cardType, qs.cardId)
-    .then(sigInfo => {
+    .then((sigInfo) => {
       res.json(sigInfo);
     })
-    .catch(reason => {
+    .catch((reason) => {
       res.json(reason);
     });
 });
 
-app.get('/get-card-ext', function(req, res) {
+app.get('/get-card-ext', function (req, res) {
   const qs = req.query;
   wx.card
     .getCardExt(qs.cardId, '', '', '', 'wechat-jssdk')
-    .then(sigInfo => {
+    .then((sigInfo) => {
       res.json({ data: sigInfo });
     })
-    .catch(reason => {
+    .catch((reason) => {
       res.json(reason);
     });
 });
 
-app.get('/decode-card-code', function(req, res) {
+app.get('/decode-card-code', function (req, res) {
   wx.card
     .decryptCardCode(req.query.encryptCode)
-    .then(data => {
+    .then((data) => {
       res.json(data);
     })
-    .catch(data => {
+    .catch((data) => {
       res.json(data);
     });
 });
 
-app.get('/client.js', function(req, res) {
+app.get('/client.js', function (req, res) {
   res.sendFile(path.join(__dirname, '../dist/client.umd.js'));
 });
 
-app.get('/create-order', function(req, res) {
+app.get('/create-order', function (req, res) {
   const openid = req.session.openid;
   console.log('req.session.openid:', openid);
   const orderCase = req.query.case;
@@ -224,16 +224,16 @@ app.get('/create-order', function(req, res) {
       break;
   }
 
-  p.then(data => {
+  p.then((data) => {
     console.log(data.orderId);
     req.session.orderId = data.orderId;
     res.json(data.chooseWXPay);
-  }).catch(err => {
+  }).catch((err) => {
     res.json(err);
   });
 });
 
-app.get('/query-order', function(req, res) {
+app.get('/query-order', function (req, res) {
   const orderId = req.query.tradeNo || req.session.orderId;
   if (!orderId) {
     res.json({
@@ -244,31 +244,31 @@ app.get('/query-order', function(req, res) {
 
   order
     .queryOrder(orderId)
-    .then(data => {
+    .then((data) => {
       res.json(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.json(err);
     });
 });
 
-app.get('/download-bill', function(req, res) {
+app.get('/download-bill', function (req, res) {
   const query = req.query;
   wx.payment
     .downloadBill(query.billDate, Payment.DOWNLOAD_BILL_TYPE.SUCCESS)
-    .then(result => {
+    .then((result) => {
       if (result.body) {
         res.type('zip');
         res.send(result.body);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       res.json(err);
     });
 });
 
-app.get('/settlements', function(req, res) {
+app.get('/settlements', function (req, res) {
   const {
     usetag, //int 1 -> settled, 2 -> unsettled
     offset, //int
@@ -285,10 +285,10 @@ app.get('/settlements', function(req, res) {
       date_start,
       date_end,
     })
-    .then(result => {
+    .then((result) => {
       res.json(result.responseData);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       res.json(err);
     });
@@ -305,20 +305,20 @@ app.get('/exchange-rate', (req, res) => {
       fee_type: fee_type || 'GBP',
       date: date || utils.simpleDate(new Date(), 'YYYYMMDD'),
     })
-    .then(result => {
+    .then((result) => {
       res.json(result.responseData);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       res.json(err);
     });
 });
 
 //demo: unified order pay result notify_url goes here
-app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
+app.post('/pay-result-notify', bodyParser.text(), function (req, res) {
   wx.payment
     .parseNotifyData(req.body)
-    .then(data => {
+    .then((data) => {
       const sign = data.sign;
       data.sign = undefined;
       const genSignData = wx.payment.generateSignature(data, data.sign_type);
@@ -339,14 +339,14 @@ app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
 
         order.updateNotifyResult(data);
         //sign check and send back
-        wx.payment.replyData(true).then(ret => {
+        wx.payment.replyData(true).then((ret) => {
           res.send(ret);
         });
         return;
       }
       return Promise.reject(new Error('notify sign not matched!'));
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       // wx.payment.replyData(false).then(ret => {
       //   res.send(ret);
@@ -354,23 +354,23 @@ app.post('/pay-result-notify', bodyParser.text(), function(req, res) {
     });
 });
 //process refund notify result
-app.post('/refund-result-notify', bodyParser.text(), function(req, res) {
+app.post('/refund-result-notify', bodyParser.text(), function (req, res) {
   wx.payment
     .decryptRefundNotifyResult(req.body)
-    .then(result => {
+    .then((result) => {
       const parsedXMLData = result.parsedXMLData;
       const decryptedReqInfoData = result.decryptedData;
       order.updateNotifyRefundResult(
-        Object.assign(parsedXMLData, decryptedReqInfoData)
+        Object.assign(parsedXMLData, decryptedReqInfoData),
       );
 
-      wx.payment.replyData(true).then(ret => {
+      wx.payment.replyData(true).then((ret) => {
         res.send(ret);
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
-      wx.payment.replyData(false).then(ret => {
+      wx.payment.replyData(false).then((ret) => {
         res.send(ret);
       });
     });
@@ -380,10 +380,10 @@ const server = http.createServer(app);
 const port = process.env.PORT || 3000;
 //should use like nginx to proxy the request to 3000, the signature domain must be on PORT 80.
 server.listen(port);
-server.on('listening', function() {
+server.on('listening', function () {
   debug('Express listening on port %d', port);
 });
 
-process.on('exit', function() {
+process.on('exit', function () {
   wx.store.flush();
 });

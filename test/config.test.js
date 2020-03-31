@@ -6,25 +6,25 @@ const should = bootstrap.should;
 
 const configCheck = require('../lib/config').checkPassedConfiguration;
 
-describe('config', function() {
-  it('should throw error with empty options', function() {
-    (function() {
+describe('config', function () {
+  it('should throw error with empty options', function () {
+    (function () {
       configCheck({});
     }.should.throw(/wechat configuration/));
   });
 
-  it('should throw error with empty wechat appid', function() {
+  it('should throw error with empty wechat appid', function () {
     const temp = Object.assign({}, config);
     delete temp.appId;
-    (function() {
+    (function () {
       configCheck(temp);
     }.should.throw(/wechat appId/));
   });
 
-  it('should throw error with empty wechat appSecret', function() {
+  it('should throw error with empty wechat appSecret', function () {
     const temp = Object.assign({}, config);
     delete temp.appSecret;
-    (function() {
+    (function () {
       configCheck(temp);
     }.should.throw(/wechat appSecret/));
   });

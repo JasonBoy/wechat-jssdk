@@ -80,7 +80,7 @@ class Order {
         total_fee: '101',
         // goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -96,7 +96,7 @@ class Order {
         total_fee: '102',
         goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -112,7 +112,7 @@ class Order {
         total_fee: '130',
         goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -128,7 +128,7 @@ class Order {
         total_fee: '131',
         goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -144,7 +144,7 @@ class Order {
         total_fee: '132',
         goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -160,7 +160,7 @@ class Order {
         total_fee: '133',
         goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -176,7 +176,7 @@ class Order {
         total_fee: '134',
         goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -193,7 +193,7 @@ class Order {
         total_fee: '179',
         goods_tag: 'wx_test',
       },
-      info
+      info,
     );
     return this.createOrder(order);
   }
@@ -201,14 +201,14 @@ class Order {
   createOrder(order) {
     return this.payment
       .unifiedOrder(order)
-      .then(result => {
+      .then((result) => {
         const requestData = Object.assign(
           { id: result.requestData.out_trade_no },
-          result.requestData
+          result.requestData,
         );
         const responseData = Object.assign(
           { id: result.responseData.out_trade_no },
-          result.responseData
+          result.responseData,
         );
         const hasOrder = db
           .get('orders')
@@ -217,20 +217,16 @@ class Order {
           .value();
         if (hasOrder) {
         } else {
-          db.get('orders')
-            .push(requestData)
-            .write();
-          db.get('unifiedOrders')
-            .push(responseData)
-            .write();
+          db.get('orders').push(requestData).write();
+          db.get('unifiedOrders').push(responseData).write();
           debug('add new order & unified order finished!');
         }
         return Promise.resolve(responseData);
       })
-      .then(data => {
+      .then((data) => {
         return this.payment
           .generateChooseWXPayInfo(data.prepay_id)
-          .then(chooseWXPayData => {
+          .then((chooseWXPayData) => {
             console.log('parsed data:', data);
             console.log('WXpaydata data:', chooseWXPayData);
             return Promise.resolve({
@@ -246,24 +242,19 @@ class Order {
       .queryOrder({
         out_trade_no: tradeNo,
       })
-      .then(result => {
+      .then((result) => {
         const temp = Object.assign(
           { id: result.responseData.out_trade_no },
-          result.responseData
+          result.responseData,
         );
-        db.get('wechatOrders')
-          .push(temp)
-          .write();
+        db.get('wechatOrders').push(temp).write();
         debug('write wechat query order finished!');
         return Promise.resolve(result);
       });
   }
 
   getOrderFromDB(tradeNo) {
-    return db
-      .get('orders')
-      .find({ id: tradeNo })
-      .value();
+    return db.get('orders').find({ id: tradeNo }).value();
   }
 
   updateNotifyResult(data) {
@@ -287,11 +278,9 @@ class Order {
     }
     const temp = Object.assign(
       { id: data.out_trade_no, processed: true },
-      data
+      data,
     );
-    db.get('wechatNotifiesOrders')
-      .push(temp)
-      .write();
+    db.get('wechatNotifiesOrders').push(temp).write();
   }
 
   updateNotifyRefundResult(data) {
@@ -310,11 +299,9 @@ class Order {
     }
     const temp = Object.assign(
       { id: data.out_trade_no, processed: true },
-      data
+      data,
     );
-    db.get('wechatNotifyRefunds')
-      .push(temp)
-      .write();
+    db.get('wechatNotifyRefunds').push(temp).write();
   }
 }
 

@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "source": "./lib/client.js",
   "engines": {
-    "node": ">= 8.6"
+    "node": ">= 10"
   },
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
@@ -24,8 +24,7 @@
   },
   "lint-staged": {
     "**/*.js": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "repository": {
@@ -47,29 +46,29 @@
   },
   "homepage": "https://github.com/JasonBoy/wechat-jssdk#readme",
   "dependencies": {
-    "date-fns": "2.9.0",
+    "date-fns": "2.11.1",
     "debug": "4.1.1",
     "got": "9.6.0",
     "lodash.isempty": "4.4.0",
-    "mongoose": "5.8.9",
+    "mongoose": "5.9.7",
     "xml2js": "0.4.23"
   },
   "devDependencies": {
     "body-parser": "1.19.0",
     "chai": "4.2.0",
-    "cookie-parser": "1.4.4",
-    "coveralls": "3.0.9",
+    "cookie-parser": "1.4.5",
+    "coveralls": "3.0.11",
     "express": "4.17.1",
     "express-session": "1.17.0",
-    "husky": "3.0.9",
-    "lint-staged": "9.4.2",
+    "husky": "4.2.3",
+    "lint-staged": "10.1.0",
     "lowdb": "1.0.0",
     "microbundle": "0.12.0-next.3",
     "mocha": "6.2.1",
     "nodemon": "2.0.2",
-    "nunjucks": "3.2.0",
+    "nunjucks": "3.2.1",
     "nyc": "15.0.0",
-    "prettier": "1.19.1"
+    "prettier": "2.0.2"
   },
   "files": [
     "dist/client.umd.js",

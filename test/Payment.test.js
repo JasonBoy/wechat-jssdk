@@ -8,7 +8,7 @@ const config = bootstrap.config;
 const { Payment } = require('../lib');
 // const utils = require('../lib/utils');
 
-describe('Payment', function() {
+describe('Payment', function () {
   const customNotifyUrl = 'http://custom.com/api/wechat/payment/';
   const sandboxUnifiedOrder =
     'https://api.mch.weixin.qq.com/sandboxnew/pay/unifiedorder';
@@ -22,19 +22,19 @@ describe('Payment', function() {
       paymentKey: 'c790c109f688b01807617821ed9f1193',
       paymentCertificatePfx: 'test_certificate',
       merchantId: 'test_merchant_id',
-    })
+    }),
   );
   // console.log(payment.paymentUrls);
 
-  describe('@constructor', function() {
-    it('should successfully init the Payment instance', function(done) {
+  describe('@constructor', function () {
+    it('should successfully init the Payment instance', function (done) {
       payment.notifyUrl.should.equal(customNotifyUrl);
       payment.paymentUrls.UNIFIED_ORDER.should.equal(sandboxUnifiedOrder);
       done();
     });
   });
 
-  describe('#generateSignature()', function() {
+  describe('#generateSignature()', function () {
     const params2 = {
       appid: 'wxd930ea5d5a258f4f',
       mch_id: 10000100,
@@ -58,11 +58,11 @@ describe('Payment', function() {
       total_fee: '1',
       trade_type: 'JSAPI',
     };
-    it('should generate signature for passed parameters', function() {
+    it('should generate signature for passed parameters', function () {
       const data = payment.generateSignature(
         params2,
         Payment.SIGN_TYPE.MD5,
-        true
+        true,
       );
       // console.log(data);
       // data.sign.should.equal('EC00CE08DD7396EF70AE7D659D2A1D3A');
@@ -79,18 +79,18 @@ describe('Payment', function() {
     package: 'prepay_id=wx20180320171114464556',
   };
 
-  describe('#generateGeneralPaymentSignature(MD5)', function() {
-    it('should generate paySign in MD5', function() {
+  describe('#generateGeneralPaymentSignature(MD5)', function () {
+    it('should generate paySign in MD5', function () {
       //paymentKey: '192006250b4c09247ec02edce69f6a2d',
       const data = payment.generateGeneralPaymentSignature(
         Object.assign(
           {
             signType: Payment.SIGN_TYPE.MD5,
           },
-          paySignData
+          paySignData,
         ),
         Payment.SIGN_TYPE.MD5,
-        true
+        true,
       );
       // console.log(data);
       data.should.have
@@ -99,24 +99,24 @@ describe('Payment', function() {
     });
   });
 
-  describe('#generateGeneralPaymentSignature(HMAC-SHA256)', function() {
-    it('should generate paySign in HMAC-SHA256', function() {
+  describe('#generateGeneralPaymentSignature(HMAC-SHA256)', function () {
+    it('should generate paySign in HMAC-SHA256', function () {
       //paymentKey: '192006250b4c09247ec02edce69f6a2d',
       const data = payment.generateGeneralPaymentSignature(
         Object.assign(
           {
             signType: Payment.SIGN_TYPE.HMAC_SHA256,
           },
-          paySignData
+          paySignData,
         ),
         Payment.SIGN_TYPE.HMAC_SHA256,
-        true
+        true,
       );
       // console.log(data);
       data.should.have
         .property('paySign')
         .equal(
-          'AD97A811D2762EEB24F9565C2EA2176616702627DE606A52C59787D878C52B0C'
+          'AD97A811D2762EEB24F9565C2EA2176616702627DE606A52C59787D878C52B0C',
         );
     });
   });

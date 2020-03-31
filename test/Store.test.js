@@ -8,44 +8,44 @@ const fileStore = new FileStore({
   fileStorePath: './wechat-info-' + Math.random() + '.json',
 });
 
-describe('FileStore', function() {
-  it('should flush the store', function() {
+describe('FileStore', function () {
+  it('should flush the store', function () {
     fileStore.flush();
   });
 
-  it('should failed to flush file store', function(done) {
+  it('should failed to flush file store', function (done) {
     fileStore.fileStorePath = './invalid/invalid_path';
     fileStore.flush();
     done();
   });
 
-  it('should destroy the store', function() {
+  it('should destroy the store', function () {
     fileStore.destroy();
   });
 });
 
-describe('MongoStore', function() {
+describe('MongoStore', function () {
   const mongoStore = new MongoStore();
-  let p = new Promise(resolve => {
-    mongoStore.on('initialized', function() {
+  let p = new Promise((resolve) => {
+    mongoStore.on('initialized', function () {
       resolve();
     });
   });
 
-  before(function() {
+  before(function () {
     return p;
   });
   this.timeout(20000);
-  it('should flush the store', function(done) {
+  it('should flush the store', function (done) {
     mongoStore.flush().then(() => done());
   });
 
-  it('should destroy the store', function() {
+  it('should destroy the store', function () {
     mongoStore.destroy();
   });
 });
 
-describe('MongoStore2', function() {
+describe('MongoStore2', function () {
   const mockUrl = 'http://localhost/?' + Math.random();
   const mockSignature = {
     jsapi_ticket:
@@ -76,28 +76,28 @@ describe('MongoStore2', function() {
   };
 
   const mongoStore2 = new MongoStore();
-  let p = new Promise(resolve => {
-    mongoStore2.on('initialized', function() {
+  let p = new Promise((resolve) => {
+    mongoStore2.on('initialized', function () {
       resolve();
     });
   });
 
-  before(function() {
+  before(function () {
     return p;
   });
 
   this.timeout(20000);
 
-  it('should save new signature to mongodb', function(done) {
-    mongoStore2.saveSignature(mockUrl, mockSignature).then(sig => {
+  it('should save new signature to mongodb', function (done) {
+    mongoStore2.saveSignature(mockUrl, mockSignature).then((sig) => {
       sig.should.have.property('jsapi_ticket');
       done();
     });
   });
 
-  it('should get the saved signature', function(done) {
+  it('should get the saved signature', function (done) {
     setTimeout(() => {
-      mongoStore2.getSignature(mockUrl).then(sig => {
+      mongoStore2.getSignature(mockUrl).then((sig) => {
         sig.should.have.property('jsapi_ticket');
         sig.should.have.property('url');
         sig.url.should.be.equal(mockUrl);
@@ -106,10 +106,10 @@ describe('MongoStore2', function() {
     }, 1500);
   });
 
-  it('should get the saved signature from db', function(done) {
+  it('should get the saved signature from db', function (done) {
     setTimeout(() => {
       delete mongoStore2.store.urls[mockUrl];
-      mongoStore2.getSignature(mockUrl).then(sig => {
+      mongoStore2.getSignature(mockUrl).then((sig) => {
         sig.should.have.property('jsapi_ticket');
         sig.should.have.property('url');
         sig.url.should.be.equal(mockUrl);
@@ -118,22 +118,22 @@ describe('MongoStore2', function() {
     }, 2000);
   });
 
-  it('should save new oauth access token to mongodb', function(done) {
+  it('should save new oauth access token to mongodb', function (done) {
     mongoStore2
       .saveOAuthAccessToken(mockOAuthToken.key, mockOAuthToken)
-      .then(sig => {
+      .then((sig) => {
         sig.should.have.property('access_token');
         done();
       });
   });
 
-  it('should update signature to mongodb', function(done) {
+  it('should update signature to mongodb', function (done) {
     const newSignature = util.nonceStr();
     const newSig = Object.assign({}, mockUrl, { signature: newSignature });
     setTimeout(() => {
       mongoStore2
         .updateSignature(mockUrl, newSig)
-        .then(sig => {
+        .then((sig) => {
           sig.should.have.property('signature');
           sig.signature.should.be.equal(newSignature);
           done();
@@ -142,11 +142,11 @@ describe('MongoStore2', function() {
     }, 1500);
   });
 
-  it('should get saved oauth access token', function(done) {
+  it('should get saved oauth access token', function (done) {
     setTimeout(() => {
       mongoStore2
         .getOAuthAccessToken(mockOAuthToken.key)
-        .then(tokenInfo => {
+        .then((tokenInfo) => {
           tokenInfo.should.have.property('access_token');
           tokenInfo.key.should.be.equal(mockOAuthToken.key);
           tokenInfo.access_token.should.be.equal(mockOAuthToken.access_token);
@@ -156,12 +156,12 @@ describe('MongoStore2', function() {
     }, 1000);
   });
 
-  it('should get saved oauth access token from db', function(done) {
+  it('should get saved oauth access token from db', function (done) {
     setTimeout(() => {
       delete mongoStore2.store.oauth[mockOAuthToken.key];
       mongoStore2
         .getOAuthAccessToken(mockOAuthToken.key)
-        .then(tokenInfo => {
+        .then((tokenInfo) => {
           tokenInfo.should.have.property('access_token');
           tokenInfo.key.should.be.equal(mockOAuthToken.key);
           tokenInfo.access_token.should.be.equal(mockOAuthToken.access_token);
@@ -171,14 +171,14 @@ describe('MongoStore2', function() {
     }, 1500);
   });
 
-  it('should update the oauth access token', function(done) {
+  it('should update the oauth access token', function (done) {
     const newToken = util.nonceStr();
     setTimeout(() => {
       mongoStore2
         .updateOAuthAccessToken(mockOAuthToken.key, {
           access_token: newToken,
         })
-        .then(newTokenInfo => {
+        .then((newTokenInfo) => {
           newTokenInfo.access_token.should.be.equal(newToken);
           done();
         })
@@ -186,14 +186,14 @@ describe('MongoStore2', function() {
     }, 1500);
   });
 
-  it('should update the global token', function(done) {
+  it('should update the global token', function (done) {
     mongoStore2
       .getGlobalToken()
-      .then(oldToken => {
+      .then((oldToken) => {
         const newToken = {
           accessToken: 'mock_access_token',
         };
-        return mongoStore2.updateGlobalToken(newToken).then(updatedToken => {
+        return mongoStore2.updateGlobalToken(newToken).then((updatedToken) => {
           updatedToken.should.have.property('accessToken');
           updatedToken.accessToken.should.be.equal('mock_access_token');
           const newCount = oldToken.count + 1;
@@ -204,21 +204,21 @@ describe('MongoStore2', function() {
       .catch(() => done());
   });
 
-  it('should save the card ticket', function(done) {
+  it('should save the card ticket', function (done) {
     mongoStore2
       .updateCardTicket(mockCardTicket)
-      .then(cardTicket => {
+      .then((cardTicket) => {
         cardTicket.ticket.should.be.equal(mockCardTicket.ticket);
         done();
       })
       .catch(() => done());
   });
 
-  it('should get the card ticket', function(done) {
+  it('should get the card ticket', function (done) {
     setTimeout(() => {
       mongoStore2
         .getCardTicket()
-        .then(cardTicket => {
+        .then((cardTicket) => {
           cardTicket.ticket.should.be.equal(mockCardTicket.ticket);
           done();
         })
@@ -226,14 +226,14 @@ describe('MongoStore2', function() {
     }, 1500);
   });
 
-  it('should update the card ticket', function(done) {
+  it('should update the card ticket', function (done) {
     const newTicket = Object.assign({}, mockCardTicket, {
       ticket: util.nonceStr(),
     });
     setTimeout(() => {
       mongoStore2
         .updateCardTicket(newTicket)
-        .then(cardTicket => {
+        .then((cardTicket) => {
           cardTicket.ticket.should.be.equal(newTicket.ticket);
           done();
         })
@@ -241,15 +241,15 @@ describe('MongoStore2', function() {
     }, 2000);
   });
 
-  it('should flush in memory data', function(done) {
+  it('should flush in memory data', function (done) {
     setTimeout(() => {
       const store = mongoStore2.store;
       const signatureKeys = Object.keys(store.urls);
       const oauthKeys = Object.keys(store.oauth);
-      signatureKeys.forEach(url => {
+      signatureKeys.forEach((url) => {
         store.urls[url].updated = true;
       });
-      oauthKeys.forEach(key => {
+      oauthKeys.forEach((key) => {
         store.oauth[key].updated = true;
       });
       mongoStore2

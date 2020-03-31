@@ -44,9 +44,9 @@ const mockSession = {
   openid: 'o0ZEQ5YfjRe33Z_ncEI34FAgQX7s',
 };
 
-describe('MiniProgram', function() {
-  describe('@constructor', function() {
-    it('should successfully init the MiniProgram instance', function(done) {
+describe('MiniProgram', function () {
+  describe('@constructor', function () {
+    it('should successfully init the MiniProgram instance', function (done) {
       mp.appId.should.equal(mpConfig.appId);
       mp.appSecret.should.equal(mpConfig.appSecret);
       done();
@@ -72,31 +72,31 @@ describe('MiniProgram', function() {
   //   });
   // });
 
-  describe('#verifySignature()', function() {
-    it('should verify the signature', function(cb) {
+  describe('#verifySignature()', function () {
+    it('should verify the signature', function (cb) {
       mp.genSignature(mock.rawData, mockSession.session_key)
-        .then(sig => {
+        .then((sig) => {
           // console.log('sig: ', sig);
           sig.should.equal(mock.signature);
           cb();
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           cb(err);
         });
     });
   });
 
-  describe('#decryptData()', function() {
-    it('should decrypt the received encrypted data', function(cb) {
+  describe('#decryptData()', function () {
+    it('should decrypt the received encrypted data', function (cb) {
       mp.decryptData(mock.encryptedData, mock.iv, mockSession.session_key)
-        .then(ret => {
+        .then((ret) => {
           // console.log(ret);
           ret.watermark.appid.should.equal(mpConfig.appId);
           ret.openId.should.equal(mockSession.openid);
           cb();
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           cb(err);
         });

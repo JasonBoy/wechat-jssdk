@@ -16,15 +16,13 @@ function init() {
     .push({ id: utils.nonceStr(), title: 'lowdb is awesome2' })
     .write();
 
-  db.get('orders')
-    .push({ id: utils.nonceStr(), title: 'order 1' })
-    .write();
+  db.get('orders').push({ id: utils.nonceStr(), title: 'order 1' }).write();
 
   // Set a user using Lodash shorthand syntax
   db.set('user.name', 'typicode2').write();
 
   // Increment count
-  db.update('count', n => n + 1).write();
+  db.update('count', (n) => n + 1).write();
 }
 
 function getState() {

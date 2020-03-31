@@ -23,7 +23,7 @@ module.exports = {
   paymentKey: '',
   // paymentSandBoxKey: '',
   paymentCertificatePfx: fs.readFileSync(
-    path.join(process.cwd(), 'cert/apiclient_cert.p12')
+    path.join(process.cwd(), 'cert/apiclient_cert.p12'),
   ),
   paymentNotifyUrl: `${DOMAIN}/api/wechat/payment/`,
 };
