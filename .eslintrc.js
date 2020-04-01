@@ -23,5 +23,7 @@ module.exports = {
     'no-prototype-builtins': 'off',
     'no-unused-vars': 'warn',
     'require-atomic-updates': 'warn',
+    //ts
+    '@typescript-eslint/camelcase': 'off',
   },
 };
