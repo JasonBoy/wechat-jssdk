@@ -1,14 +1,14 @@
-'use strict';
+import debugFnc from 'debug';
 
-const debug = require('debug')('wechat');
-const { COMPARE_CONFIG_KEYS } = require('./config');
-const JSSDK = require('./JSSDK');
-const OAuth = require('./OAuth');
-const Card = require('./Card');
-const Payment = require('./Payment');
-const MiniProgram = require('./MiniProgram');
-const Store = require('./store/Store');
-const FileStore = require('./store/FileStore');
+import JSSDK from './JSSDK';
+import OAuth from './OAuth';
+import Card from './Card';
+import Payment from './Payment';
+import MiniProgram from './MiniProgram';
+import Store from './store/Store';
+import FileStore from './store/FileStore';
+
+const debug = debugFnc('wechat');
 
 class Wechat {
   /**
@@ -48,4 +48,4 @@ class Wechat {
   }
 }
 
-module.exports = Wechat;
+export default Wechat;

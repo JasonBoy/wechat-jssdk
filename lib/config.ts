@@ -1,6 +1,4 @@
-'use strict';
-
-const isEmpty = require('lodash.isempty');
+import isEmpty from 'lodash.isempty';
 
 const wechatConfig = {
   //redirect host in oauth redirect
@@ -52,24 +50,26 @@ const wechatConfig = {
   },
 };
 
-const COMPARE_CONFIG_KEYS = ['appId', 'wechatRedirectUrl', 'paymentSandBox'];
+export const COMPARE_CONFIG_KEYS = [
+  'appId',
+  'wechatRedirectUrl',
+  'paymentSandBox',
+];
 
-exports.COMPARE_CONFIG_KEYS = COMPARE_CONFIG_KEYS;
-
-exports.getConfigFromCompareKeys = (
+export function getConfigFromCompareKeys(
   wechatConfig,
   compareKeys = COMPARE_CONFIG_KEYS,
-) => {
+): object {
   const ret = {};
   compareKeys.forEach((k) => (ret[k] = wechatConfig[k]));
   return ret;
-};
+}
 
 /**
  * Check if user passed necessary configuration
  * @param {object} options user custom wechat config
  */
-exports.checkPassedConfiguration = (options) => {
+export function checkPassedConfiguration(options): boolean {
   if (isEmpty(options)) {
     throw new Error('you need to pass the wechat configuration');
   }
@@ -80,26 +80,27 @@ exports.checkPassedConfiguration = (options) => {
     throw new Error('wechat appSecret not found');
   }
   return true;
-};
+}
 
 /**
  * get default wechat configuration
  * @return {object} wechatConfig
  */
-exports.getDefaultConfiguration = () => wechatConfig;
+export function getDefaultConfiguration(): object {
+  return wechatConfig;
+}
 
 /**
  * Check if the new main wechat config values are the same as the previous one
  * @param {object} newConfig
  * @param {object} oldConfig
  * @param {Array=} compareKeys - custom keys to compare
- * @return {boolean}
  */
-exports.isBreakingConfigChange = (
+export function isBreakingConfigChange(
   newConfig,
   oldConfig,
   compareKeys = COMPARE_CONFIG_KEYS,
-) => {
+): boolean {
   if (!newConfig || !oldConfig) {
     return true;
   }
@@ -112,4 +113,4 @@ exports.isBreakingConfigChange = (
     }
   }
   return isBreaking;
-};
+}

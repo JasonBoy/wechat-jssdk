@@ -1,12 +1,13 @@
-'use strict';
+import debugFnc from 'debug';
 
-const debug = require('debug')('wechat');
-const crypto = require('crypto');
+import { createHash, createHmac } from 'crypto';
 
-const xml2js = require('xml2js');
-const dateFormat = require('date-fns/format');
-const url = require('url');
-const got = require('got');
+import xml2js from 'xml2js';
+import dateFormat from 'date-fns/format';
+import { parse } from 'url';
+import got from 'got';
+
+const debug = debugFnc('wechat');
 
 const DEFAULT_FORMAT = 'yyyyMMddHHmmss';
 
@@ -17,39 +18,41 @@ const defaultOptions = {
 //1h 59m, token is only valid within 2 hours
 const REFRESH_INTERVAL = 1000 * 119 * 60;
 
-const utils = {};
-
 /**
  * Generate digest hash based on the content
  * @param {*} content content to be digested
  * @param {string=} algorithm digest algorithm, default 'sha1'
  * @return {string}
  */
-utils.genHash = (content, algorithm) => {
-  const c = crypto.createHash(algorithm);
+export function genHash(content, algorithm): string {
+  const c = createHash(algorithm);
   c.update(content, 'utf8');
   return c.digest('hex');
-};
+}
 
 /**
  * Generate SHA1 hash
  * @param {*} content
  * @return {string}
  */
-utils.genSHA1 = (content) => utils.genHash(content, 'sha1');
+export function genSHA1(content): string {
+  return genHash(content, 'sha1');
+}
 
 /**
  * Generate MD5 hash
  * @param {*} content
  * @return {string}
  */
-utils.genMD5 = (content) => utils.genHash(content, 'MD5');
+export function genMD5(content): string {
+  return genHash(content, 'MD5');
+}
 
-utils.genHmacSHA256 = (content, key) => {
-  const hmac = crypto.createHmac('sha256', key);
+export function genHmacSHA256(content, key): string {
+  const hmac = createHmac('sha256', key);
   hmac.update(content, 'utf8');
   return hmac.digest('hex');
-};
+}
 
 /**
  * Parse the object to query string without encoding based on the ascii key order
@@ -57,7 +60,7 @@ utils.genHmacSHA256 = (content, key) => {
  * @param {boolean} noLowerCase
  * @return {string}
  */
-utils.paramsToString = (args, noLowerCase) => {
+export function paramsToString(args, noLowerCase?: boolean): string {
   let keys = Object.keys(args);
   keys = keys.sort();
   const newArgs = {};
@@ -67,7 +70,7 @@ utils.paramsToString = (args, noLowerCase) => {
   });
 
   let str = '';
-  for (let k in newArgs) {
+  for (const k in newArgs) {
     /* istanbul ignore else  */
     if (newArgs.hasOwnProperty(k)) {
       str += '&' + k + '=' + newArgs[k];
@@ -75,37 +78,35 @@ utils.paramsToString = (args, noLowerCase) => {
   }
   str = str.substr(1);
   return str;
-};
+}
 
 /**
  * Send the request to wechat server
  * @param {string|Object} url
  * @param {object} options custom request options
- * @return {Promise}
  */
-utils.sendWechatRequest = async (url, options) => {
+export async function sendWechatRequest(url, options): Promise<object> {
   const myOptions = Object.assign({}, defaultOptions, options);
   try {
-    let body = await got(url, myOptions).json();
+    const body: object = await got(url, myOptions).json();
     if (body.hasOwnProperty('errcode') && body.errcode != 0) {
       return Promise.reject(body);
     }
-    return Promise.resolve(body);
+    return body;
   } catch (err) {
     debug(err);
     return Promise.reject(
       err.response && err.response.body ? err.response.body : err,
     );
   }
-};
+}
 
 /**
  * Send the payment request to wechat server
  * @param {string|Object} url
  * @param {object} options custom request options
- * @return {Promise}
  */
-utils.sendWechatPaymentRequest = async (url, options) => {
+export async function sendWechatPaymentRequest(url, options): Promise<any> {
   const myOptions = Object.assign(
     {},
     defaultOptions,
@@ -115,7 +116,7 @@ utils.sendWechatPaymentRequest = async (url, options) => {
     options,
   );
   try {
-    let response = await got(url, myOptions);
+    const response = await got(url, myOptions);
     return Promise.resolve(response.body);
   } catch (err) {
     debug(err);
@@ -123,23 +124,22 @@ utils.sendWechatPaymentRequest = async (url, options) => {
       err.response && err.response.body ? err.response.body : err,
     );
   }
-};
+}
 
 /**
  * Create nonce string
  * @return {string}
  */
-utils.nonceStr = function () {
+export function nonceStr(): string {
   return Math.random().toString(36).substr(2, 15);
-};
+}
 
 /**
- * Create timestamp string
- * @return {string}
+ * Create timestamp string to seconds
  */
-utils.timestamp = function () {
-  return parseInt(new Date().getTime() / 1000) + '';
-};
+export function timestamp(): string {
+  return Math.round(new Date().getTime() / 1000).toString();
+}
 
 /**
  * Check if date is expired
@@ -147,11 +147,11 @@ utils.timestamp = function () {
  * @param {number=} interval milliseconds custom expires in
  * @return {boolean}
  */
-utils.isExpired = function (modifyDate, interval) {
+export function isExpired(modifyDate, interval?: number): boolean {
   /* istanbul ignore else  */
   if (interval === undefined) interval = REFRESH_INTERVAL;
   return Date.now() - new Date(modifyDate).getTime() > interval;
-};
+}
 
 /**
  * Get global access token from wechat server
@@ -160,7 +160,11 @@ utils.isExpired = function (modifyDate, interval) {
  * @param {string} accessTokenUrl
  * @return {Promise}
  */
-utils.getGlobalAccessToken = async function (appId, appSecret, accessTokenUrl) {
+export async function getGlobalAccessToken(
+  appId,
+  appSecret,
+  accessTokenUrl,
+): Promise<object> {
   const params = {
     grant_type: 'client_credential',
     appid: appId,
@@ -168,21 +172,21 @@ utils.getGlobalAccessToken = async function (appId, appSecret, accessTokenUrl) {
   };
   debug('getting new global token...');
   try {
-    return await utils.sendWechatRequest(accessTokenUrl, {
+    return await sendWechatRequest(accessTokenUrl, {
       searchParams: params,
     });
   } catch (reason) {
     debug('get global wechat access token failed!');
     return Promise.reject(reason);
   }
-};
+}
 
 /**
  * Parse the xml data returned from wechat server
  * @param xmlData
  * @return {Promise} result promise
  */
-utils.parseXML = async function (xmlData) {
+export async function parseXML(xmlData): Promise<object> {
   const parser = new xml2js.Parser({
     normalize: true,
     explicitRoot: false,
@@ -200,14 +204,14 @@ utils.parseXML = async function (xmlData) {
       resolve(result);
     });
   });
-};
+}
 
 /**
  * Build xml data string from the JSON object
  * @param {object} objData
  * @return {Promise}
  */
-utils.buildXML = function (objData) {
+export async function buildXML(objData): Promise<string> {
   const builder = new xml2js.Builder({
     rootName: 'xml',
     cdata: true,
@@ -216,7 +220,7 @@ utils.buildXML = function (objData) {
   });
   const xml = builder.buildObject(objData);
   return Promise.resolve(xml);
-};
+}
 
 /**
  * Simple Date formatter
@@ -224,25 +228,25 @@ utils.buildXML = function (objData) {
  * @param {string=} format
  * @return {string}
  */
-utils.simpleDate = function (date = new Date(), format = DEFAULT_FORMAT) {
+export function simpleDate(date = new Date(), format = DEFAULT_FORMAT): string {
   /* istanbul ignore if  */
   if (!(date instanceof Date)) {
     date = new Date(date);
   }
   return dateFormat(date, format);
-};
+}
 
 /**
  * Add "/sandboxnew" for payment apis to for testing
  * @param paymentUrls
  * @return {object}
  */
-utils.paymentUrlsWithSandBox = function (paymentUrls) {
+export function paymentUrlsWithSandBox(paymentUrls): object {
   const keys = Object.keys(paymentUrls);
   const newUrls = {};
   keys.forEach((urlKey) => {
     const paymentUrl = paymentUrls[urlKey];
-    const obj = url.parse(paymentUrl);
+    const obj = parse(paymentUrl);
     newUrls[urlKey] = [
       obj.protocol,
       '//',
@@ -252,28 +256,12 @@ utils.paymentUrlsWithSandBox = function (paymentUrls) {
     ].join('');
   });
   return newUrls;
-};
+}
 
-/*utils.decodeBase64 = function(b64string) {
-  return utils.createBuffer(b64string, 'base64').toString();
-};*/
+export function createBuffer(str, encoding = 'utf8'): Buffer {
+  return Buffer.from(str, encoding);
+}
 
-utils.createBuffer = function (str, encoding) {
-  const encode = /* istanbul ignore next */ encoding || 'utf8';
-  let buf;
-  /* istanbul ignore else  */
-  if (typeof Buffer.from === 'function') {
-    // Node 5.10+
-    buf = Buffer.from(str, encode);
-  } else {
-    // older Node versions
-    buf = new Buffer(str, encode);
-  }
-  return buf;
-};
-
-utils.createBufferFromBase64 = function (base64Str) {
-  return utils.createBuffer(base64Str, 'base64');
-};
-
-module.exports = utils;
+export function createBufferFromBase64(base64Str: string): Buffer {
+  return createBuffer(base64Str, 'base64');
+}

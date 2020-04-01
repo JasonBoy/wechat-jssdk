@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "target": "es2018",
+    "module": "CommonJS",
+    "allowJs": true
+  },
+  "include": ["lib/**/*"]
+}

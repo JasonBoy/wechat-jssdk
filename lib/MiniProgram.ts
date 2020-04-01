@@ -1,18 +1,22 @@
-'use strict';
+import debugFnc from 'debug';
+import { createDecipheriv } from 'crypto';
+import isEmpty from 'lodash.isempty';
+import * as utils from './utils';
+import { getDefaultConfiguration } from './config';
 
-const debug = require('debug')('wechat-MiniProgram');
-const crypto = require('crypto');
-const isEmpty = require('lodash.isempty');
+import Store from './store/Store';
+import FileStore from './store/FileStore';
 
-const utils = require('./utils');
-const config = require('./config');
+const debug = debugFnc('wechat-MiniProgram');
 
-const Store = require('./store/Store');
-const FileStore = require('./store/FileStore');
-
-const wxConfig = config.getDefaultConfiguration();
+const wxConfig = getDefaultConfiguration();
 
 class MiniProgram {
+  miniProgramOptions: object;
+  wechatConfig: object;
+  appId: string;
+  appSecret: string;
+  store: Store;
   /**
    * Wechat mini program class, must have "options.miniProgram" option
    * @constructor
@@ -66,9 +70,9 @@ class MiniProgram {
    * @param key - key used to store the session data, default will use the openid
    * @return {Promise<Object>}
    */
-  async getSession(code, key) {
+  async getSession(code, key): Promise<object> {
     try {
-      let data = await utils.sendWechatRequest(
+      const data = await utils.sendWechatRequest(
         this.miniProgramOptions.GET_SESSION_KEY_URL,
         {
           searchParams: {
@@ -93,7 +97,7 @@ class MiniProgram {
    * @param sessionKey
    * @return {Promise<string>} Promise - generated signature
    */
-  async genSignature(rawDataString, sessionKey) {
+  async genSignature(rawDataString, sessionKey): Promise<string> {
     return Promise.resolve(utils.genSHA1(rawDataString + sessionKey));
   }
 
@@ -104,11 +108,11 @@ class MiniProgram {
    * @param sessionKey
    * @return {Promise} Promise - resolved if signatures match, otherwise reject
    */
-  async verifySignature(rawData, signature, sessionKey) {
+  async verifySignature(rawData, signature, sessionKey): Promise<void> {
     if ('object' === typeof rawData) {
       rawData = JSON.stringify(rawData);
     }
-    let genSig = await this.genSignature(rawData, sessionKey);
+    const genSig = await this.genSignature(rawData, sessionKey);
     if (genSig === signature) {
       return Promise.resolve();
     }
@@ -128,9 +132,9 @@ class MiniProgram {
    * @param {string} iv
    * @param {string=} sessionKey - session_key used to decrypt encryptedData
    * @param {string=} key - get the session_key with key(usually is openid) from Store if the above "sessionKey" is not provided
-   * @return {Promise<object|Error>} Promise - resolved/rejected with decrypted data or Error
+   * @return {Promise<object>} Promise - resolved/rejected with decrypted data or Error
    */
-  async decryptData(encryptedData, iv, sessionKey, key) {
+  async decryptData(encryptedData, iv, sessionKey, key): Promise<object> {
     /* istanbul ignore if  */
     if (!sessionKey && !key) {
       return Promise.reject(
@@ -147,12 +151,12 @@ class MiniProgram {
     }
 
     try {
-      let sessionKey1 = await p;
+      const sessionKey1 = await p;
       const aesKey = utils.createBufferFromBase64(sessionKey1);
       const aesIV = utils.createBufferFromBase64(iv);
       let decoded;
       try {
-        const decipher = crypto.createDecipheriv('aes-128-cbc', aesKey, aesIV);
+        const decipher = createDecipheriv('aes-128-cbc', aesKey, aesIV);
         decipher.setAutoPadding(true);
         decoded = decipher.update(data, 'binary', 'utf8');
         decoded += decipher.final('utf8');
@@ -176,4 +180,4 @@ class MiniProgram {
   }
 }
 
-module.exports = MiniProgram;
+export default MiniProgram;

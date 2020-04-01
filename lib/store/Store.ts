@@ -1,7 +1,7 @@
-'use strict';
+import debugFnc from 'debug';
+import { EventEmitter } from 'events';
 
-const debug = require('debug')('wechat-Store');
-const EventEmitter = require('events');
+const debug = debugFnc('wechat-Store');
 
 const storeEvents = {
   FLUSH_STORE: 'FLUSH_STORE',
@@ -11,6 +11,9 @@ const storeEvents = {
 };
 
 class Store extends EventEmitter {
+  cache: boolean;
+  store: object;
+  wechatInterval: NodeJS.Timeout;
   /**
    * Store class constructor
    * @param options
@@ -104,7 +107,7 @@ class Store extends EventEmitter {
   }
 
   /* istanbul ignore next */
-  static get StoreEvents() {
+  static get StoreEvents(): object {
     return storeEvents;
   }
 
@@ -112,7 +115,7 @@ class Store extends EventEmitter {
    * Get global token info
    * @return {Promise}
    */
-  async getGlobalToken() {
+  async getGlobalToken(): Promise<object> {
     return Promise.resolve(this.store.globalToken);
   }
 
@@ -121,7 +124,7 @@ class Store extends EventEmitter {
    * @param info new token info should be updated to store
    * @return {Promise} updated global token info
    */
-  async updateGlobalToken(info) {
+  async updateGlobalToken(info): Promise<object> {
     const newToken = Object.assign({}, this.store.globalToken, info);
     // console.log('new token: ', newToken);
     newToken.count++;
@@ -136,7 +139,7 @@ class Store extends EventEmitter {
    * @param url
    * @return {Promise}
    */
-  async getSignature(url) {
+  async getSignature(url): Promise<object> {
     return Promise.resolve(this.store.urls[url]);
   }
 
@@ -146,7 +149,7 @@ class Store extends EventEmitter {
    * @param signatureInfo
    * @return {Promise}
    */
-  async saveSignature(url, signatureInfo) {
+  async saveSignature(url, signatureInfo): Promise<object> {
     signatureInfo.updated = true;
     this.store.urls[url] = signatureInfo;
     return Promise.resolve(signatureInfo);
@@ -158,7 +161,7 @@ class Store extends EventEmitter {
    * @param newInfo
    * @return {Promise}
    */
-  async updateSignature(url, newInfo) {
+  async updateSignature(url, newInfo): Promise<object> {
     newInfo.updated = true;
     const newSig = Object.assign({}, this.store.urls[url], newInfo);
     this.store.urls[url] = newSig;
@@ -170,7 +173,7 @@ class Store extends EventEmitter {
    * @param url
    * @return {Promise}
    */
-  async isSignatureExisting(url) {
+  async isSignatureExisting(url): Promise<boolean> {
     const ret = url in this.store.urls;
     return Promise.resolve(ret);
   }
@@ -181,7 +184,7 @@ class Store extends EventEmitter {
    * @param key
    * @return {Promise}
    */
-  async getOAuthAccessToken(key) {
+  async getOAuthAccessToken(key): Promise<object> {
     return Promise.resolve(this.store.oauth[key]);
   }
 
@@ -191,7 +194,7 @@ class Store extends EventEmitter {
    * @param info user oauth access token info
    * @return {Promise}
    */
-  async saveOAuthAccessToken(key, info) {
+  async saveOAuthAccessToken(key, info): Promise<object> {
     this.store.oauth[key] = info;
     return Promise.resolve(info);
   }
@@ -202,14 +205,14 @@ class Store extends EventEmitter {
    * @param newInfo
    * @return {Promise}
    */
-  async updateOAuthAccessToken(key, newInfo) {
+  async updateOAuthAccessToken(key, newInfo): Promise<object> {
     newInfo.updated = true;
     const newToken = Object.assign({}, this.store.oauth[key], newInfo);
     this.store.oauth[key] = newToken;
     return Promise.resolve(newToken);
   }
 
-  async getCardTicket() {
+  async getCardTicket(): Promise<object> {
     return Promise.resolve(this.store.card);
   }
 
@@ -218,7 +221,7 @@ class Store extends EventEmitter {
    * @param ticketInfo
    * @return {Promise}
    */
-  async updateCardTicket(ticketInfo) {
+  async updateCardTicket(ticketInfo): Promise<object> {
     const newTicket = (this.store.card = Object.assign(
       {},
       this.store.card,
@@ -232,8 +235,9 @@ class Store extends EventEmitter {
    * @param key - object key for the session, default openid
    * @return {Promise<string>}
    */
+
   /* istanbul ignore next: handle by end user */
-  async getMPSessionKey(key) {
+  async getMPSessionKey(key): Promise<string> {
     const session = this.store.mp[key] || {};
     return Promise.resolve(session.session_key);
   }
@@ -243,8 +247,9 @@ class Store extends EventEmitter {
    * @param key
    * @return {Promise<object>}
    */
+
   /* istanbul ignore next: handle by end user */
-  async getMPSession(key) {
+  async getMPSession(key): Promise<object> {
     return Promise.resolve(this.store.mp[key]);
   }
 
@@ -254,8 +259,9 @@ class Store extends EventEmitter {
    * @param {object} data - session data
    * @return {Promise<object>} - resolved with old session data
    */
+
   /* istanbul ignore next: handle by end user */
-  async setMPSession(key, data) {
+  async setMPSession(key, data): Promise<object> {
     /* istanbul ignore if */
     if (!key) {
       return Promise.reject(new Error('missing key for the session!'));
@@ -289,4 +295,4 @@ class Store extends EventEmitter {
   clearStore() {}
 }
 
-module.exports = Store;
+export default Store;

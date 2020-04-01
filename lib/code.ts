@@ -1,5 +1,3 @@
-'use strict';
-
 const code = (exports.CODE = {
   SERVER_ERROR: -1,
   //access token invalid related
@@ -17,6 +15,6 @@ const accessTokenRelatedCodes = [
 ];
 
 /* istanbul ignore next  */
-exports.errorByAccessTokenRelated = (errorCode) => {
+export function errorByAccessTokenRelated(errorCode): boolean {
   return accessTokenRelatedCodes.indexOf(errorCode) >= 0;
-};
+}

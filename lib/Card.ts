@@ -1,17 +1,15 @@
-'use strict';
+import debugFnc from 'debug';
+import isEmpty from 'lodash.isempty';
+import * as utils from './utils';
+import { getDefaultConfiguration, checkPassedConfiguration } from './config';
 
-const debug = require('debug')('wechat-Card');
+import Store from './store/Store';
+import FileStore from './store/FileStore';
+import { errorByAccessTokenRelated } from './code';
 
-const isEmpty = require('lodash.isempty');
+const debug = debugFnc('wechat-Card');
 
-const utils = require('./utils');
-const config = require('./config');
-
-const Store = require('./store/Store');
-const FileStore = require('./store/FileStore');
-const codeUtils = require('./code');
-
-const wxConfig = config.getDefaultConfiguration();
+const wxConfig = getDefaultConfiguration();
 
 const CODE_TYPE = {
   CODE_TYPE_QRCODE: 'CODE_TYPE_QRCODE',
@@ -32,6 +30,8 @@ const CARD_TYPE = {
 const TOKEN_TYPE = 'wx_card';
 
 class Card {
+  wechatConfig: object;
+  store: Store;
   /**
    * Wechat Card/Coupons class
    * @constructor
@@ -39,7 +39,7 @@ class Card {
    * @return {Card} Card instance
    */
   constructor(options) {
-    config.checkPassedConfiguration(options);
+    checkPassedConfiguration(options);
 
     this.wechatConfig = isEmpty(options)
       ? /* istanbul ignore next  */ wxConfig
@@ -55,11 +55,12 @@ class Card {
   }
 
   /* istanbul ignore next */
-  static get CODE_TYPE() {
+  static get CODE_TYPE(): object {
     return CODE_TYPE;
   }
+
   /* istanbul ignore next */
-  static get CARD_TYPE() {
+  static get CARD_TYPE(): object {
     return CARD_TYPE;
   }
 
@@ -68,7 +69,7 @@ class Card {
    * @param {string} accessToken
    * @return {Promise}
    */
-  async getApiTicketRemotely(accessToken) {
+  async getApiTicketRemotely(accessToken): Promise<object> {
     const params = {
       access_token: accessToken,
       type: TOKEN_TYPE,
@@ -93,7 +94,7 @@ class Card {
    * @param {Boolean} force if should check for cached token
    * @return {Promise}
    */
-  async getGlobalToken(force) {
+  async getGlobalToken(force?: boolean): Promise<object> {
     const cfg = this.wechatConfig;
     /* istanbul ignore if */
     if (force) {
@@ -109,7 +110,7 @@ class Card {
       return this.store.updateGlobalToken(info);
     }
 
-    let globalToken1 = await this.store.getGlobalToken();
+    const globalToken1 = await this.store.getGlobalToken();
     if (
       !globalToken1 ||
       !globalToken1.accessToken ||
@@ -136,9 +137,9 @@ class Card {
    * Get card api_ticket
    * @return {Promise}
    */
-  async getApiTicket() {
+  async getApiTicket(): Promise<object> {
     try {
-      let ticketInfo = await this.store.getCardTicket();
+      const ticketInfo = await this.store.getCardTicket();
       if (
         ticketInfo &&
         ticketInfo.ticket &&
@@ -146,8 +147,8 @@ class Card {
       ) {
         return Promise.resolve(ticketInfo);
       }
-      let info = await this.getGlobalToken();
-      return await Promise.reject(info);
+      const info = await this.getGlobalToken();
+      throw info;
     } catch (globalToken) {
       // console.log(globalToken);
       return this.getApiTicketRemotely(globalToken.accessToken);
@@ -161,7 +162,7 @@ class Card {
    * @param {string=} cardId
    * @return {Promise}
    */
-  async getCardSignature(shopId, cardType, cardId) {
+  async getCardSignature(shopId, cardType, cardId): Promise<object> {
     const infoForCardSign = {
       shopId: shopId || /* istanbul ignore next */ '', //location_id
       cardType: cardType || /* istanbul ignore next */ '',
@@ -172,7 +173,7 @@ class Card {
       api_ticket: '',
     };
     try {
-      let ticketInfo = await this.getApiTicket();
+      const ticketInfo = await this.getApiTicket();
       infoForCardSign.api_ticket = ticketInfo.ticket;
       const keys = Object.keys(infoForCardSign);
       const values = keys.map((key) => infoForCardSign[key]);
@@ -193,19 +194,24 @@ class Card {
    * @param {string} cardId
    * @param {string=} code
    * @param {string=} openid
-   * @param {string=} fixed_begintimestamp
-   * @param {string=} outer_str
-   * @return {Promise}
+   * @param {string=} fixedBeginTimestamp
+   * @param {string=} outerStr
    */
-  async getCardExt(cardId, code, openid, fixed_begintimestamp, outer_str) {
+  async getCardExt(
+    cardId,
+    code,
+    openid,
+    fixedBeginTimestamp,
+    outerStr,
+  ): Promise<string> {
     const infoForCardExt = {
       // card_id: cardId || '',
       // code: code || '',
       // openid: openid || '',
       timestamp: utils.timestamp(),
       nonce_str: utils.nonceStr(),
-      // fixed_begintimestamp: fixed_begintimestamp || '',
-      // outer_str: outer_str || '',
+      // fixedBeginTimestamp: fixedBeginTimestamp || '',
+      // outerStr: outerStr || '',
       // signature: '',
     };
     /* istanbul ignore else */
@@ -221,14 +227,17 @@ class Card {
       infoForCardExt.openid = openid;
     }
     try {
-      let ticketInfo = await this.getApiTicket();
+      const ticketInfo = await this.getApiTicket();
       infoForCardExt.api_ticket = ticketInfo.ticket;
       const keys = Object.keys(infoForCardExt);
       const values = keys.map((key) => infoForCardExt[key]);
       infoForCardExt.signature = utils.genSHA1(values.sort().join(''));
-      fixed_begintimestamp &&
-        (infoForCardExt.fixed_begintimestamp = fixed_begintimestamp);
-      outer_str && (infoForCardExt.outer_str = outer_str);
+      if (fixedBeginTimestamp) {
+        infoForCardExt.fixed_begintimestamp = fixedBeginTimestamp;
+      }
+      if (outerStr) {
+        infoForCardExt.outer_str = outerStr;
+      }
       infoForCardExt.api_ticket = undefined;
       return Promise.resolve(JSON.stringify(infoForCardExt));
     } catch (reason) {
@@ -243,7 +252,7 @@ class Card {
    * @param {object} qs querystring object to send with the request
    * @return {Promise}
    */
-  async sendDecodeRequest(encryptCode, qs) {
+  async sendDecodeRequest(encryptCode, qs): Promise<object> {
     return utils.sendWechatRequest(this.wechatConfig.decodeCardCodeUrl, {
       searchParams: qs,
       method: 'POST',
@@ -258,8 +267,8 @@ class Card {
    * @param {string} encryptCode
    * @return {Promise}
    */
-  async decryptCardCode(encryptCode) {
-    let info = await this.getGlobalToken();
+  async decryptCardCode(encryptCode): Promise<object> {
+    const info = await this.getGlobalToken();
     const accessToken = info.accessToken;
     const params = {
       access_token: accessToken,
@@ -269,8 +278,8 @@ class Card {
     } catch (reason) {
       debug('decode card encrypt_code failed!');
       //retry when access token error
-      if (codeUtils.errorByAccessTokenRelated(reason.errcode)) {
-        let info1 = await this.getGlobalToken(true);
+      if (errorByAccessTokenRelated(reason.errcode)) {
+        const info1 = await this.getGlobalToken(true);
         const accessToken = info1.accessToken;
         const params = {
           access_token: accessToken,
@@ -287,4 +296,4 @@ class Card {
   }
 }
 
-module.exports = Card;
+export default Card;

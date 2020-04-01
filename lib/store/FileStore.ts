@@ -1,28 +1,33 @@
-'use strict';
+import debugFnc from 'debug';
+import { promisify } from 'util';
+import {
+  writeFile as _writeFile,
+  statSync,
+  writeFileSync,
+  readFileSync,
+} from 'fs';
+import { resolve } from 'path';
 
-const debug = require('debug')('wechat-FileStore');
-const { promisify } = require('util');
-const fs = require('fs');
-const path = require('path');
+const debug = debugFnc('wechat-FileStore');
 
-const writeFile = promisify(fs.writeFile);
+const writeFile = promisify(_writeFile);
 
-const Store = require('./Store');
-const {
-  getConfigFromCompareKeys,
-  isBreakingConfigChange,
-} = require('../config');
+import Store from './Store';
+import { getConfigFromCompareKeys, isBreakingConfigChange } from '../config';
 
 /**
  * Simple Store using json file
  */
 class FileStore extends Store {
+  fileStorePath: string;
+  // store: Store;
+
   constructor(options = {}, wechatConfig = {}) {
     super(options);
 
     this.fileStorePath = options.fileStorePath
-      ? path.resolve(options.fileStorePath)
-      : path.resolve(process.cwd(), 'wechat-info.json');
+      ? resolve(options.fileStorePath)
+      : resolve(process.cwd(), 'wechat-info.json');
 
     this.initFileStore(options, wechatConfig);
   }
@@ -32,21 +37,21 @@ class FileStore extends Store {
 
     const emptyStore = Object.assign({}, this.store);
     let hasExistFile = true;
-    let storeWechatConfig = getConfigFromCompareKeys(
+    const storeWechatConfig = getConfigFromCompareKeys(
       wechatConfig,
       options.compareConfigKeys,
     );
 
     try {
-      fs.statSync(this.fileStorePath);
+      statSync(this.fileStorePath);
     } catch (e) {
       //write the default empty store object to file
       emptyStore.wechatConfig = storeWechatConfig;
       hasExistFile = false;
-      fs.writeFileSync(this.fileStorePath, JSON.stringify(emptyStore, null, 2));
+      writeFileSync(this.fileStorePath, JSON.stringify(emptyStore, null, 2));
       debug('create wechat info file finished');
     } finally {
-      const storeStr = fs.readFileSync(this.fileStorePath);
+      const storeStr = readFileSync(this.fileStorePath, { encoding: 'utf8' });
       /* istanbul ignore else */
       if (storeStr) {
         try {
@@ -90,15 +95,6 @@ class FileStore extends Store {
       super.flush();
       debug('export wechat info to file finished');
     }
-    // fs.writeFile(this.fileStorePath, JSON.stringify(temp, null, 2), (err) => {
-    //   if (err) {
-    //     debug('ERROR: export wechat info to file failed!');
-    //     debug(err);
-    //     return;
-    //   }
-    //   super.flush();
-    //   debug('export wechat info to file finished');
-    // });
   }
 
   destroy() {
@@ -107,4 +103,4 @@ class FileStore extends Store {
   }
 }
 
-module.exports = FileStore;
+export default FileStore;

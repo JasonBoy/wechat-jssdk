@@ -2,7 +2,7 @@
   "name": "wechat-jssdk",
   "version": "6.0.0-alpha.0",
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
-  "main": "./lib/index.js",
+  "main": "lib/index.ts",
   "source": "./lib/client.js",
   "engines": {
     "node": ">= 10"
@@ -15,7 +15,8 @@
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
     "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "lint": "tsc --noEmit && eslint '**/*.{js,ts}'"
   },
   "husky": {
     "hooks": {
@@ -23,7 +24,7 @@
     }
   },
   "lint-staged": {
-    "**/*.js": [
+    "**/*.{js,ts,json}": [
       "prettier --write"
     ]
   },
@@ -54,13 +55,19 @@
     "xml2js": "0.4.23"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "2.26.0",
+    "@typescript-eslint/parser": "2.26.0",
     "body-parser": "1.19.0",
     "chai": "4.2.0",
     "cookie-parser": "1.4.5",
     "coveralls": "3.0.11",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.1",
+    "eslint-plugin-prettier": "3.1.2",
     "express": "4.17.1",
     "express-session": "1.17.0",
     "husky": "4.2.3",
+    "jest": "25.2.4",
     "lint-staged": "10.1.0",
     "lowdb": "1.0.0",
     "microbundle": "0.12.0-next.8",
@@ -69,6 +76,7 @@
     "nunjucks": "3.2.1",
     "nyc": "15.0.0",
     "prettier": "2.0.2",
+    "ts-jest": "25.3.0",
     "typescript": "3.8.3"
   },
   "files": [

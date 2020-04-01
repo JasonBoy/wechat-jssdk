@@ -1,19 +1,20 @@
-'use strict';
+import debugFnc from 'debug';
+import isEmpty from 'lodash.isempty';
+import { parse } from 'url';
+import * as utils from './utils';
+import { getDefaultConfiguration, checkPassedConfiguration } from './config';
 
-const debug = require('debug')('wechat-JSSDK');
+import Store from './store/Store';
+import FileStore from './store/FileStore';
 
-const isEmpty = require('lodash.isempty');
-const urlParser = require('url');
+const debug = debugFnc('wechat-JSSDK');
 
-const utils = require('./utils');
-const config = require('./config');
-
-const Store = require('./store/Store');
-const FileStore = require('./store/FileStore');
-
-const wxConfig = config.getDefaultConfiguration();
+const wxConfig = getDefaultConfiguration();
 
 class JSSDK {
+  refreshedTimes: number;
+  wechatConfig: object;
+  store: Store;
   /**
    * Pass custom wechat config for the instance
    * @constructor
@@ -22,7 +23,7 @@ class JSSDK {
    * @return {JSSDK} JSSDK instance
    */
   constructor(options) {
-    config.checkPassedConfiguration(options);
+    checkPassedConfiguration(options);
     this.refreshedTimes = 0;
     this.wechatConfig = isEmpty(options)
       ? /* istanbul ignore next  */ wxConfig
@@ -50,7 +51,7 @@ class JSSDK {
    * @static
    * @return {boolean}
    */
-  static isTokenExpired(modifyDate) {
+  static isTokenExpired(modifyDate): boolean {
     return utils.isExpired(modifyDate);
   }
 
@@ -59,7 +60,7 @@ class JSSDK {
    * @static
    * @return {string}
    */
-  static createNonceStr() {
+  static createNonceStr(): string {
     return utils.nonceStr();
   }
 
@@ -68,7 +69,7 @@ class JSSDK {
    * @param {object} originalSignatureObj original signature information
    * @return {object} filtered signature object
    */
-  filterSignature(originalSignatureObj) {
+  filterSignature(originalSignatureObj): object {
     if (!originalSignatureObj) {
       return {};
     }
@@ -87,8 +88,8 @@ class JSSDK {
    * @static
    * @return {string}
    */
-  static normalizeUrl(url) {
-    const temp = urlParser.parse(url);
+  static normalizeUrl(url): string {
+    const temp = parse(url);
     const hashIndex = url.indexOf(temp.hash);
     //remove hash from url
     return hashIndex > 0 ? url.substring(0, hashIndex) : url;
@@ -102,12 +103,14 @@ class JSSDK {
    * @static
    * @returns {object} generated wechat signature info
    */
-  static generateSignature(url, accessToken, ticket) {
+  static generateSignature(url, accessToken, ticket): object {
     const ret = {
       jsapi_ticket: ticket,
       nonceStr: JSSDK.createNonceStr(),
       timestamp: utils.timestamp(),
       url: JSSDK.normalizeUrl(url),
+      signature: null,
+      accessToken: null,
     };
     const originalStr = utils.paramsToString(ret);
     ret.signature = utils.genSHA1(originalStr);
@@ -120,7 +123,7 @@ class JSSDK {
    * @param {object} query url query sent by the wechat server to do the validation
    * @return {boolean}
    */
-  verifySignature(query) {
+  verifySignature(query): boolean {
     const keys = [
       this.wechatConfig.wechatToken,
       query['timestamp'],
@@ -135,7 +138,7 @@ class JSSDK {
    * Send request to get wechat access token
    * @return {Promise}
    */
-  getAccessToken() {
+  getAccessToken(): Promise<object> {
     const cfg = this.wechatConfig;
     return utils.getGlobalAccessToken(
       cfg.appId,
@@ -149,7 +152,7 @@ class JSSDK {
    * @param {string} accessToken token received from the @see getAccessToken above
    * @return {Promise}
    */
-  async getJsApiTicket(accessToken) {
+  async getJsApiTicket(accessToken): Promise<object> {
     const params = {
       access_token: accessToken,
       type: 'jsapi',
@@ -170,7 +173,7 @@ class JSSDK {
    * @param {string} ticket
    * @return {Promise} resolved with the updated globalToken object
    */
-  async updateAccessTokenOrTicketGlobally(token, ticket) {
+  async updateAccessTokenOrTicketGlobally(token, ticket): Promise<object> {
     const info = { modifyDate: new Date() };
     token && (info.accessToken = token);
     ticket && (info.jsapi_ticket = ticket);
@@ -183,7 +186,7 @@ class JSSDK {
    *        cause the wechat server limits the access_token requests number
    * @return {Promise}
    */
-  async getGlobalTokenAndTicket(force) {
+  async getGlobalTokenAndTicket(force): Promise<object> {
     force || this.refreshedTimes++;
     /* istanbul ignore if  */
     if (!force && this.refreshedTimes > 5) {
@@ -204,37 +207,13 @@ class JSSDK {
       debug(err);
       return Promise.reject(err);
     }
-
-    /*return this.getAccessToken()
-      .then((result) => {
-        accessToken = result.access_token;
-        return accessToken;
-      })
-      .catch((reason) => {
-        debug('get new global token failed!');
-        return Promise.reject(reason);
-      })
-      .then((receivedAccessToken) => {
-        return this.getJsApiTicket(receivedAccessToken);
-      })
-      .then((ticketResult) => {
-        return this.updateAccessTokenOrTicketGlobally(
-          accessToken,
-          ticketResult.ticket,
-        );
-      })
-      .catch((ticketReason) => {
-        debug('get new global ticket failed!');
-        debug(ticketReason);
-        return Promise.reject(ticketReason);
-      });*/
   }
 
   /**
    * Get or generate global token info for signature generating process
    * @return {Promise}
    */
-  async prepareGlobalToken() {
+  async prepareGlobalToken(): Promise<object> {
     const globalToken = await this.store.getGlobalToken();
     if (
       !globalToken ||
@@ -255,7 +234,7 @@ class JSSDK {
    * @param {object} info signature information to save
    * @return {Promise}
    */
-  async saveSignature(info) {
+  async saveSignature(info): Promise<object> {
     const signature = Object.assign({}, info);
     signature.createDate = new Date();
     signature.modifyDate = signature.createDate;
@@ -269,20 +248,6 @@ class JSSDK {
     }
     debug('create/update wechat signature finished');
     return Promise.resolve(sig);
-
-    /*return this.store
-      .isSignatureExisting(signature.url)
-      .then((existing) => {
-        if (existing) {
-          debug('wechat url signature existed, try updating the signature...');
-          return this.updateSignature(signature.url, signature);
-        }
-        return this.store.saveSignature(signature.signatureName, signature);
-      })
-      .then((sig) => {
-        debug('create/update wechat signature finished');
-        return Promise.resolve(sig);
-      });*/
   }
 
   /**
@@ -291,7 +256,7 @@ class JSSDK {
    * @param {object} info update info need to be updated to the existing url signature info
    * @return {Promise}
    */
-  async updateSignature(url, info) {
+  async updateSignature(url, info): Promise<object> {
     url = JSSDK.normalizeUrl(url);
     info.modifyDate = new Date();
     delete info.createDate;
@@ -300,11 +265,6 @@ class JSSDK {
     const signature = await this.store.updateSignature(url, info);
     debug('update wechat signature finished');
     return Promise.resolve(signature);
-
-    // return this.store.updateSignature(url, info).then((signature) => {
-    //   debug('update wechat signature finished');
-    //   return Promise.resolve(signature);
-    // });
   }
 
   /**
@@ -313,7 +273,7 @@ class JSSDK {
    * @param {boolean=} forceNewSignature if true, generate a new signature rather than getting from cache
    * @return {Promise}
    */
-  async getSignature(url, forceNewSignature) {
+  async getSignature(url, forceNewSignature): Promise<object> {
     url = JSSDK.normalizeUrl(url);
     let signature = await this.store.getSignature(url);
     if (
@@ -325,18 +285,6 @@ class JSSDK {
       return Promise.resolve(signature);
     }
     return this.createSignature(url);
-
-    // return this.store.getSignature(url).then((signature) => {
-    //   if (
-    //     !forceNewSignature &&
-    //     signature &&
-    //     !JSSDK.isTokenExpired(signature.modifyDate)
-    //   ) {
-    //     signature = this.filterSignature(signature);
-    //     return Promise.resolve(signature);
-    //   }
-    //   return this.createSignature(url);
-    // });
   }
 
   /**
@@ -344,8 +292,8 @@ class JSSDK {
    * @param {string} url signature will be created for the url
    * @return {Promise} resolved with filtered signature results
    */
-  async createSignature(url) {
-    let data = await this.prepareGlobalToken();
+  async createSignature(url): Promise<object> {
+    const data = await this.prepareGlobalToken();
     const ret = JSSDK.generateSignature(
       url,
       data.accessToken,
@@ -361,11 +309,11 @@ class JSSDK {
    * @param {string} url
    * @return {Promise} filtered signature info
    */
-  async getCachedSignature(url) {
+  async getCachedSignature(url): Promise<object> {
     url = JSSDK.normalizeUrl(url);
     const signature = await this.store.getSignature(url);
     return Promise.resolve(this.filterSignature(signature));
   }
 }
 
-module.exports = JSSDK;
+export default JSSDK;
