@@ -1,6 +1,63 @@
 import isEmpty from 'lodash.isempty';
 
-const wechatConfig = {
+interface WeChatPaymentAPIConfig {
+  UNIFIED_ORDER: string;
+  QUERY_ORDER: string;
+  CLOSE_ORDER: string;
+  REFUND: string;
+  QUERY_REFUND: string;
+  DOWNLOAD_BILL: string;
+  SHORT_URL: string;
+  REPORT: string;
+  SIGN_KEY: string;
+  DOWNLOAD_FUND_FLOW: string;
+  BATCH_QUERY_COMMENT: string;
+  QUERY_SETTLEMENT: string;
+  QUERY_EXCHANGE_RATE: string;
+}
+interface WeChatPaymentConfig {
+  paymentNotifyUrl: string;
+  paymentSandBox: boolean;
+  paymentKey: string;
+  PAYMENT_HOST: string;
+  PAYMENT_HOST_PORT: number;
+  paymentAPI: WeChatPaymentAPIConfig;
+}
+
+interface WeChatMiniProgramConfig {
+  //your mini program appId
+  appId: string;
+  // your mini program appSecret
+  appSecret: string;
+  GET_SESSION_KEY_URL: string;
+}
+
+interface WeChatConfig {
+  //redirect host in oauth redirect
+  wechatRedirectHost: string;
+  //full redirect url in oauth redirect, e.g http://127.0.0.1/wechat/oauth-callback
+  wechatRedirectUrl: string;
+  //your wechat token set in your
+  // @see https://mp.weixin.qq.com/advanced/advanced?action=dev&t=advanced/dev&token=1244756112&lang=zh_CN
+  wechatToken: string;
+  //your wechat appId
+  appId: string;
+  //your wechat appSecret
+  appSecret: string;
+  ticketUrl: string;
+  accessTokenUrl: string;
+  oAuthUrl: string;
+  apiUrl: string;
+  //state in oauth callback query
+  oAuthState: string;
+  //
+  decodeCardCodeUrl: string;
+  //
+  miniProgram: WeChatMiniProgramConfig;
+  payment: WeChatPaymentConfig;
+}
+
+const wechatConfig: WeChatConfig = {
   //redirect host in oauth redirect
   wechatRedirectHost: 'http://127.0.0.1',
   //full redirect url in oauth redirect, e.g http://127.0.0.1/wechat/oauth-callback
@@ -18,6 +75,7 @@ const wechatConfig = {
   apiUrl: 'https://api.weixin.qq.com',
   //state in oauth callback query
   oAuthState: '',
+
   paymentNotifyUrl: 'http://127.0.0.1/api/wechat/payment/',
   paymentSandBox: false,
   paymentKey: '',
