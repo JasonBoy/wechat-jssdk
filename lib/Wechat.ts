@@ -11,6 +11,12 @@ import FileStore from './store/FileStore';
 const debug = debugFnc('wechat');
 
 class Wechat {
+  jssdk: JSSDK;
+  oauth: OAuth;
+  card: Card;
+  payment: Payment;
+  store: Store;
+  miniProgram: MiniProgram;
   /**
    * @constructor
    * @param options custom wechat configuration

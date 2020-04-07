@@ -1,30 +1,83 @@
 import debugFnc from 'debug';
 import { EventEmitter } from 'events';
+import { StoreOptions } from './StoreOptions';
 
 const debug = debugFnc('wechat-Store');
 
-const storeEvents = {
+export const STORE_EVENTS = {
   FLUSH_STORE: 'FLUSH_STORE',
   STORE_FLUSHED: 'STORE_FLUSHED',
   DESTROYED: 'DESTROYED',
   DESTROY: 'DESTROY',
 };
 
+export interface StoreGlobalTokenInterface {
+  count?: number;
+  modifyDate?: string | Date;
+  accessToken?: string;
+  jsapi_ticket?: string;
+}
+export interface StoreUrlSignatureInterface {
+  appId?: string;
+  jsapi_ticket?: string;
+  nonceStr: string;
+  timestamp: string;
+  url: string;
+  signature?: string;
+  accessToken?: string;
+  signatureName?: string;
+  createDate?: string | Date;
+  modifyDate?: string | Date;
+  updated?: boolean;
+}
+export interface StoreOAuthInterface {
+  key?: string;
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+  openid?: string;
+  scope: string;
+  expirationTime: number;
+  createDate?: string | Date;
+  modifyDate?: string | Date;
+  updated?: boolean;
+}
+export interface StoreCardInterface {
+  ticket?: string;
+  expires_in?: number;
+  createDate?: string | Date;
+  modifyDate?: string | Date;
+}
+export interface StoreMiniProgramInterface {
+  session_key: string;
+  expires_in?: number;
+  createDate?: string | Date;
+  modifyDate?: string | Date;
+}
+
+export interface StoreInterface {
+  wechatConfig: {
+    store?: string; //store file path
+  };
+  globalToken: StoreGlobalTokenInterface;
+  urls: object;
+  oauth: object;
+  card: object;
+  mp: object;
+}
+
+/**
+ * Store class constructor
+ * @param options
+ * @constructor
+ */
 class Store extends EventEmitter {
   cache: boolean;
-  store: object;
+  store: StoreInterface;
   wechatInterval: NodeJS.Timeout;
-  /**
-   * Store class constructor
-   * @param options
-   * @constructor
-   */
-  constructor(options) {
-    super();
 
-    if (!options) {
-      options = {};
-    }
+  constructor(options: StoreOptions = {}) {
+    super();
 
     this.cache = true;
 
@@ -93,8 +146,8 @@ class Store extends EventEmitter {
       mp: {},
     };
 
-    this.on(storeEvents.FLUSH_STORE, this.flush);
-    this.on(storeEvents.DESTROY, this.destroy);
+    this.on(STORE_EVENTS.FLUSH_STORE, this.flush);
+    this.on(STORE_EVENTS.DESTROY, this.destroy);
 
     /* istanbul ignore else */
     if (!options.noInterval) {
@@ -106,25 +159,22 @@ class Store extends EventEmitter {
     }
   }
 
-  /* istanbul ignore next */
-  static get StoreEvents(): object {
-    return storeEvents;
-  }
-
   /**
    * Get global token info
    * @return {Promise}
    */
-  async getGlobalToken(): Promise<object> {
+  async getGlobalToken(): Promise<StoreGlobalTokenInterface> {
     return Promise.resolve(this.store.globalToken);
   }
 
   /**
    * Update the global token info, as if access_token or jsapi_ticket is refreshed
    * @param info new token info should be updated to store
-   * @return {Promise} updated global token info
+   * @return updated global token info
    */
-  async updateGlobalToken(info): Promise<object> {
+  async updateGlobalToken(
+    info: StoreGlobalTokenInterface,
+  ): Promise<StoreGlobalTokenInterface> {
     const newToken = Object.assign({}, this.store.globalToken, info);
     // console.log('new token: ', newToken);
     newToken.count++;
@@ -137,9 +187,8 @@ class Store extends EventEmitter {
   /**
    * Get signature for passed url from store
    * @param url
-   * @return {Promise}
    */
-  async getSignature(url): Promise<object> {
+  async getSignature(url: string): Promise<StoreUrlSignatureInterface> {
     return Promise.resolve(this.store.urls[url]);
   }
 
@@ -147,9 +196,11 @@ class Store extends EventEmitter {
    * Add signature to store for the new url
    * @param url
    * @param signatureInfo
-   * @return {Promise}
    */
-  async saveSignature(url, signatureInfo): Promise<object> {
+  async saveSignature(
+    url: string,
+    signatureInfo: StoreUrlSignatureInterface,
+  ): Promise<StoreUrlSignatureInterface> {
     signatureInfo.updated = true;
     this.store.urls[url] = signatureInfo;
     return Promise.resolve(signatureInfo);
@@ -161,7 +212,10 @@ class Store extends EventEmitter {
    * @param newInfo
    * @return {Promise}
    */
-  async updateSignature(url, newInfo): Promise<object> {
+  async updateSignature(
+    url: string,
+    newInfo: StoreUrlSignatureInterface,
+  ): Promise<StoreUrlSignatureInterface> {
     newInfo.updated = true;
     const newSig = Object.assign({}, this.store.urls[url], newInfo);
     this.store.urls[url] = newSig;
@@ -173,7 +227,7 @@ class Store extends EventEmitter {
    * @param url
    * @return {Promise}
    */
-  async isSignatureExisting(url): Promise<boolean> {
+  async isSignatureExisting(url: string): Promise<boolean> {
     const ret = url in this.store.urls;
     return Promise.resolve(ret);
   }
@@ -182,9 +236,8 @@ class Store extends EventEmitter {
    * Get cached oauth access token info for current user
    *        should store openid like in current user session
    * @param key
-   * @return {Promise}
    */
-  async getOAuthAccessToken(key): Promise<object> {
+  async getOAuthAccessToken(key: string): Promise<StoreOAuthInterface> {
     return Promise.resolve(this.store.oauth[key]);
   }
 
@@ -192,9 +245,11 @@ class Store extends EventEmitter {
    * Save new oauth access token info
    * @param key
    * @param info user oauth access token info
-   * @return {Promise}
    */
-  async saveOAuthAccessToken(key, info): Promise<object> {
+  async saveOAuthAccessToken(
+    key: string,
+    info: StoreOAuthInterface,
+  ): Promise<StoreOAuthInterface> {
     this.store.oauth[key] = info;
     return Promise.resolve(info);
   }
@@ -205,23 +260,27 @@ class Store extends EventEmitter {
    * @param newInfo
    * @return {Promise}
    */
-  async updateOAuthAccessToken(key, newInfo): Promise<object> {
+  async updateOAuthAccessToken(
+    key: string,
+    newInfo: StoreOAuthInterface,
+  ): Promise<StoreOAuthInterface> {
     newInfo.updated = true;
     const newToken = Object.assign({}, this.store.oauth[key], newInfo);
     this.store.oauth[key] = newToken;
     return Promise.resolve(newToken);
   }
 
-  async getCardTicket(): Promise<object> {
+  async getCardTicket(): Promise<StoreCardInterface> {
     return Promise.resolve(this.store.card);
   }
 
   /**
    *
    * @param ticketInfo
-   * @return {Promise}
    */
-  async updateCardTicket(ticketInfo): Promise<object> {
+  async updateCardTicket(
+    ticketInfo: StoreCardInterface,
+  ): Promise<StoreCardInterface> {
     const newTicket = (this.store.card = Object.assign(
       {},
       this.store.card,
@@ -237,8 +296,9 @@ class Store extends EventEmitter {
    */
 
   /* istanbul ignore next: handle by end user */
-  async getMPSessionKey(key): Promise<string> {
-    const session = this.store.mp[key] || {};
+  async getMiniProgramSessionKey(key: string): Promise<string> {
+    const session: StoreMiniProgramInterface = this.store.mp[key];
+    if (!session) return Promise.resolve(null);
     return Promise.resolve(session.session_key);
   }
 
@@ -249,7 +309,7 @@ class Store extends EventEmitter {
    */
 
   /* istanbul ignore next: handle by end user */
-  async getMPSession(key): Promise<object> {
+  async getMiniProgramSession(key: string): Promise<StoreMiniProgramInterface> {
     return Promise.resolve(this.store.mp[key]);
   }
 
@@ -261,12 +321,15 @@ class Store extends EventEmitter {
    */
 
   /* istanbul ignore next: handle by end user */
-  async setMPSession(key, data): Promise<object> {
+  async setMiniProgramSession(
+    key: string,
+    data: StoreMiniProgramInterface,
+  ): Promise<StoreMiniProgramInterface> {
     /* istanbul ignore if */
     if (!key) {
-      return Promise.reject(new Error('missing key for the session!'));
+      throw new Error('missing key for the session!');
     }
-    const oldSession = this.store.mp[key];
+    const oldSession: StoreMiniProgramInterface = this.store.mp[key];
     this.store.mp[key] = data;
     return Promise.resolve(oldSession);
   }
@@ -275,7 +338,7 @@ class Store extends EventEmitter {
    * Flush cached store object to persistent storage, e.g Database, File, etc...
    */
   async flush() {
-    // this.emit(storeEvents.STORE_FLUSHED, true);
+    // this.emit(STORE_EVENTS.STORE_FLUSHED, true);
     // debug('flushed on Store class');
   }
 
@@ -285,7 +348,7 @@ class Store extends EventEmitter {
   destroy() {
     clearInterval(this.wechatInterval);
     this.store = null;
-    // this.emit(storeEvents.DESTROYED, true);
+    // this.emit(STORE_EVENTS.DESTROYED, true);
   }
 
   /**

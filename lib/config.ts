@@ -1,6 +1,8 @@
 import isEmpty from 'lodash.isempty';
 
-interface WeChatPaymentAPIConfig {
+export interface WeChatPaymentAPIConfig {
+  PAYMENT_HOST: string;
+  PAYMENT_HOST_PORT: number;
   UNIFIED_ORDER: string;
   QUERY_ORDER: string;
   CLOSE_ORDER: string;
@@ -15,16 +17,20 @@ interface WeChatPaymentAPIConfig {
   QUERY_SETTLEMENT: string;
   QUERY_EXCHANGE_RATE: string;
 }
-interface WeChatPaymentConfig {
+export interface WeChatPaymentConfig {
   paymentNotifyUrl: string;
-  paymentSandBox: boolean;
-  paymentKey: string;
-  PAYMENT_HOST: string;
-  PAYMENT_HOST_PORT: number;
+  paymentSandBox?: boolean;
+  paymentSandBoxKey?: string;
+  paymentKey?: string;
+  paymentCertificatePfx?: string | Buffer;
+  paymentPassphrase?: string;
+  merchantId: string;
   paymentAPI: WeChatPaymentAPIConfig;
+  // PAYMENT_HOST: string;
+  // PAYMENT_HOST_PORT: number;
 }
 
-interface WeChatMiniProgramConfig {
+export interface WeChatMiniProgramConfig {
   //your mini program appId
   appId: string;
   // your mini program appSecret
@@ -32,7 +38,7 @@ interface WeChatMiniProgramConfig {
   GET_SESSION_KEY_URL: string;
 }
 
-interface WeChatConfig {
+export interface WeChatConfig {
   //redirect host in oauth redirect
   wechatRedirectHost: string;
   //full redirect url in oauth redirect, e.g http://127.0.0.1/wechat/oauth-callback
@@ -76,28 +82,56 @@ const wechatConfig: WeChatConfig = {
   //state in oauth callback query
   oAuthState: '',
 
-  paymentNotifyUrl: 'http://127.0.0.1/api/wechat/payment/',
-  paymentSandBox: false,
-  paymentKey: '',
-  PAYMENT_HOST: 'api.mch.weixin.qq.com',
-  PAYMENT_HOST_PORT: 443,
-  paymentUrls: {
-    UNIFIED_ORDER: 'https://api.mch.weixin.qq.com/pay/unifiedorder',
-    QUERY_ORDER: 'https://api.mch.weixin.qq.com/pay/orderquery',
-    CLOSE_ORDER: 'https://api.mch.weixin.qq.com/pay/closeorder',
-    REFUND: 'https://api.mch.weixin.qq.com/secapi/pay/refund',
-    QUERY_REFUND: 'https://api.mch.weixin.qq.com/pay/refundquery',
-    DOWNLOAD_BILL: 'https://api.mch.weixin.qq.com/pay/downloadbill',
-    SHORT_URL: 'https://api.mch.weixin.qq.com/tools/shorturl',
-    REPORT: 'https://api.mch.weixin.qq.com/payitil/report',
-    SIGN_KEY: 'https://api.mch.weixin.qq.com/pay/getsignkey',
-    DOWNLOAD_FUND_FLOW: 'https://api.mch.weixin.qq.com/pay/downloadfundflow',
-    BATCH_QUERY_COMMENT:
-      'https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment',
-    QUERY_SETTLEMENT: 'https://api.mch.weixin.qq.com/pay/settlementquery',
-    // yes this is correct, spelling "exchange" correctly is difficult 🤷️
-    QUERY_EXCHANGE_RATE: 'https://api.mch.weixin.qq.com/pay/queryexchagerate',
+  payment: {
+    paymentNotifyUrl: 'http://127.0.0.1/api/wechat/payment/',
+    paymentSandBox: false,
+    paymentKey: '',
+    merchantId: '',
+    // PAYMENT_HOST: 'api.mch.weixin.qq.com',
+    // PAYMENT_HOST_PORT: 443,
+    paymentAPI: {
+      PAYMENT_HOST: 'api.mch.weixin.qq.com',
+      PAYMENT_HOST_PORT: 443,
+      UNIFIED_ORDER: 'https://api.mch.weixin.qq.com/pay/unifiedorder',
+      QUERY_ORDER: 'https://api.mch.weixin.qq.com/pay/orderquery',
+      CLOSE_ORDER: 'https://api.mch.weixin.qq.com/pay/closeorder',
+      REFUND: 'https://api.mch.weixin.qq.com/secapi/pay/refund',
+      QUERY_REFUND: 'https://api.mch.weixin.qq.com/pay/refundquery',
+      DOWNLOAD_BILL: 'https://api.mch.weixin.qq.com/pay/downloadbill',
+      SHORT_URL: 'https://api.mch.weixin.qq.com/tools/shorturl',
+      REPORT: 'https://api.mch.weixin.qq.com/payitil/report',
+      SIGN_KEY: 'https://api.mch.weixin.qq.com/pay/getsignkey',
+      DOWNLOAD_FUND_FLOW: 'https://api.mch.weixin.qq.com/pay/downloadfundflow',
+      BATCH_QUERY_COMMENT:
+        'https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment',
+      QUERY_SETTLEMENT: 'https://api.mch.weixin.qq.com/pay/settlementquery',
+      // yes this is correct, spelling "exchange" correctly is difficult 🤷️
+      QUERY_EXCHANGE_RATE: 'https://api.mch.weixin.qq.com/pay/queryexchagerate',
+    },
   },
+
+  // paymentNotifyUrl: 'http://127.0.0.1/api/wechat/payment/',
+  // paymentSandBox: false,
+  // paymentKey: '',
+  // PAYMENT_HOST: 'api.mch.weixin.qq.com',
+  // PAYMENT_HOST_PORT: 443,
+  // paymentUrls: {
+  //   UNIFIED_ORDER: 'https://api.mch.weixin.qq.com/pay/unifiedorder',
+  //   QUERY_ORDER: 'https://api.mch.weixin.qq.com/pay/orderquery',
+  //   CLOSE_ORDER: 'https://api.mch.weixin.qq.com/pay/closeorder',
+  //   REFUND: 'https://api.mch.weixin.qq.com/secapi/pay/refund',
+  //   QUERY_REFUND: 'https://api.mch.weixin.qq.com/pay/refundquery',
+  //   DOWNLOAD_BILL: 'https://api.mch.weixin.qq.com/pay/downloadbill',
+  //   SHORT_URL: 'https://api.mch.weixin.qq.com/tools/shorturl',
+  //   REPORT: 'https://api.mch.weixin.qq.com/payitil/report',
+  //   SIGN_KEY: 'https://api.mch.weixin.qq.com/pay/getsignkey',
+  //   DOWNLOAD_FUND_FLOW: 'https://api.mch.weixin.qq.com/pay/downloadfundflow',
+  //   BATCH_QUERY_COMMENT:
+  //     'https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment',
+  //   QUERY_SETTLEMENT: 'https://api.mch.weixin.qq.com/pay/settlementquery',
+  //   // yes this is correct, spelling "exchange" correctly is difficult 🤷️
+  //   QUERY_EXCHANGE_RATE: 'https://api.mch.weixin.qq.com/pay/queryexchagerate',
+  // },
   decodeCardCodeUrl: 'https://api.weixin.qq.com/card/code/decrypt',
   miniProgram: {
     //your mini program appId
@@ -144,7 +178,7 @@ export function checkPassedConfiguration(options): boolean {
  * get default wechat configuration
  * @return {object} wechatConfig
  */
-export function getDefaultConfiguration(): object {
+export function getDefaultConfiguration(): WeChatConfig {
   return wechatConfig;
 }
 

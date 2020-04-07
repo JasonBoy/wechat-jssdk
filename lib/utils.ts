@@ -6,6 +6,13 @@ import xml2js from 'xml2js';
 import dateFormat from 'date-fns/format';
 import { parse } from 'url';
 import got from 'got';
+import { WeChatPaymentAPIConfig } from './config';
+
+export interface GlobalAccessTokenResult {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+}
 
 const debug = debugFnc('wechat');
 
@@ -88,7 +95,9 @@ export function paramsToString(args, noLowerCase?: boolean): string {
 export async function sendWechatRequest(url, options): Promise<object> {
   const myOptions = Object.assign({}, defaultOptions, options);
   try {
-    const body: object = await got(url, myOptions).json();
+    const body: {
+      errcode?: number;
+    } = await got(url, myOptions).json();
     if (body.hasOwnProperty('errcode') && body.errcode != 0) {
       return Promise.reject(body);
     }
@@ -158,13 +167,12 @@ export function isExpired(modifyDate, interval?: number): boolean {
  * @param {string} appId
  * @param {string} appSecret
  * @param {string} accessTokenUrl
- * @return {Promise}
  */
 export async function getGlobalAccessToken(
   appId,
   appSecret,
   accessTokenUrl,
-): Promise<object> {
+): Promise<GlobalAccessTokenResult> {
   const params = {
     grant_type: 'client_credential',
     appid: appId,
@@ -172,9 +180,9 @@ export async function getGlobalAccessToken(
   };
   debug('getting new global token...');
   try {
-    return await sendWechatRequest(accessTokenUrl, {
+    return (await sendWechatRequest(accessTokenUrl, {
       searchParams: params,
-    });
+    })) as GlobalAccessTokenResult;
   } catch (reason) {
     debug('get global wechat access token failed!');
     return Promise.reject(reason);
@@ -239,11 +247,12 @@ export function simpleDate(date = new Date(), format = DEFAULT_FORMAT): string {
 /**
  * Add "/sandboxnew" for payment apis to for testing
  * @param paymentUrls
- * @return {object}
  */
-export function paymentUrlsWithSandBox(paymentUrls): object {
+export function paymentUrlsWithSandBox(
+  paymentUrls: WeChatPaymentAPIConfig,
+): WeChatPaymentAPIConfig {
   const keys = Object.keys(paymentUrls);
-  const newUrls = {};
+  const newUrls = {} as WeChatPaymentAPIConfig;
   keys.forEach((urlKey) => {
     const paymentUrl = paymentUrls[urlKey];
     const obj = parse(paymentUrl);
@@ -258,7 +267,10 @@ export function paymentUrlsWithSandBox(paymentUrls): object {
   return newUrls;
 }
 
-export function createBuffer(str, encoding = 'utf8'): Buffer {
+export function createBuffer(
+  str: string,
+  encoding: BufferEncoding = 'utf8',
+): Buffer {
   return Buffer.from(str, encoding);
 }
 

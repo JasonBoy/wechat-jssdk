@@ -3,9 +3,13 @@ import isEmpty from 'lodash.isempty';
 import * as utils from './utils';
 import { getDefaultConfiguration, checkPassedConfiguration } from './config';
 
-import Store from './store/Store';
+import Store, {
+  StoreCardInterface,
+  StoreGlobalTokenInterface,
+} from './store/Store';
 import FileStore from './store/FileStore';
 import { errorByAccessTokenRelated } from './code';
+import { WeChatOptions } from './WeChatOptions';
 
 const debug = debugFnc('wechat-Card');
 
@@ -29,21 +33,43 @@ const CARD_TYPE = {
 
 const TOKEN_TYPE = 'wx_card';
 
+export interface CardSignObject {
+  shopId: string;
+  cardType: string;
+  cardId: string;
+  timestamp: string;
+  nonceStr: string;
+  appid: string;
+  api_ticket: string;
+  cardSign?: string;
+  signType?: string;
+}
+export interface CardExtObject {
+  timestamp: string;
+  nonce_str: string;
+  card_id?: string;
+  code?: string;
+  openid?: string;
+  api_ticket?: string;
+  signature?: string;
+  fixed_begintimestamp?: string;
+  outer_str?: string;
+}
+
+/**
+ * Wechat Card/Coupons class
+ * @return {Card} Card instance
+ */
 class Card {
-  wechatConfig: object;
+  options: WeChatOptions;
   store: Store;
-  /**
-   * Wechat Card/Coupons class
-   * @constructor
-   * @param options
-   * @return {Card} Card instance
-   */
-  constructor(options) {
+
+  constructor(options?: WeChatOptions) {
     checkPassedConfiguration(options);
 
-    this.wechatConfig = isEmpty(options)
-      ? /* istanbul ignore next  */ wxConfig
-      : Object.assign({}, wxConfig, options);
+    this.options = isEmpty(options)
+      ? /* istanbul ignore next  */ { ...wxConfig }
+      : { ...wxConfig, ...options };
 
     /* istanbul ignore if  */
     if (!options.store || !(options.store instanceof Store)) {
@@ -69,13 +95,16 @@ class Card {
    * @param {string} accessToken
    * @return {Promise}
    */
-  async getApiTicketRemotely(accessToken): Promise<object> {
+  async getApiTicketRemotely(accessToken): Promise<StoreCardInterface> {
     const params = {
       access_token: accessToken,
       type: TOKEN_TYPE,
     };
     try {
-      let data = await utils.sendWechatRequest(this.wechatConfig.ticketUrl, {
+      let data: {
+        errcode?: number;
+        errmsg?: string;
+      } = await utils.sendWechatRequest(this.options.ticketUrl, {
         searchParams: params,
       });
       data = Object.assign({ modifyDate: new Date() }, data);
@@ -92,10 +121,9 @@ class Card {
   /**
    * Get global access token
    * @param {Boolean} force if should check for cached token
-   * @return {Promise}
    */
-  async getGlobalToken(force?: boolean): Promise<object> {
-    const cfg = this.wechatConfig;
+  async getGlobalToken(force?: boolean): Promise<StoreGlobalTokenInterface> {
+    const cfg = this.options;
     /* istanbul ignore if */
     if (force) {
       let globalToken = await utils.getGlobalAccessToken(
@@ -137,7 +165,7 @@ class Card {
    * Get card api_ticket
    * @return {Promise}
    */
-  async getApiTicket(): Promise<object> {
+  async getApiTicket(): Promise<StoreCardInterface> {
     try {
       const ticketInfo = await this.store.getCardTicket();
       if (
@@ -148,10 +176,10 @@ class Card {
         return Promise.resolve(ticketInfo);
       }
       const info = await this.getGlobalToken();
-      throw info;
-    } catch (globalToken) {
-      // console.log(globalToken);
-      return this.getApiTicketRemotely(globalToken.accessToken);
+      return this.getApiTicketRemotely(info.accessToken);
+    } catch (err) {
+      debug(err);
+      throw err;
     }
   }
 
@@ -163,13 +191,13 @@ class Card {
    * @return {Promise}
    */
   async getCardSignature(shopId, cardType, cardId): Promise<object> {
-    const infoForCardSign = {
+    const infoForCardSign: CardSignObject = {
       shopId: shopId || /* istanbul ignore next */ '', //location_id
       cardType: cardType || /* istanbul ignore next */ '',
       cardId: cardId || /* istanbul ignore next */ '',
       timestamp: utils.timestamp(),
       nonceStr: utils.nonceStr(),
-      appid: this.wechatConfig.appId,
+      appid: this.options.appId,
       api_ticket: '',
     };
     try {
@@ -204,7 +232,7 @@ class Card {
     fixedBeginTimestamp,
     outerStr,
   ): Promise<string> {
-    const infoForCardExt = {
+    const infoForCardExt: CardExtObject = {
       // card_id: cardId || '',
       // code: code || '',
       // openid: openid || '',
@@ -253,7 +281,7 @@ class Card {
    * @return {Promise}
    */
   async sendDecodeRequest(encryptCode, qs): Promise<object> {
-    return utils.sendWechatRequest(this.wechatConfig.decodeCardCodeUrl, {
+    return utils.sendWechatRequest(this.options.decodeCardCodeUrl, {
       searchParams: qs,
       method: 'POST',
       json: {

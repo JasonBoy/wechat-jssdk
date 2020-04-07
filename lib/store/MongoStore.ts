@@ -1,3 +1,4 @@
+import { Socket } from 'net';
 import debugFnc from 'debug';
 import isEmpty from 'lodash.isempty';
 import mongoose from 'mongoose';
@@ -6,7 +7,8 @@ const debug = debugFnc('wechat-MongoStore');
 
 const Schema = mongoose.Schema;
 
-import Store from './Store';
+import Store, { StoreUrlSignatureInterface } from './Store';
+import { StoreOptions } from './StoreOptions';
 
 const GID = 'GID';
 
@@ -62,22 +64,34 @@ const CardTicketSchema = new Schema({
   modifyDate: Date,
 });
 
+export interface MongoStoreOptions extends StoreOptions {
+  cache?: boolean;
+  dbName?: string;
+  dbHost?: string;
+  dbPort?: string | number;
+  dbAddress?: string;
+  limit?: number;
+  dbOptions?: object;
+}
+
 /**
  * Simple Store using MongoDB
  */
 class MongoStore extends Store {
-  /**
-   * Simple mongodb store
-   * @param options
-   * @constructor
-   */
-  constructor(options) {
-    super(options);
+  dbName: string;
+  dbHost: string;
+  dbPort: string | number;
+  dbAddress: string;
+  initLimit: number;
+  connection: mongoose;
+  Signature: mongoose.Schema;
+  GlobalToken: mongoose.Schema;
+  OAuthToken: mongoose.Schema;
+  CardTicket: mongoose.Schema;
+  // connection: Socket;
 
-    /* istanbul ignore else */
-    if (!options) {
-      options = {};
-    }
+  constructor(options: MongoStoreOptions = {}) {
+    super(options);
 
     debug('using MongoStore...');
     /* istanbul ignore if */
@@ -96,7 +110,7 @@ class MongoStore extends Store {
     // console.log('this.dbAddress: ', this.dbAddress);
 
     //Connecting to mongodb
-    const conn = (this.connection = mongoose.createConnection(
+    this.connection = mongoose.createConnection(
       this.dbAddress,
       Object.assign(
         {
@@ -107,17 +121,20 @@ class MongoStore extends Store {
         },
         options.dbOptions,
       ),
-    ));
+    );
 
-    conn
+    this.connection
       .then(() => {
         // we're connected!
         debug('Mongodb connected!');
         //Models
-        this.Signature = conn.model('Signature', SignatureSchema);
-        this.GlobalToken = conn.model('GlobalToken', GlobalTokenSchema);
-        this.OAuthToken = conn.model('OAuthToken', OAuthTokenSchema);
-        this.CardTicket = conn.model('CardTicket', CardTicketSchema);
+        this.Signature = this.connection.model('Signature', SignatureSchema);
+        this.GlobalToken = this.connection.model(
+          'GlobalToken',
+          GlobalTokenSchema,
+        );
+        this.OAuthToken = this.connection.model('OAuthToken', OAuthTokenSchema);
+        this.CardTicket = this.connection.model('CardTicket', CardTicketSchema);
         // this.Signature.syncIndexes();
         this.initializeTokenFromDB();
       })
@@ -165,9 +182,9 @@ class MongoStore extends Store {
     }
   }
 
-  async getGlobalToken(): Promise<object> {
+  async getGlobalToken(force?: boolean): Promise<object> {
     /* istanbul ignore if */
-    if (this.cache && !arguments[0]) {
+    if (this.cache && !force) {
       return super.getGlobalToken();
     }
     debug('getting global token from DB...');
@@ -176,9 +193,9 @@ class MongoStore extends Store {
     return Promise.resolve(this.toObject(token));
   }
 
-  async getCardTicket(): Promise<object> {
+  async getCardTicket(force?: boolean): Promise<object> {
     /* istanbul ignore if */
-    if (this.cache && !arguments[0]) {
+    if (this.cache && !force) {
       return super.getCardTicket();
     }
     debug('getting card_ticket from DB...');
@@ -187,10 +204,8 @@ class MongoStore extends Store {
     return Promise.resolve(this.toObject(cardTicket));
   }
 
-  async getUrlSignatures(limit): Promise<object> {
-    const signatures = await this.Signature.find({}).limit(
-      limit || this.initLimit,
-    );
+  async getUrlSignatures(limit = this.initLimit): Promise<object> {
+    const signatures = await this.Signature.find({}).limit(limit);
     const temp = {};
     signatures.forEach((sig) => {
       /* istanbul ignore next */
@@ -200,10 +215,8 @@ class MongoStore extends Store {
     return Promise.resolve(temp);
   }
 
-  async getOAuthTokens(limit): Promise<object> {
-    const oauthTokens = await this.OAuthToken.find({}).limit(
-      limit || this.initLimit,
-    );
+  async getOAuthTokens(limit = this.initLimit): Promise<object> {
+    const oauthTokens = await this.OAuthToken.find({}).limit(limit);
     const temp = {};
     oauthTokens.forEach((token) => {
       /* istanbul ignore next */
@@ -247,7 +260,7 @@ class MongoStore extends Store {
     return super.updateCardTicket(ticketInfo);
   }
 
-  async saveSignature(url, signatureInfo): Promise<object> {
+  async saveSignature(url, signatureInfo): Promise<StoreUrlSignatureInterface> {
     const newSignature = new this.Signature(signatureInfo);
     try {
       await newSignature.save();
@@ -260,7 +273,7 @@ class MongoStore extends Store {
     return super.saveSignature(url, signatureInfo);
   }
 
-  async getSignature(url): Promise<object> {
+  async getSignature(url): Promise<StoreUrlSignatureInterface> {
     let sig = await super.getSignature(url);
     if (!isEmpty(sig)) {
       return Promise.resolve(this.toObject(sig));
@@ -274,7 +287,7 @@ class MongoStore extends Store {
     return Promise.resolve(sig1);
   }
 
-  async updateSignature(url, newInfo): Promise<object> {
+  async updateSignature(url, newInfo): Promise<StoreUrlSignatureInterface> {
     try {
       await this.Signature.findOneAndUpdate(
         { url },

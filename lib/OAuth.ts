@@ -4,8 +4,9 @@ import isEmpty from 'lodash.isempty';
 import * as utils from './utils';
 import { getDefaultConfiguration, checkPassedConfiguration } from './config';
 
-import Store from './store/Store';
+import Store, { StoreOAuthInterface } from './store/Store';
 import FileStore from './store/FileStore';
+import { WeChatOptions } from './WeChatOptions';
 
 const debug = debugFnc('wechat-OAuth');
 
@@ -22,26 +23,24 @@ const oAuthDefaultParams = {
   response_type: 'code',
 };
 
+/**
+ * OAuth class
+ * @return {OAuth} OAuth instance
+ */
 class OAuth {
-  wechatConfig: object;
+  options: WeChatOptions;
   oAuthUrl: string;
   store: Store;
   snsUserInfoUrl: string;
   snsUserBaseUrl: string;
-  /**
-   * OAuth class
-   * @constructor
-   * @param {object=} options
-   * @return {OAuth} OAuth instance
-   */
-  constructor(options) {
+  constructor(options?: WeChatOptions) {
     checkPassedConfiguration(options);
 
-    this.wechatConfig = isEmpty(options)
-      ? /* istanbul ignore next  */ wxConfig
-      : Object.assign({}, wxConfig, options);
+    this.options = isEmpty(options)
+      ? /* istanbul ignore next  */ { ...wxConfig }
+      : { ...wxConfig, ...options };
 
-    this.oAuthUrl = this.wechatConfig.oAuthUrl + '?';
+    this.oAuthUrl = this.options.oAuthUrl + '?';
 
     this.setDefaultOAuthUrl();
 
@@ -64,7 +63,7 @@ class OAuth {
   async getUserInfoRemotely(tokenInfo, withToken): Promise<object> {
     try {
       let data = await utils.sendWechatRequest('/sns/userinfo', {
-        prefixUrl: this.wechatConfig.apiUrl,
+        prefixUrl: this.options.apiUrl,
         searchParams: {
           access_token: tokenInfo.access_token,
           openid: tokenInfo.openid,
@@ -102,16 +101,17 @@ class OAuth {
   generateOAuthUrl(redirectUrl, scope?: string, state?: string): string {
     let url = this.oAuthUrl;
     const tempObj = {
-      appid: this.wechatConfig.appId,
+      appid: this.options.appId,
+      scope: oauthScope.USER_INFO,
     };
-    const oauthState = state || this.wechatConfig.oAuthState || 'userAuth';
+    const oauthState = state || this.options.oAuthState || 'userAuth';
     const tempOAuthParams = Object.assign(tempObj, oAuthDefaultParams, {
       redirect_uri: redirectUrl,
       state: oauthState,
     });
-    tempOAuthParams.scope = scope
-      ? scope
-      : /* istanbul ignore next  */ oauthScope.USER_INFO;
+    if (scope) {
+      tempOAuthParams.scope = scope;
+    }
 
     const keys = Object.keys(tempOAuthParams);
     //sort the keys for correct order on url query
@@ -177,15 +177,15 @@ class OAuth {
   async getAccessTokenRemotely(code, key): Promise<object> {
     debug('getting new oauth access token...');
     try {
-      const data = await utils.sendWechatRequest('/sns/oauth2/access_token', {
-        prefixUrl: this.wechatConfig.apiUrl,
+      const data = (await utils.sendWechatRequest('/sns/oauth2/access_token', {
+        prefixUrl: this.options.apiUrl,
         searchParams: {
-          appid: this.wechatConfig.appId,
-          secret: this.wechatConfig.appSecret,
+          appid: this.options.appId,
+          secret: this.options.appSecret,
           code: code,
           grant_type: 'authorization_code',
         },
-      });
+      })) as StoreOAuthInterface;
       OAuth.setAccessTokenExpirationTime(data);
       const oauthKey = key || data.openid;
       data.key = oauthKey;
@@ -206,14 +206,14 @@ class OAuth {
    */
   async refreshAccessToken(key, tokenInfo): Promise<object> {
     try {
-      const data = await utils.sendWechatRequest('/sns/oauth2/refresh_token', {
-        prefixUrl: this.wechatConfig.apiUrl,
+      const data = (await utils.sendWechatRequest('/sns/oauth2/refresh_token', {
+        prefixUrl: this.options.apiUrl,
         searchParams: {
-          appid: this.wechatConfig.appId,
+          appid: this.options.appId,
           refresh_token: tokenInfo.refresh_token,
           grant_type: 'refresh_token',
         },
-      });
+      })) as StoreOAuthInterface;
       OAuth.setAccessTokenExpirationTime(data);
       const oauthKey = key || data.openid;
       data.modifyDate = new Date();
@@ -231,9 +231,9 @@ class OAuth {
    */
   async isAccessTokenValid(tokenInfo): Promise<object> {
     return utils.sendWechatRequest('/sns/auth', {
-      prefixUrl: this.wechatConfig.apiUrl,
+      prefixUrl: this.options.apiUrl,
       searchParams: {
-        appid: this.wechatConfig.appId,
+        appid: this.options.appId,
         access_token: tokenInfo.access_token,
       },
     });
@@ -243,10 +243,10 @@ class OAuth {
    * Set default wechat oauth url for the instance
    */
   setDefaultOAuthUrl(): void {
-    let temp = this.wechatConfig.wechatRedirectUrl;
+    let temp = this.options.wechatRedirectUrl;
     /* istanbul ignore else  */
     if (!temp) {
-      temp = this.wechatConfig.wechatRedirectHost + '/wechat/oauth-callback';
+      temp = this.options.wechatRedirectHost + '/wechat/oauth-callback';
     }
     this.snsUserInfoUrl = this.generateOAuthUrl(temp, oauthScope.USER_INFO);
     this.snsUserBaseUrl = this.generateOAuthUrl(temp, oauthScope.BASE);

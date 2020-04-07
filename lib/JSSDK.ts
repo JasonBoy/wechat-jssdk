@@ -2,32 +2,39 @@ import debugFnc from 'debug';
 import isEmpty from 'lodash.isempty';
 import { parse } from 'url';
 import * as utils from './utils';
-import { getDefaultConfiguration, checkPassedConfiguration } from './config';
+import {
+  getDefaultConfiguration,
+  checkPassedConfiguration,
+  WeChatConfig,
+} from './config';
 
-import Store from './store/Store';
+import Store, {
+  StoreGlobalTokenInterface,
+  StoreUrlSignatureInterface,
+} from './store/Store';
 import FileStore from './store/FileStore';
+import { WeChatOptions } from './WeChatOptions';
+import { GlobalAccessTokenResult } from './utils';
 
 const debug = debugFnc('wechat-JSSDK');
 
 const wxConfig = getDefaultConfiguration();
 
+/**
+ * JSSDK related functionality
+ * @return {JSSDK} JSSDK instance
+ */
 class JSSDK {
   refreshedTimes: number;
-  wechatConfig: object;
+  options: WeChatOptions;
   store: Store;
-  /**
-   * Pass custom wechat config for the instance
-   * @constructor
-   * @param {object=} options
-   * @see ./config.js
-   * @return {JSSDK} JSSDK instance
-   */
-  constructor(options) {
+
+  constructor(options?: WeChatOptions) {
     checkPassedConfiguration(options);
     this.refreshedTimes = 0;
-    this.wechatConfig = isEmpty(options)
-      ? /* istanbul ignore next  */ wxConfig
-      : Object.assign({}, wxConfig, options);
+    this.options = isEmpty(options)
+      ? /* istanbul ignore next  */ { ...wxConfig }
+      : { ...wxConfig, ...options };
 
     //no custom store provided, using default FileStore
     /* istanbul ignore if  */
@@ -67,14 +74,14 @@ class JSSDK {
   /**
    * Filter the signature for the client
    * @param {object} originalSignatureObj original signature information
-   * @return {object} filtered signature object
+   * @return filtered signature object
    */
-  filterSignature(originalSignatureObj): object {
+  filterSignature(originalSignatureObj): StoreUrlSignatureInterface {
     if (!originalSignatureObj) {
-      return {};
+      return {} as StoreUrlSignatureInterface;
     }
     return {
-      appId: this.wechatConfig.appId,
+      appId: this.options.appId,
       timestamp: originalSignatureObj.timestamp,
       nonceStr: originalSignatureObj.nonceStr,
       signature: originalSignatureObj.signature,
@@ -101,9 +108,13 @@ class JSSDK {
    * @param {string} accessToken
    * @param {string} ticket js ticket
    * @static
-   * @returns {object} generated wechat signature info
+   * @returns generated wechat signature info
    */
-  static generateSignature(url, accessToken, ticket): object {
+  static generateSignature(
+    url,
+    accessToken,
+    ticket,
+  ): StoreUrlSignatureInterface {
     const ret = {
       jsapi_ticket: ticket,
       nonceStr: JSSDK.createNonceStr(),
@@ -124,11 +135,7 @@ class JSSDK {
    * @return {boolean}
    */
   verifySignature(query): boolean {
-    const keys = [
-      this.wechatConfig.wechatToken,
-      query['timestamp'],
-      query['nonce'],
-    ];
+    const keys = [this.options.wechatToken, query['timestamp'], query['nonce']];
     let str = keys.sort().join('');
     str = utils.genSHA1(str);
     return str === query.signature;
@@ -138,8 +145,8 @@ class JSSDK {
    * Send request to get wechat access token
    * @return {Promise}
    */
-  getAccessToken(): Promise<object> {
-    const cfg = this.wechatConfig;
+  getAccessToken(): Promise<GlobalAccessTokenResult> {
+    const cfg = this.options;
     return utils.getGlobalAccessToken(
       cfg.appId,
       cfg.appSecret,
@@ -152,15 +159,19 @@ class JSSDK {
    * @param {string} accessToken token received from the @see getAccessToken above
    * @return {Promise}
    */
-  async getJsApiTicket(accessToken): Promise<object> {
+  async getJsApiTicket(
+    accessToken,
+  ): Promise<{
+    ticket: string;
+  }> {
     const params = {
       access_token: accessToken,
       type: 'jsapi',
     };
     try {
-      return await utils.sendWechatRequest(this.wechatConfig.ticketUrl, {
+      return (await utils.sendWechatRequest(this.options.ticketUrl, {
         searchParams: params,
-      });
+      })) as { ticket: string };
     } catch (err) {
       debug('get ticket failed!');
       return Promise.reject(err);
@@ -174,7 +185,7 @@ class JSSDK {
    * @return {Promise} resolved with the updated globalToken object
    */
   async updateAccessTokenOrTicketGlobally(token, ticket): Promise<object> {
-    const info = { modifyDate: new Date() };
+    const info: StoreGlobalTokenInterface = { modifyDate: new Date() };
     token && (info.accessToken = token);
     ticket && (info.jsapi_ticket = ticket);
     return this.store.updateGlobalToken(info);
@@ -213,7 +224,7 @@ class JSSDK {
    * Get or generate global token info for signature generating process
    * @return {Promise}
    */
-  async prepareGlobalToken(): Promise<object> {
+  async prepareGlobalToken(): Promise<StoreGlobalTokenInterface> {
     const globalToken = await this.store.getGlobalToken();
     if (
       !globalToken ||
@@ -292,7 +303,7 @@ class JSSDK {
    * @param {string} url signature will be created for the url
    * @return {Promise} resolved with filtered signature results
    */
-  async createSignature(url): Promise<object> {
+  async createSignature(url): Promise<StoreUrlSignatureInterface> {
     const data = await this.prepareGlobalToken();
     const ret = JSSDK.generateSignature(
       url,

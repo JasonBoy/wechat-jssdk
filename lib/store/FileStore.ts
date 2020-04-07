@@ -7,13 +7,16 @@ import {
   readFileSync,
 } from 'fs';
 import { resolve } from 'path';
-
-const debug = debugFnc('wechat-FileStore');
-
-const writeFile = promisify(_writeFile);
-
 import Store from './Store';
 import { getConfigFromCompareKeys, isBreakingConfigChange } from '../config';
+import { StoreOptions } from './StoreOptions';
+
+const debug = debugFnc('wechat-FileStore');
+const writeFile = promisify(_writeFile);
+
+export interface FileStoreOptions extends StoreOptions {
+  fileStorePath?: string;
+}
 
 /**
  * Simple Store using json file
@@ -22,7 +25,7 @@ class FileStore extends Store {
   fileStorePath: string;
   // store: Store;
 
-  constructor(options = {}, wechatConfig = {}) {
+  constructor(options: FileStoreOptions = {}, wechatConfig = {}) {
     super(options);
 
     this.fileStorePath = options.fileStorePath
@@ -92,7 +95,7 @@ class FileStore extends Store {
         debug(err);
         return;
       }
-      super.flush();
+      await super.flush();
       debug('export wechat info to file finished');
     }
   }

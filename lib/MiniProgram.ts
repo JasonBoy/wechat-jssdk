@@ -2,40 +2,41 @@ import debugFnc from 'debug';
 import { createDecipheriv } from 'crypto';
 import isEmpty from 'lodash.isempty';
 import * as utils from './utils';
-import { getDefaultConfiguration } from './config';
+import { getDefaultConfiguration, WeChatMiniProgramConfig } from './config';
 
 import Store from './store/Store';
 import FileStore from './store/FileStore';
+import { WeChatOptions } from './WeChatOptions';
 
 const debug = debugFnc('wechat-MiniProgram');
 
 const wxConfig = getDefaultConfiguration();
 
+/**
+ * Wechat mini program class, must have "options.miniProgram" option
+ * @return {MiniProgram} MiniProgram instance
+ */
 class MiniProgram {
-  miniProgramOptions: object;
-  wechatConfig: object;
+  miniProgramOptions: WeChatMiniProgramConfig;
+  options: WeChatOptions;
   appId: string;
   appSecret: string;
   store: Store;
-  /**
-   * Wechat mini program class, must have "options.miniProgram" option
-   * @constructor
-   * @param options
-   * @return {MiniProgram} MiniProgram instance
-   */
-  constructor(options = {}) {
+
+  constructor(options: WeChatOptions) {
     // config.checkPassedConfiguration(options);
 
-    let miniOptions = options.miniProgram || /* istanbul ignore next  */ {};
+    let miniOptions = (options.miniProgram ||
+      /* istanbul ignore next  */ {}) as WeChatMiniProgramConfig;
 
     /* istanbul ignore if  */
     if (!miniOptions.appId) {
-      throw new Error('wechat mini program appId not found');
+      throw new Error('[MiniProgram]wechat mini program appId not found');
     }
 
     /* istanbul ignore if  */
     if (!miniOptions.appSecret) {
-      throw new Error('wechat mini program appSecret not found');
+      throw new Error('[MiniProgram]wechat mini program appSecret not found');
     }
 
     this.miniProgramOptions = miniOptions = Object.assign(
@@ -45,9 +46,9 @@ class MiniProgram {
     );
     options.miniProgram = miniOptions;
 
-    this.wechatConfig = isEmpty(options)
-      ? /* istanbul ignore next  */ wxConfig
-      : Object.assign({}, wxConfig, options);
+    this.options = isEmpty(options)
+      ? /* istanbul ignore next  */ { ...wxConfig }
+      : { ...wxConfig, ...options };
     //alias
     this.appId = miniOptions.appId;
     this.appSecret = miniOptions.appSecret;
@@ -72,7 +73,9 @@ class MiniProgram {
    */
   async getSession(code, key): Promise<object> {
     try {
-      const data = await utils.sendWechatRequest(
+      const data: {
+        openid?: string;
+      } = await utils.sendWechatRequest(
         this.miniProgramOptions.GET_SESSION_KEY_URL,
         {
           searchParams: {
@@ -83,7 +86,7 @@ class MiniProgram {
           },
         },
       );
-      await this.store.setMPSession(key || data.openid, data);
+      await this.store.setMiniProgramSession(key || data.openid, data);
       return Promise.resolve(data);
     } catch (err) {
       debug(err);
@@ -145,7 +148,7 @@ class MiniProgram {
     let p;
     /* istanbul ignore if  */
     if (!sessionKey && key) {
-      p = this.store.getMPSessionKey(key);
+      p = this.store.getMiniProgramSessionKey(key);
     } else {
       p = Promise.resolve(sessionKey);
     }

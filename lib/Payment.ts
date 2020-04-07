@@ -3,17 +3,22 @@ import isEmpty from 'lodash.isempty';
 import { createDecipher } from 'crypto';
 import { Agent } from 'https';
 import * as utils from './utils';
-import { getDefaultConfiguration, checkPassedConfiguration } from './config';
+import {
+  getDefaultConfiguration,
+  checkPassedConfiguration,
+  WeChatConfig,
+  WeChatPaymentAPIConfig,
+  WeChatPaymentConfig,
+} from './config';
 
 import Store from './store/Store';
 import FileStore from './store/FileStore';
 import got from 'got';
+import { WeChatOptions } from './WeChatOptions';
 
 const debug = debugFnc('wechat-Payment');
 
 const wxConfig = getDefaultConfiguration();
-
-const paymentUrls = wxConfig.paymentUrls;
 
 const SIGN_TYPE = {
   MD5: 'MD5',
@@ -70,50 +75,79 @@ const COUPON_TYPE = {
 const SANDBOX_SIGN_KEY_ERROR_MSG = '沙箱验证签名失败';
 const MAX_SANDBOX_SIGN_KEY_ERROR_ATTEMPTS = 2;
 
+interface PaymentSignatureObject {
+  params: object;
+  paySign: string;
+}
+interface ChoosePaymentData {
+  timestamp: string;
+  nonceStr: string;
+  package: string;
+  signType: string;
+  paySign: string;
+}
+interface PaymentRequestResult {
+  return_code?: string;
+  return_msg?: string;
+  result_code?: string;
+  err_code?: number;
+  err_code_des?: string;
+  //real data
+  out_trade_no?: string;
+  sandbox_signkey?: string;
+}
+interface SimpleRequestResult {
+  requestData: object;
+  responseData: PaymentRequestResult;
+}
+
+/**
+ * Wechat Payment class
+ * @constructor
+ * @param {WeChatOptions} options
+ * @return {Payment} Payment instance
+ */
 class Payment {
-  wechatConfig: object;
-  paymentUrls: object;
+  options: WeChatOptions;
+  paymentConfig: WeChatPaymentConfig;
+  paymentAPI: WeChatPaymentAPIConfig;
   notifyUrl: string;
   store: Store;
   paymentAgent: Agent;
-  /**
-   * Wechat Payment class
-   * @constructor
-   * @param options
-   * @return {Payment} Payment instance
-   */
-  constructor(options) {
+
+  constructor(options?: WeChatOptions) {
     checkPassedConfiguration(options);
 
-    this.wechatConfig = isEmpty(options)
-      ? /* istanbul ignore next  */ wxConfig
-      : Object.assign({}, wxConfig, options);
-    // if(!this.wechatConfig.paymentKey) {
-    //   throw new Error('Payment key not found, pls go to wechat payment dashboard to get the key!');
-    // }
+    this.options = isEmpty(options)
+      ? /* istanbul ignore next  */ { ...wxConfig }
+      : {
+          ...wxConfig,
+          ...options,
+          payment: {
+            ...wxConfig.payment,
+            ...options.payment,
+            paymentAPI: {
+              ...wxConfig.payment.paymentAPI,
+              ...(options.payment && options.payment.paymentAPI),
+            },
+          },
+        };
+
+    this.paymentConfig = this.options.payment;
+
     /* istanbul ignore if  */
-    if (!this.wechatConfig.paymentCertificatePfx) {
-      throw new Error(
-        'Payment certificate key not found, pls provide pkcs12 key!',
-      );
-    }
-    /* istanbul ignore if  */
-    if (!this.wechatConfig.merchantId) {
+    if (!this.paymentConfig.merchantId) {
       throw new Error('Payment merchant id not found!');
     }
 
-    this.paymentUrls = Object.assign(
-      {},
-      paymentUrls,
-      this.wechatConfig.paymentUrls,
-    );
+    this.paymentAPI = this.paymentConfig.paymentAPI;
     /* istanbul ignore else  */
-    if (this.wechatConfig.paymentSandBox) {
-      this.paymentUrls = utils.paymentUrlsWithSandBox(this.paymentUrls);
+    if (this.paymentConfig.paymentSandBox) {
+      this.paymentAPI = utils.paymentUrlsWithSandBox(this.paymentAPI);
       this.getSandboxSignKey();
     }
 
-    this.notifyUrl = options.paymentNotifyUrl || wxConfig.paymentNotifyUrl;
+    this.notifyUrl = this.paymentConfig.paymentNotifyUrl;
 
     /* istanbul ignore if  */
     if (!options.store || !(options.store instanceof Store)) {
@@ -213,17 +247,22 @@ class Payment {
    * Generate paySign info for jssdk to invoke wechat payment
    * @param {string} prepayId received from unifiedOrder()
    * @param {string=} signType MD5 or SHA1, default MD5
-   * @return {Promise}
    */
-  async generateChooseWXPayInfo(prepayId, signType): Promise<object> {
+  async generateChooseWXPayInfo(
+    prepayId,
+    signType,
+  ): Promise<ChoosePaymentData> {
     const params = {
-      appId: this.wechatConfig.appId,
+      appId: this.options.appId,
       timeStamp: utils.timestamp(),
       nonceStr: utils.nonceStr(),
       package: 'prepay_id=' + prepayId,
       signType: signType || SIGN_TYPE.MD5,
     };
-    const ret = this.generateGeneralPaymentSignature(params, params.signType);
+    const ret: PaymentSignatureObject = this.generateGeneralPaymentSignature(
+      params,
+      params.signType,
+    );
     return Promise.resolve({
       timestamp: params.timeStamp,
       nonceStr: params.nonceStr,
@@ -235,12 +274,15 @@ class Payment {
 
   /**
    * General payment sign generator
-   * @param {object} params data used to gen payment sign
-   * @param {string} signType
-   * @param {boolean=} sandbox if gen the sign to get sandbox api key
-   * @return {object}
+   * @param params - data used to gen payment sign
+   * @param signType
+   * @param sandbox - if gen the sign to get sandbox api key
    */
-  generateGeneralPaymentSignature(params, signType, sandbox): object {
+  generateGeneralPaymentSignature(
+    params: object,
+    signType: string,
+    sandbox?: boolean,
+  ): PaymentSignatureObject {
     const originalKeys = Object.keys(params);
     const keys = originalKeys.filter((key) => {
       const val = params[key];
@@ -279,12 +321,12 @@ class Payment {
    */
   getPaymentAgent(): Agent {
     if (this.paymentAgent) return this.paymentAgent;
-    const wc = this.wechatConfig;
     this.paymentAgent = new Agent({
-      host: this.wechatConfig.PAYMENT_HOST,
-      port: this.wechatConfig.PAYMENT_HOST_PORT,
-      pfx: wc.paymentCertificatePfx,
-      passphrase: wc.paymentPassphrase || wc.merchantId,
+      host: this.paymentAPI.PAYMENT_HOST,
+      port: this.paymentAPI.PAYMENT_HOST_PORT,
+      pfx: this.paymentConfig.paymentCertificatePfx,
+      passphrase:
+        this.paymentConfig.paymentPassphrase || this.paymentConfig.merchantId,
     });
     return this.paymentAgent;
   }
@@ -318,7 +360,7 @@ class Payment {
     );
     try {
       const result = await this.simpleRequest(
-        this.paymentUrls.UNIFIED_ORDER,
+        this.paymentAPI.UNIFIED_ORDER,
         data,
       );
       const responseData = result.responseData;
@@ -341,7 +383,7 @@ class Payment {
    */
   async queryOrder(queryInfo): Promise<object> {
     try {
-      return this.simpleRequest(this.paymentUrls.QUERY_ORDER, queryInfo);
+      return this.simpleRequest(this.paymentAPI.QUERY_ORDER, queryInfo);
     } catch (reason) {
       debug('query order failed!');
       return Promise.reject(reason);
@@ -355,7 +397,7 @@ class Payment {
    */
   async closeOrder(orderId): Promise<object> {
     try {
-      return this.simpleRequest(this.paymentUrls.CLOSE_ORDER, {
+      return this.simpleRequest(this.paymentAPI.CLOSE_ORDER, {
         out_trade_no: orderId,
       });
     } catch (reason) {
@@ -385,7 +427,7 @@ class Payment {
     try {
       const xmlData = await utils.buildXML(data);
       const rawData = await utils.sendWechatPaymentRequest(
-        this.paymentUrls.REFUND,
+        this.paymentAPI.REFUND,
         {
           body: xmlData,
           agent: { https: this.getPaymentAgent() },
@@ -412,7 +454,7 @@ class Payment {
    */
   async queryRefund(info): Promise<object> {
     try {
-      return this.simpleRequest(this.paymentUrls.QUERY_REFUND, info);
+      return this.simpleRequest(this.paymentAPI.QUERY_REFUND, info);
     } catch (reason) {
       debug('query refund failed!');
       return Promise.reject(reason);
@@ -440,7 +482,7 @@ class Payment {
         decompress: !noGzip,
         encoding: null, // get zip file as buffer
       },
-      this.paymentUrls.DOWNLOAD_BILL,
+      this.paymentAPI.DOWNLOAD_BILL,
     );
   }
 
@@ -469,7 +511,7 @@ class Payment {
         agent: { https: this.getPaymentAgent() },
         decompress: !noGzip,
       },
-      this.paymentUrls.DOWNLOAD_FUND_FLOW,
+      this.paymentAPI.DOWNLOAD_FUND_FLOW,
     );
   }
 
@@ -559,7 +601,7 @@ class Payment {
    */
   async reportToWechat(info): Promise<object> {
     try {
-      return this.simpleRequest(this.paymentUrls.REPORT, info);
+      return this.simpleRequest(this.paymentAPI.REPORT, info);
     } catch (reason) {
       debug('report status to wechat failed!');
       return Promise.reject(reason);
@@ -568,7 +610,7 @@ class Payment {
 
   async getSandboxSignKey(): Promise<object> {
     const params = {
-      mch_id: this.wechatConfig.merchantId,
+      mch_id: this.paymentConfig.merchantId,
       nonce_str: utils.nonceStr(),
     };
     const data = this.generateSignature(params, SIGN_TYPE.MD5, true);
@@ -576,13 +618,13 @@ class Payment {
       const xmlData = await utils.buildXML(data);
       // console.log('sandbox key request:', xmlData);
       const rawData = await utils.sendWechatPaymentRequest(
-        this.paymentUrls.SIGN_KEY,
+        this.paymentAPI.SIGN_KEY,
         {
           body: xmlData,
         },
       ); // console.log(rawData);
-      const jsonData = await utils.parseXML(rawData);
-      this.wechatConfig.paymentSandBoxKey = jsonData.sandbox_signkey;
+      const jsonData = (await utils.parseXML(rawData)) as PaymentRequestResult;
+      this.paymentConfig.paymentSandBoxKey = jsonData.sandbox_signkey;
       return Promise.resolve(jsonData);
     } catch (reason) {
       debug('get sandbox sign key failed!');
@@ -595,9 +637,12 @@ class Payment {
    * @param {string} apiUrl
    * @param {object} info
    * @param {Number=} attempts, sandbox key error retry count
-   * @return {Promise}
    */
-  async simpleRequest(apiUrl, info, attempts?: number): Promise<object> {
+  async simpleRequest(
+    apiUrl,
+    info,
+    attempts?: number,
+  ): Promise<SimpleRequestResult> {
     if (attempts > MAX_SANDBOX_SIGN_KEY_ERROR_ATTEMPTS) {
       const msg = 'maximum sandbox key error attempts reached!';
       debug(msg);
@@ -611,7 +656,7 @@ class Payment {
     const rawData = await utils.sendWechatPaymentRequest(apiUrl, {
       body: xmlData,
     }); // console.log(data); // return utils.buildXML(data) //   .then(data => { //     console.log(data); //     return utils.parseXML(data); //   });
-    const jsonData = await utils.parseXML(rawData);
+    const jsonData = (await utils.parseXML(rawData)) as PaymentRequestResult;
     if (jsonData.return_code == RESULT_CODE.FAIL) {
       debug(jsonData.return_msg);
       //sandbox key error, try get new key and try one more time
@@ -643,11 +688,10 @@ class Payment {
    * @return {object}
    */
   mergeParams(customParams, signType?: string): object {
-    const wechatConfig = this.wechatConfig;
     return Object.assign(
       {
-        appid: wechatConfig.appId,
-        mch_id: wechatConfig.merchantId,
+        appid: this.options.appId,
+        mch_id: this.paymentConfig.merchantId,
         nonce_str: utils.nonceStr(),
         sign_type: signType || SIGN_TYPE.MD5,
       },
@@ -670,7 +714,10 @@ class Payment {
    * @return {Promise}
    */
   async replyData(isSuccess): Promise<string> {
-    const result = {
+    const result: {
+      return_code: string;
+      return_msg?: string;
+    } = {
       return_code: RESULT_CODE.FAIL,
     };
     if (isSuccess) {
@@ -695,26 +742,29 @@ class Payment {
    */
   getAPISignKey(getSandboxKey?: boolean): string {
     return getSandboxKey ||
-      /* istanbul ignore next */ !this.wechatConfig.paymentSandBox
-      ? this.wechatConfig.paymentKey
-      : /* istanbul ignore next */ this.wechatConfig.paymentSandBoxKey;
+      /* istanbul ignore next */ !this.paymentConfig.paymentSandBox
+      ? this.paymentConfig.paymentKey
+      : /* istanbul ignore next */ this.paymentConfig.paymentSandBoxKey;
   }
 
   /**
    * Decrypt wechat refund notify result
    * @see https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_16&index=10
    * @param {string} xmlResult notify xml data
-   * @return {Promise}
    */
-  async decryptRefundNotifyResult(xmlResult): Promise<object> {
-    let data = await utils.parseXML(xmlResult);
+  async decryptRefundNotifyResult(
+    xmlResult,
+  ): Promise<{ parsedXMLData: object; decryptedData: object }> {
+    const data: {
+      req_info?: string;
+    } = await utils.parseXML(xmlResult);
     const originalData = data;
     const md5Key = utils.genMD5(this.getAPISignKey());
-    data = utils.createBufferFromBase64(data.req_info);
+    const bufferData = utils.createBufferFromBase64(data.req_info);
     let decoded;
     const decipher = createDecipher('aes-256-ecb', md5Key);
     decipher.setAutoPadding(true);
-    decoded = decipher.update(data, 'binary', 'utf8');
+    decoded = decipher.update(bufferData, 'binary', 'utf8');
     decoded += decipher.final('utf8');
     const ret = JSON.parse(decoded);
     return Promise.resolve({
@@ -747,7 +797,7 @@ class Payment {
     try {
       const xmlData = await utils.buildXML(data);
       const data1 = await utils.sendWechatPaymentRequest(
-        this.paymentUrls.BATCH_QUERY_COMMENT,
+        this.paymentAPI.BATCH_QUERY_COMMENT,
         {
           body: xmlData,
           agent: { https: this.getPaymentAgent() },
@@ -773,7 +823,7 @@ class Payment {
    */
   async querySettlement(query): Promise<object> {
     try {
-      return this.simpleRequest(this.paymentUrls.QUERY_SETTLEMENT, query);
+      return this.simpleRequest(this.paymentAPI.QUERY_SETTLEMENT, query);
     } catch (reason) {
       debug('query settlement failed!');
       return Promise.reject(reason);
@@ -790,7 +840,7 @@ class Payment {
   async queryExchangeRate(query): Promise<object> {
     try {
       return this.simpleRequest(
-        this.paymentUrls.QUERY_EXCHANGE_RATE,
+        this.paymentAPI.QUERY_EXCHANGE_RATE,
         Object.assign({}, query, {
           nonce_str: null,
           sign_type: null,
