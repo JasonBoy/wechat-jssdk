@@ -1,4 +1,3 @@
-import { Socket } from 'net';
 import debugFnc from 'debug';
 import isEmpty from 'lodash.isempty';
 import mongoose from 'mongoose';
@@ -7,7 +6,12 @@ const debug = debugFnc('wechat-MongoStore');
 
 const Schema = mongoose.Schema;
 
-import Store, { StoreUrlSignatureInterface } from './Store';
+import Store, {
+  StoreCardInterface,
+  StoreGlobalTokenInterface,
+  StoreOAuthInterface,
+  StoreUrlSignatureInterface,
+} from './Store';
 import { StoreOptions } from './StoreOptions';
 
 const GID = 'GID';
@@ -204,7 +208,7 @@ class MongoStore extends Store {
     return Promise.resolve(this.toObject(cardTicket));
   }
 
-  async getUrlSignatures(limit = this.initLimit): Promise<object> {
+  async getUrlSignatures(limit: number = this.initLimit): Promise<object> {
     const signatures = await this.Signature.find({}).limit(limit);
     const temp = {};
     signatures.forEach((sig) => {
@@ -215,7 +219,7 @@ class MongoStore extends Store {
     return Promise.resolve(temp);
   }
 
-  async getOAuthTokens(limit = this.initLimit): Promise<object> {
+  async getOAuthTokens(limit: number = this.initLimit): Promise<object> {
     const oauthTokens = await this.OAuthToken.find({}).limit(limit);
     const temp = {};
     oauthTokens.forEach((token) => {
@@ -226,7 +230,7 @@ class MongoStore extends Store {
     return Promise.resolve(temp);
   }
 
-  async updateGlobalToken(info): Promise<object> {
+  async updateGlobalToken(info: StoreGlobalTokenInterface): Promise<object> {
     //Update to DB
     debug('updating global token...');
     await this.GlobalToken.findOneAndUpdate({}, Object.assign({}, info), {
@@ -239,7 +243,7 @@ class MongoStore extends Store {
     return super.updateGlobalToken(info);
   }
 
-  async updateCardTicket(ticketInfo): Promise<object> {
+  async updateCardTicket(ticketInfo: StoreCardInterface): Promise<object> {
     //Update to DB
     debug('saving or updating card_ticket...');
     try {
@@ -260,7 +264,10 @@ class MongoStore extends Store {
     return super.updateCardTicket(ticketInfo);
   }
 
-  async saveSignature(url, signatureInfo): Promise<StoreUrlSignatureInterface> {
+  async saveSignature(
+    url: string,
+    signatureInfo: StoreUrlSignatureInterface,
+  ): Promise<StoreUrlSignatureInterface> {
     const newSignature = new this.Signature(signatureInfo);
     try {
       await newSignature.save();
@@ -273,10 +280,10 @@ class MongoStore extends Store {
     return super.saveSignature(url, signatureInfo);
   }
 
-  async getSignature(url): Promise<StoreUrlSignatureInterface> {
+  async getSignature(url: string): Promise<StoreUrlSignatureInterface> {
     let sig = await super.getSignature(url);
     if (!isEmpty(sig)) {
-      return Promise.resolve(this.toObject(sig));
+      return Promise.resolve(this.toObject(sig) as StoreUrlSignatureInterface);
     }
     let sig1 = await this.Signature.findOne({ url: url });
     if (!isEmpty(sig1)) {
@@ -287,7 +294,10 @@ class MongoStore extends Store {
     return Promise.resolve(sig1);
   }
 
-  async updateSignature(url, newInfo): Promise<StoreUrlSignatureInterface> {
+  async updateSignature(
+    url: string,
+    newInfo: StoreUrlSignatureInterface,
+  ): Promise<StoreUrlSignatureInterface> {
     try {
       await this.Signature.findOneAndUpdate(
         { url },
@@ -304,7 +314,7 @@ class MongoStore extends Store {
     return super.updateSignature(url, newInfo);
   }
 
-  async getOAuthAccessToken(key): Promise<object> {
+  async getOAuthAccessToken(key: string): Promise<StoreOAuthInterface> {
     let token = await super.getOAuthAccessToken(key);
     if (!isEmpty(token)) {
       return Promise.resolve(token);
@@ -318,7 +328,10 @@ class MongoStore extends Store {
     return Promise.resolve(token1);
   }
 
-  async saveOAuthAccessToken(key, info): Promise<object> {
+  async saveOAuthAccessToken(
+    key: string,
+    info: StoreOAuthInterface,
+  ): Promise<StoreOAuthInterface> {
     const newOAuthToken = new this.OAuthToken(info);
     try {
       await newOAuthToken.save();
@@ -332,7 +345,10 @@ class MongoStore extends Store {
     return super.saveOAuthAccessToken(key, info);
   }
 
-  async updateOAuthAccessToken(key, newInfo): Promise<object> {
+  async updateOAuthAccessToken(
+    key: string,
+    newInfo: StoreOAuthInterface,
+  ): Promise<StoreOAuthInterface> {
     try {
       await this.OAuthToken.findOneAndUpdate(
         { key },
@@ -344,8 +360,9 @@ class MongoStore extends Store {
       debug('update oauth token to DB finished!');
     } catch (err) {
       debug('update oauth token error:', err);
+      throw err;
     }
-    return super.updateSignature(key, newInfo);
+    return newInfo;
   }
 
   async flushGlobalToken(): Promise<void> {
@@ -384,93 +401,86 @@ class MongoStore extends Store {
   async flushSignatures(): Promise<void> {
     debug('flushing url signatures...');
     const signatures = this.store.urls;
-    if (!isEmpty(signatures)) {
-      const keys = Object.keys(signatures);
-      const bulk = this.Signature.collection.initializeOrderedBulkOp();
-      const batchedKeys = [];
-      keys.forEach((key) => {
-        const sig = signatures[key];
-        if (!sig.updated) return;
-        const temp = Object.assign({}, sig);
-        temp._id && (temp._id = undefined);
-        temp.hasOwnProperty('__v') && (temp.__v = undefined);
-        temp.hasOwnProperty('updated') && (temp.updated = undefined);
-        batchedKeys.push(key);
-        bulk.find({ url: temp.url }).updateOne(
-          {
-            $set: temp,
-          },
-          { upsert: true },
-        );
-      });
-      return new Promise(function (resolve, reject) {
-        try {
-          if (batchedKeys.length <= 0) {
-            return resolve(true);
-          }
-          bulk.execute(function (err) {
-            if (err) {
-              debug(err);
-            } else {
-              debug(`[${keys.length}] signatures flushed!`);
-            }
-            resolve(true);
-          });
-        } catch (e) {
-          debug(e);
-          reject(e);
-        }
-      });
+    if (isEmpty(signatures)) {
+      return;
     }
-    return Promise.resolve();
+
+    const keys = Object.keys(signatures);
+    const bulk = this.Signature.collection.initializeOrderedBulkOp();
+    const batchedKeys = [];
+    keys.forEach((key) => {
+      const sig = signatures[key];
+      if (!sig.updated) return;
+      const temp = Object.assign({}, sig);
+      temp._id && (temp._id = undefined);
+      temp.hasOwnProperty('__v') && (temp.__v = undefined);
+      temp.hasOwnProperty('updated') && (temp.updated = undefined);
+      batchedKeys.push(key);
+      bulk.find({ url: temp.url }).updateOne(
+        {
+          $set: temp,
+        },
+        { upsert: true },
+      );
+    });
+    return new Promise(function (resolve, reject) {
+      if (batchedKeys.length <= 0) {
+        return resolve();
+      }
+      bulk.execute(function (err) {
+        if (err) {
+          debug(err);
+          reject(err);
+          return;
+        }
+        debug(`[${keys.length}] signatures flushed!`);
+        resolve();
+      });
+    });
   }
 
   async flushOAuthTokens(): Promise<void> {
     debug('flushing oauth tokens...');
     const oauthTokens = this.store.oauth;
-    if (!isEmpty(oauthTokens)) {
-      const keys = Object.keys(oauthTokens);
-      const bulk = this.OAuthToken.collection.initializeOrderedBulkOp();
-      const batchedKeys = [];
-      keys.forEach((key) => {
-        const token = oauthTokens[key];
-        if (!token.updated) return;
-        const temp = Object.assign({}, token);
-        temp._id && (temp._id = undefined);
-        temp.hasOwnProperty('__v') && (temp.__v = undefined);
-        temp.hasOwnProperty('updated') && (temp.updated = undefined);
-        batchedKeys.push(key);
-        bulk.find({ key: temp.key }).updateOne(
-          {
-            $set: temp,
-          },
-          { upsert: true },
-        );
-      });
-      return new Promise(function (resolve, reject) {
-        try {
-          if (batchedKeys.length <= 0) {
-            return resolve(true);
-          }
-          bulk.execute(function (err) {
-            if (err) {
-              debug(err);
-            } else {
-              debug(`[${keys.length}] oauth tokens flushed!`);
-            }
-            resolve(true);
-          });
-        } catch (e) {
-          debug(e);
-          reject(e);
-        }
-      });
+    if (isEmpty(oauthTokens)) {
+      return;
     }
-    return Promise.resolve();
+    const keys = Object.keys(oauthTokens);
+    const bulk = this.OAuthToken.collection.initializeOrderedBulkOp();
+    const batchedKeys = [];
+    keys.forEach((key) => {
+      const token = oauthTokens[key];
+      if (!token.updated) return;
+      const temp = Object.assign({}, token);
+      temp._id && (temp._id = undefined);
+      temp.hasOwnProperty('__v') && (temp.__v = undefined);
+      temp.hasOwnProperty('updated') && (temp.updated = undefined);
+      batchedKeys.push(key);
+      bulk.find({ key: temp.key }).updateOne(
+        {
+          $set: temp,
+        },
+        { upsert: true },
+      );
+    });
+    return new Promise(function (resolve, reject) {
+      if (batchedKeys.length <= 0) {
+        return resolve();
+      }
+      bulk.execute(function (err) {
+        if (err) {
+          debug(err);
+          reject(err);
+          return;
+        }
+        debug(`[${keys.length}] oauth tokens flushed!`);
+        resolve();
+      });
+    });
   }
 
-  async flush(): Promise<void | boolean> {
-    if (!this.cache) return Promise.resolve(true);
+  async flush(): Promise<void> {
+    if (!this.cache) return;
     try {
       await Promise.all([
         this.flushGlobalToken(),
@@ -481,7 +491,7 @@ class MongoStore extends Store {
     } catch (err) {
       debug(err);
     } finally {
-      super.flush();
+      await super.flush();
     }
   }
 

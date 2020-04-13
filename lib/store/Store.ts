@@ -337,7 +337,7 @@ class Store extends EventEmitter {
   /**
    * Flush cached store object to persistent storage, e.g Database, File, etc...
    */
-  async flush() {
+  async flush(): Promise<void> {
     // this.emit(STORE_EVENTS.STORE_FLUSHED, true);
     // debug('flushed on Store class');
   }

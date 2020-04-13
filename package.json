@@ -3,7 +3,6 @@
   "version": "6.0.0-alpha.0",
   "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
   "main": "lib/index.ts",
-  "source": "./lib/client.js",
   "engines": {
     "node": ">= 10"
   },
@@ -13,8 +12,8 @@
     "test": "_mocha --exit test/**/*.js",
     "coverage": "nyc npm run test && nyc report --reporter=lcov",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
-    "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
-    "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
+    "build": "microbundle  -i lib/client/index.ts -f umd -o dist/client/index.js --target web --name WechatJSSDK --no-sourcemap --tsconfig lib/client/tsconfig.json",
+    "watch": "microbundle -i lib/client/index.ts --watch -f umd -o dist/client/index.js --name WechatJSSDK --tsconfig lib/client/tsconfig.json",
     "prepublishOnly": "npm run build",
     "lint": "tsc --noEmit && eslint '**/*.{js,ts}'"
   },
