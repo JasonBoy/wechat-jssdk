@@ -108,8 +108,8 @@ class Card {
         searchParams: params,
       });
       data = Object.assign({ modifyDate: new Date() }, data);
-      data.errcode = undefined;
-      data.errmsg = undefined;
+      delete data.errcode;
+      delete data.errmsg;
       return await this.store.updateCardTicket(data);
     } catch (reason) {
       /* istanbul ignore next */

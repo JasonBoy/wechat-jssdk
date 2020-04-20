@@ -45,11 +45,15 @@ export interface StoreOAuthInterface {
 export interface StoreCardInterface {
   ticket?: string;
   expires_in?: number;
+  errcode?: number | string;
+  errmsg?: string;
   createDate?: string | Date;
   modifyDate?: string | Date;
 }
 export interface StoreMiniProgramInterface {
-  session_key: string;
+  openid?: string;
+  session_key?: string;
+  unionid?: string;
   expires_in?: number;
   createDate?: string | Date;
   modifyDate?: string | Date;
@@ -60,10 +64,16 @@ export interface StoreInterface {
     store?: string; //store file path
   };
   globalToken: StoreGlobalTokenInterface;
-  urls: object;
-  oauth: object;
-  card: object;
-  mp: object;
+  urls: {
+    [urlAsKey: string]: StoreUrlSignatureInterface;
+  };
+  oauth: {
+    [openIdAsKey: string]: StoreOAuthInterface;
+  };
+  card: StoreCardInterface;
+  mp: {
+    [openIdAsKey: string]: StoreMiniProgramInterface;
+  };
 }
 
 /**

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "dist/lib",
     "resolveJsonModule": true,
     "target": "es2018",
     "module": "CommonJS",
