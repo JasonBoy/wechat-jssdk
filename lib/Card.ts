@@ -3,10 +3,7 @@ import isEmpty from 'lodash.isempty';
 import * as utils from './utils';
 import { getDefaultConfiguration, checkPassedConfiguration } from './config';
 
-import Store, {
-  StoreCardInterface,
-  StoreGlobalTokenInterface,
-} from './store/Store';
+import Store, { StoreCardItem, StoreGlobalTokenItem } from './store/Store';
 import FileStore from './store/FileStore';
 import { errorByAccessTokenRelated } from './code';
 import { WeChatOptions } from './WeChatOptions';
@@ -95,7 +92,7 @@ class Card {
    * @param {string} accessToken
    * @return {Promise}
    */
-  async getApiTicketRemotely(accessToken): Promise<StoreCardInterface> {
+  async getApiTicketRemotely(accessToken): Promise<StoreCardItem> {
     const params = {
       access_token: accessToken,
       type: TOKEN_TYPE,
@@ -122,11 +119,11 @@ class Card {
    * Get global access token
    * @param {Boolean} force if should check for cached token
    */
-  async getGlobalToken(force?: boolean): Promise<StoreGlobalTokenInterface> {
+  async getGlobalToken(force?: boolean): Promise<StoreGlobalTokenItem> {
     const cfg = this.options;
     /* istanbul ignore if */
     if (force) {
-      let globalToken = await utils.getGlobalAccessToken(
+      const globalToken = await utils.getGlobalAccessToken(
         cfg.appId,
         cfg.appSecret,
         cfg.accessTokenUrl,
@@ -147,7 +144,7 @@ class Card {
       debug(
         'global access token was expired, getting new global access token now...',
       );
-      let globalToken2 = await utils.getGlobalAccessToken(
+      const globalToken2 = await utils.getGlobalAccessToken(
         cfg.appId,
         cfg.appSecret,
         cfg.accessTokenUrl,
@@ -165,7 +162,7 @@ class Card {
    * Get card api_ticket
    * @return {Promise}
    */
-  async getApiTicket(): Promise<StoreCardInterface> {
+  async getApiTicket(): Promise<StoreCardItem> {
     try {
       const ticketInfo = await this.store.getCardTicket();
       if (

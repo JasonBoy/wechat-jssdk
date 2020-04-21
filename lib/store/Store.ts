@@ -11,13 +11,15 @@ export const STORE_EVENTS = {
   DESTROY: 'DESTROY',
 };
 
-export interface StoreGlobalTokenInterface {
+export interface StoreGlobalTokenItem {
   count?: number;
   modifyDate?: string | Date;
   accessToken?: string;
   jsapi_ticket?: string;
 }
-export interface StoreUrlSignatureInterface {
+export interface StoreUrlSignatureItem {
+  _id?: string | undefined;
+  __v?: number | undefined;
   appId?: string;
   jsapi_ticket?: string;
   nonceStr: string;
@@ -30,7 +32,9 @@ export interface StoreUrlSignatureInterface {
   modifyDate?: string | Date;
   updated?: boolean;
 }
-export interface StoreOAuthInterface {
+export interface StoreOAuthItem {
+  _id?: string | undefined;
+  __v?: number | undefined;
   key?: string;
   access_token: string;
   refresh_token?: string;
@@ -42,7 +46,7 @@ export interface StoreOAuthInterface {
   modifyDate?: string | Date;
   updated?: boolean;
 }
-export interface StoreCardInterface {
+export interface StoreCardItem {
   ticket?: string;
   expires_in?: number;
   errcode?: number | string;
@@ -50,7 +54,7 @@ export interface StoreCardInterface {
   createDate?: string | Date;
   modifyDate?: string | Date;
 }
-export interface StoreMiniProgramInterface {
+export interface StoreMiniProgramItem {
   openid?: string;
   session_key?: string;
   unionid?: string;
@@ -59,21 +63,25 @@ export interface StoreMiniProgramInterface {
   modifyDate?: string | Date;
 }
 
+export interface UrlSignaturesCollection {
+  [urlAsKey: string]: StoreUrlSignatureItem;
+}
+export interface OAuthSignaturesCollection {
+  [openIdAsKey: string]: StoreOAuthItem;
+}
+export interface MiniProgramSignaturesCollection {
+  [openIdAsKey: string]: StoreMiniProgramItem;
+}
+
 export interface StoreInterface {
   wechatConfig: {
     store?: string; //store file path
   };
-  globalToken: StoreGlobalTokenInterface;
-  urls: {
-    [urlAsKey: string]: StoreUrlSignatureInterface;
-  };
-  oauth: {
-    [openIdAsKey: string]: StoreOAuthInterface;
-  };
-  card: StoreCardInterface;
-  mp: {
-    [openIdAsKey: string]: StoreMiniProgramInterface;
-  };
+  globalToken: StoreGlobalTokenItem;
+  urls: UrlSignaturesCollection;
+  oauth: OAuthSignaturesCollection;
+  card: StoreCardItem;
+  mp: MiniProgramSignaturesCollection;
 }
 
 /**
@@ -173,7 +181,7 @@ class Store extends EventEmitter {
    * Get global token info
    * @return {Promise}
    */
-  async getGlobalToken(): Promise<StoreGlobalTokenInterface> {
+  async getGlobalToken(): Promise<StoreGlobalTokenItem> {
     return Promise.resolve(this.store.globalToken);
   }
 
@@ -183,8 +191,8 @@ class Store extends EventEmitter {
    * @return updated global token info
    */
   async updateGlobalToken(
-    info: StoreGlobalTokenInterface,
-  ): Promise<StoreGlobalTokenInterface> {
+    info: StoreGlobalTokenItem,
+  ): Promise<StoreGlobalTokenItem> {
     const newToken = Object.assign({}, this.store.globalToken, info);
     // console.log('new token: ', newToken);
     newToken.count++;
@@ -198,7 +206,7 @@ class Store extends EventEmitter {
    * Get signature for passed url from store
    * @param url
    */
-  async getSignature(url: string): Promise<StoreUrlSignatureInterface> {
+  async getSignature(url: string): Promise<StoreUrlSignatureItem> {
     return Promise.resolve(this.store.urls[url]);
   }
 
@@ -209,8 +217,8 @@ class Store extends EventEmitter {
    */
   async saveSignature(
     url: string,
-    signatureInfo: StoreUrlSignatureInterface,
-  ): Promise<StoreUrlSignatureInterface> {
+    signatureInfo: StoreUrlSignatureItem,
+  ): Promise<StoreUrlSignatureItem> {
     signatureInfo.updated = true;
     this.store.urls[url] = signatureInfo;
     return Promise.resolve(signatureInfo);
@@ -224,8 +232,8 @@ class Store extends EventEmitter {
    */
   async updateSignature(
     url: string,
-    newInfo: StoreUrlSignatureInterface,
-  ): Promise<StoreUrlSignatureInterface> {
+    newInfo: StoreUrlSignatureItem,
+  ): Promise<StoreUrlSignatureItem> {
     newInfo.updated = true;
     const newSig = Object.assign({}, this.store.urls[url], newInfo);
     this.store.urls[url] = newSig;
@@ -247,7 +255,7 @@ class Store extends EventEmitter {
    *        should store openid like in current user session
    * @param key
    */
-  async getOAuthAccessToken(key: string): Promise<StoreOAuthInterface> {
+  async getOAuthAccessToken(key: string): Promise<StoreOAuthItem> {
     return Promise.resolve(this.store.oauth[key]);
   }
 
@@ -258,8 +266,8 @@ class Store extends EventEmitter {
    */
   async saveOAuthAccessToken(
     key: string,
-    info: StoreOAuthInterface,
-  ): Promise<StoreOAuthInterface> {
+    info: StoreOAuthItem,
+  ): Promise<StoreOAuthItem> {
     this.store.oauth[key] = info;
     return Promise.resolve(info);
   }
@@ -272,15 +280,15 @@ class Store extends EventEmitter {
    */
   async updateOAuthAccessToken(
     key: string,
-    newInfo: StoreOAuthInterface,
-  ): Promise<StoreOAuthInterface> {
+    newInfo: StoreOAuthItem,
+  ): Promise<StoreOAuthItem> {
     newInfo.updated = true;
     const newToken = Object.assign({}, this.store.oauth[key], newInfo);
     this.store.oauth[key] = newToken;
     return Promise.resolve(newToken);
   }
 
-  async getCardTicket(): Promise<StoreCardInterface> {
+  async getCardTicket(): Promise<StoreCardItem> {
     return Promise.resolve(this.store.card);
   }
 
@@ -288,9 +296,7 @@ class Store extends EventEmitter {
    *
    * @param ticketInfo
    */
-  async updateCardTicket(
-    ticketInfo: StoreCardInterface,
-  ): Promise<StoreCardInterface> {
+  async updateCardTicket(ticketInfo: StoreCardItem): Promise<StoreCardItem> {
     const newTicket = (this.store.card = Object.assign(
       {},
       this.store.card,
@@ -307,7 +313,7 @@ class Store extends EventEmitter {
 
   /* istanbul ignore next: handle by end user */
   async getMiniProgramSessionKey(key: string): Promise<string> {
-    const session: StoreMiniProgramInterface = this.store.mp[key];
+    const session: StoreMiniProgramItem = this.store.mp[key];
     if (!session) return Promise.resolve(null);
     return Promise.resolve(session.session_key);
   }
@@ -319,7 +325,7 @@ class Store extends EventEmitter {
    */
 
   /* istanbul ignore next: handle by end user */
-  async getMiniProgramSession(key: string): Promise<StoreMiniProgramInterface> {
+  async getMiniProgramSession(key: string): Promise<StoreMiniProgramItem> {
     return Promise.resolve(this.store.mp[key]);
   }
 
@@ -333,13 +339,13 @@ class Store extends EventEmitter {
   /* istanbul ignore next: handle by end user */
   async setMiniProgramSession(
     key: string,
-    data: StoreMiniProgramInterface,
-  ): Promise<StoreMiniProgramInterface> {
+    data: StoreMiniProgramItem,
+  ): Promise<StoreMiniProgramItem> {
     /* istanbul ignore if */
     if (!key) {
       throw new Error('missing key for the session!');
     }
-    const oldSession: StoreMiniProgramInterface = this.store.mp[key];
+    const oldSession: StoreMiniProgramItem = this.store.mp[key];
     this.store.mp[key] = data;
     return Promise.resolve(oldSession);
   }

@@ -9,8 +9,8 @@ import {
 } from './config';
 
 import Store, {
-  StoreGlobalTokenInterface,
-  StoreUrlSignatureInterface,
+  StoreGlobalTokenItem,
+  StoreUrlSignatureItem,
 } from './store/Store';
 import FileStore from './store/FileStore';
 import { WeChatOptions } from './WeChatOptions';
@@ -76,9 +76,9 @@ class JSSDK {
    * @param {object} originalSignatureObj original signature information
    * @return filtered signature object
    */
-  filterSignature(originalSignatureObj): StoreUrlSignatureInterface {
+  filterSignature(originalSignatureObj): StoreUrlSignatureItem {
     if (!originalSignatureObj) {
-      return {} as StoreUrlSignatureInterface;
+      return {} as StoreUrlSignatureItem;
     }
     return {
       appId: this.options.appId,
@@ -110,11 +110,7 @@ class JSSDK {
    * @static
    * @returns generated wechat signature info
    */
-  static generateSignature(
-    url,
-    accessToken,
-    ticket,
-  ): StoreUrlSignatureInterface {
+  static generateSignature(url, accessToken, ticket): StoreUrlSignatureItem {
     const ret = {
       jsapi_ticket: ticket,
       nonceStr: JSSDK.createNonceStr(),
@@ -185,7 +181,7 @@ class JSSDK {
    * @return {Promise} resolved with the updated globalToken object
    */
   async updateAccessTokenOrTicketGlobally(token, ticket): Promise<object> {
-    const info: StoreGlobalTokenInterface = { modifyDate: new Date() };
+    const info: StoreGlobalTokenItem = { modifyDate: new Date() };
     token && (info.accessToken = token);
     ticket && (info.jsapi_ticket = ticket);
     return this.store.updateGlobalToken(info);
@@ -224,7 +220,7 @@ class JSSDK {
    * Get or generate global token info for signature generating process
    * @return {Promise}
    */
-  async prepareGlobalToken(): Promise<StoreGlobalTokenInterface> {
+  async prepareGlobalToken(): Promise<StoreGlobalTokenItem> {
     const globalToken = await this.store.getGlobalToken();
     if (
       !globalToken ||
@@ -303,7 +299,7 @@ class JSSDK {
    * @param {string} url signature will be created for the url
    * @return {Promise} resolved with filtered signature results
    */
-  async createSignature(url): Promise<StoreUrlSignatureInterface> {
+  async createSignature(url): Promise<StoreUrlSignatureItem> {
     const data = await this.prepareGlobalToken();
     const ret = JSSDK.generateSignature(
       url,

@@ -4,21 +4,48 @@
  * https://github.com/JasonBoy/wechat-jssdk
  */
 
+interface SignConfigOptions {
+  debug?: boolean;
+  appId?: string;
+  timestamp?: string;
+  nonceStr?: string;
+  signature?: string;
+  jsApiList?: string[];
+}
+interface WeChatJSSDKConfig extends SignConfigOptions {
+  customUrl?: string;
+}
+interface WeChatJSSDKInterface {
+  config: (config: SignConfigOptions) => void;
+  ready: (cb: Function) => void;
+  error: (cb: Function) => void;
+  //functional jssdk function
+  onMenuShareTimeline: (config: object, cb?: Function) => void;
+  onMenuShareAppMessage: (config: object, cb?: Function) => void;
+  onMenuShareQQ: (config: object, cb?: Function) => void;
+  onMenuShareWeibo: (config: object, cb?: Function) => void;
+  onMenuShareQZone: (config: object, cb?: Function) => void;
+  previewImage: (config: object, cb?: Function) => void;
+  getLocation: (config: object, cb?: Function) => void;
+  openProductSpecificView: (config: object, cb?: Function) => void;
+  addCard: (config: object, cb?: Function) => void;
+  openCard: (config: object, cb?: Function) => void;
+  chooseWXPay: (config: object, cb?: Function) => void;
+  openEnterpriseRedPacket: (config: object, cb?: Function) => void;
+  startSearchBeacons: (config: object, cb?: Function) => void;
+  stopSearchBeacons: (config: object, cb?: Function) => void;
+  onSearchBeacons: (config: object, cb?: Function) => void;
+  consumeAndShareCard: (config: object, cb?: Function) => void;
+  openAddress: (config: object, cb?: Function) => void;
+}
+
+declare let wx: WeChatJSSDKInterface;
+
 //default wechat script url
 const defaultScriptUrl = '//res.wx.qq.com/open/js/jweixin-1.4.0.js';
 
 //default apis with share-on-moment and share-on-chat
 const defaultApiList = ['onMenuShareTimeline', 'onMenuShareAppMessage'];
-
-interface WeChatJSSDKConfig {
-  appId?: string;
-  timestamp?: string;
-  nonceStr?: string;
-  signature?: string;
-  jsApiList?: Array<string>;
-  customUrl?: string;
-  debug?: boolean;
-}
 
 /**
  * Initialize the WechatJSSDK instance
@@ -37,7 +64,7 @@ class WechatJSSDK {
   sdkUrl: string;
   config: WeChatJSSDKConfig;
   debug: boolean;
-  wx: object;
+  wx: WeChatJSSDKInterface;
 
   constructor(wechatConfig: WeChatJSSDKConfig) {
     //using new WechatJSSDK(config);
@@ -47,7 +74,7 @@ class WechatJSSDK {
       if (this.config.customUrl) {
         this.sdkUrl = this.config.customUrl;
       }
-      let apiList = this.config.jsApiList;
+      const apiList = this.config.jsApiList;
       //add more apis if passed in
       if (!apiList || apiList.length <= 0) {
         this.config.jsApiList = defaultApiList;
@@ -79,10 +106,10 @@ class WechatJSSDK {
    * @param {object} [newSignConfig], debug mode, appId, jsApiList cannot be changed!!!
    *        , should only provide new signature specific config
    */
-  signSignature(newSignConfig?: WechatJSSDK): Promise<WechatJSSDK> {
+  signSignature(newSignConfig?: SignConfigOptions): Promise<WechatJSSDK> {
     const selfConfig = this.config;
-    const config: WeChatJSSDKConfig = newSignConfig || selfConfig;
-    const signConfig = {
+    const config = newSignConfig || selfConfig;
+    const signConfig: SignConfigOptions = {
       debug: this.debug,
       appId: selfConfig.appId,
       timestamp: config.timestamp || selfConfig.timestamp,
@@ -92,12 +119,9 @@ class WechatJSSDK {
     };
     const debug = this.debug;
     return new Promise((resolve, reject) => {
-      // @ts-ignore
-      if (!window.wx) {
+      if (!wx) {
         return reject(new Error('wx js not defined'));
       }
-      // @ts-ignore
-      const wx = window.wx;
       //export original wx object
       this.setOriginWx();
       wx.config(signConfig);
@@ -189,7 +213,7 @@ class WechatJSSDK {
       return this;
     }
     const wx = this.getOriginalWx();
-    let customAPI = wx[apiName];
+    const customAPI = wx[apiName];
     if (!customAPI || 'function' !== typeof customAPI) {
       debug && alert('no such api [' + apiName + '] found!');
       return this;
@@ -203,8 +227,7 @@ class WechatJSSDK {
    * @return {*}
    */
   getOriginalWx() {
-    // @ts-ignore
-    return this.wx || window.wx;
+    return this.wx || wx;
   }
 
   /**
@@ -213,8 +236,7 @@ class WechatJSSDK {
    */
   setOriginWx() {
     if (!this.wx) {
-      // @ts-ignore
-      this.wx = window.wx;
+      this.wx = wx;
     }
     return this;
   }

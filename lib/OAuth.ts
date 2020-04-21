@@ -4,7 +4,7 @@ import isEmpty from 'lodash.isempty';
 import * as utils from './utils';
 import { getDefaultConfiguration, checkPassedConfiguration } from './config';
 
-import Store, { StoreOAuthInterface } from './store/Store';
+import Store, { StoreOAuthItem } from './store/Store';
 import FileStore from './store/FileStore';
 import { WeChatOptions } from './WeChatOptions';
 
@@ -62,7 +62,7 @@ class OAuth {
    */
   async getUserInfoRemotely(tokenInfo, withToken): Promise<object> {
     try {
-      let data = await utils.sendWechatRequest('/sns/userinfo', {
+      const data = await utils.sendWechatRequest('/sns/userinfo', {
         prefixUrl: this.options.apiUrl,
         searchParams: {
           access_token: tokenInfo.access_token,
@@ -185,7 +185,7 @@ class OAuth {
           code: code,
           grant_type: 'authorization_code',
         },
-      })) as StoreOAuthInterface;
+      })) as StoreOAuthItem;
       OAuth.setAccessTokenExpirationTime(data);
       const oauthKey = key || data.openid;
       data.key = oauthKey;
@@ -213,7 +213,7 @@ class OAuth {
           refresh_token: tokenInfo.refresh_token,
           grant_type: 'refresh_token',
         },
-      })) as StoreOAuthInterface;
+      })) as StoreOAuthItem;
       OAuth.setAccessTokenExpirationTime(data);
       const oauthKey = key || data.openid;
       data.modifyDate = new Date();

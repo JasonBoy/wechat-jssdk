@@ -26,7 +26,7 @@ describe('FileStore', function () {
 
 describe('MongoStore', function () {
   const mongoStore = new MongoStore();
-  let p = new Promise((resolve) => {
+  const p = new Promise((resolve) => {
     mongoStore.on('initialized', function () {
       resolve();
     });
@@ -76,7 +76,7 @@ describe('MongoStore2', function () {
   };
 
   const mongoStore2 = new MongoStore();
-  let p = new Promise((resolve) => {
+  const p = new Promise((resolve) => {
     mongoStore2.on('initialized', function () {
       resolve();
     });

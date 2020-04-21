@@ -7,10 +7,12 @@ const debug = debugFnc('wechat-MongoStore');
 const Schema = mongoose.Schema;
 
 import Store, {
-  StoreCardInterface,
-  StoreGlobalTokenInterface,
-  StoreOAuthInterface,
-  StoreUrlSignatureInterface,
+  OAuthSignaturesCollection,
+  StoreCardItem,
+  StoreGlobalTokenItem,
+  StoreOAuthItem,
+  StoreUrlSignatureItem,
+  UrlSignaturesCollection,
 } from './Store';
 import { StoreOptions } from './StoreOptions';
 
@@ -161,22 +163,22 @@ class MongoStore extends Store {
       ]);
       /* istanbul ignore if */
       if (!isEmpty(results[0])) {
-        this.store.globalToken = results[0];
+        this.store.globalToken = results[0] as StoreGlobalTokenItem;
         debug('global token initialized from DB!');
       }
       /* istanbul ignore if */
       if (!isEmpty(results[1])) {
-        this.store.urls = results[1];
+        this.store.urls = results[1] as UrlSignaturesCollection;
         debug('signatures initialized from DB!');
       }
       /* istanbul ignore if */
       if (!isEmpty(results[2])) {
-        this.store.oauth = results[2];
+        this.store.oauth = results[2] as OAuthSignaturesCollection;
         debug('user oauth tokens initialized from DB!');
       }
       /* istanbul ignore if */
       if (!isEmpty(results[3])) {
-        this.store.card = results[3];
+        this.store.card = results[3] as StoreCardItem;
         debug('card_ticket initialized from DB!');
       }
       this.emit('initialized');
@@ -197,7 +199,7 @@ class MongoStore extends Store {
     return Promise.resolve(this.toObject(token));
   }
 
-  async getCardTicket(force?: boolean): Promise<object> {
+  async getCardTicket(force?: boolean): Promise<StoreCardItem> {
     /* istanbul ignore if */
     if (this.cache && !force) {
       return super.getCardTicket();
@@ -208,7 +210,9 @@ class MongoStore extends Store {
     return Promise.resolve(this.toObject(cardTicket));
   }
 
-  async getUrlSignatures(limit: number = this.initLimit): Promise<object> {
+  async getUrlSignatures(
+    limit: number = this.initLimit,
+  ): Promise<UrlSignaturesCollection> {
     const signatures = await this.Signature.find({}).limit(limit);
     const temp = {};
     signatures.forEach((sig) => {
@@ -216,10 +220,12 @@ class MongoStore extends Store {
       temp[sig.url] = this.toObject(sig);
     });
     debug(`[${signatures.length}] signatures received!`);
-    return Promise.resolve(temp);
+    return Promise.resolve(temp as UrlSignaturesCollection);
   }
 
-  async getOAuthTokens(limit: number = this.initLimit): Promise<object> {
+  async getOAuthTokens(
+    limit: number = this.initLimit,
+  ): Promise<OAuthSignaturesCollection> {
     const oauthTokens = await this.OAuthToken.find({}).limit(limit);
     const temp = {};
     oauthTokens.forEach((token) => {
@@ -230,7 +236,7 @@ class MongoStore extends Store {
     return Promise.resolve(temp);
   }
 
-  async updateGlobalToken(info: StoreGlobalTokenInterface): Promise<object> {
+  async updateGlobalToken(info: StoreGlobalTokenItem): Promise<object> {
     //Update to DB
     debug('updating global token...');
     await this.GlobalToken.findOneAndUpdate({}, Object.assign({}, info), {
@@ -243,7 +249,7 @@ class MongoStore extends Store {
     return super.updateGlobalToken(info);
   }
 
-  async updateCardTicket(ticketInfo: StoreCardInterface): Promise<object> {
+  async updateCardTicket(ticketInfo: StoreCardItem): Promise<object> {
     //Update to DB
     debug('saving or updating card_ticket...');
     try {
@@ -266,8 +272,8 @@ class MongoStore extends Store {
 
   async saveSignature(
     url: string,
-    signatureInfo: StoreUrlSignatureInterface,
-  ): Promise<StoreUrlSignatureInterface> {
+    signatureInfo: StoreUrlSignatureItem,
+  ): Promise<StoreUrlSignatureItem> {
     const newSignature = new this.Signature(signatureInfo);
     try {
       await newSignature.save();
@@ -280,10 +286,10 @@ class MongoStore extends Store {
     return super.saveSignature(url, signatureInfo);
   }
 
-  async getSignature(url: string): Promise<StoreUrlSignatureInterface> {
-    let sig = await super.getSignature(url);
+  async getSignature(url: string): Promise<StoreUrlSignatureItem> {
+    const sig = await super.getSignature(url);
     if (!isEmpty(sig)) {
-      return Promise.resolve(this.toObject(sig) as StoreUrlSignatureInterface);
+      return Promise.resolve(this.toObject(sig) as StoreUrlSignatureItem);
     }
     let sig1 = await this.Signature.findOne({ url: url });
     if (!isEmpty(sig1)) {
@@ -296,8 +302,8 @@ class MongoStore extends Store {
 
   async updateSignature(
     url: string,
-    newInfo: StoreUrlSignatureInterface,
-  ): Promise<StoreUrlSignatureInterface> {
+    newInfo: StoreUrlSignatureItem,
+  ): Promise<StoreUrlSignatureItem> {
     try {
       await this.Signature.findOneAndUpdate(
         { url },
@@ -314,8 +320,8 @@ class MongoStore extends Store {
     return super.updateSignature(url, newInfo);
   }
 
-  async getOAuthAccessToken(key: string): Promise<StoreOAuthInterface> {
-    let token = await super.getOAuthAccessToken(key);
+  async getOAuthAccessToken(key: string): Promise<StoreOAuthItem> {
+    const token = await super.getOAuthAccessToken(key);
     if (!isEmpty(token)) {
       return Promise.resolve(token);
     }
@@ -330,8 +336,8 @@ class MongoStore extends Store {
 
   async saveOAuthAccessToken(
     key: string,
-    info: StoreOAuthInterface,
-  ): Promise<StoreOAuthInterface> {
+    info: StoreOAuthItem,
+  ): Promise<StoreOAuthItem> {
     const newOAuthToken = new this.OAuthToken(info);
     try {
       await newOAuthToken.save();
@@ -347,8 +353,8 @@ class MongoStore extends Store {
 
   async updateOAuthAccessToken(
     key: string,
-    newInfo: StoreOAuthInterface,
-  ): Promise<StoreOAuthInterface> {
+    newInfo: StoreOAuthItem,
+  ): Promise<StoreOAuthItem> {
     try {
       await this.OAuthToken.findOneAndUpdate(
         { key },
