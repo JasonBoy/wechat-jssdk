@@ -1,11 +1,9 @@
 import debugFnc from 'debug';
-
 import { createHash, createHmac } from 'crypto';
-
 import xml2js from 'xml2js';
 import dateFormat from 'date-fns/format';
 import { parse } from 'url';
-import got from 'got';
+import got, { ExtendOptions } from 'got';
 import { WeChatPaymentAPIConfig } from './config';
 
 export interface GlobalAccessTokenResult {
@@ -27,11 +25,11 @@ const REFRESH_INTERVAL = 1000 * 119 * 60;
 
 /**
  * Generate digest hash based on the content
- * @param {*} content content to be digested
+ * @param {string} content content to be digested
  * @param {string=} algorithm digest algorithm, default 'sha1'
  * @return {string}
  */
-export function genHash(content, algorithm): string {
+export function genHash(content: string, algorithm: string): string {
   const c = createHash(algorithm);
   c.update(content, 'utf8');
   return c.digest('hex');
@@ -39,23 +37,19 @@ export function genHash(content, algorithm): string {
 
 /**
  * Generate SHA1 hash
- * @param {*} content
- * @return {string}
  */
-export function genSHA1(content): string {
+export function genSHA1(content: string): string {
   return genHash(content, 'sha1');
 }
 
 /**
  * Generate MD5 hash
- * @param {*} content
- * @return {string}
  */
-export function genMD5(content): string {
+export function genMD5(content: string): string {
   return genHash(content, 'MD5');
 }
 
-export function genHmacSHA256(content, key): string {
+export function genHmacSHA256(content: string, key: string): string {
   const hmac = createHmac('sha256', key);
   hmac.update(content, 'utf8');
   return hmac.digest('hex');
@@ -63,11 +57,14 @@ export function genHmacSHA256(content, key): string {
 
 /**
  * Parse the object to query string without encoding based on the ascii key order
- * @param {object} args
+ * @param {object} args search params in object
  * @param {boolean} noLowerCase
  * @return {string}
  */
-export function paramsToString(args, noLowerCase?: boolean): string {
+export function paramsToString(
+  args: Record<string, unknown>,
+  noLowerCase?: boolean,
+): string {
   let keys = Object.keys(args);
   keys = keys.sort();
   const newArgs = {};
@@ -89,10 +86,13 @@ export function paramsToString(args, noLowerCase?: boolean): string {
 
 /**
  * Send the request to wechat server
- * @param {string|Object} url
+ * @param {string} url
  * @param {object} options custom request options
  */
-export async function sendWechatRequest(url, options): Promise<object> {
+export async function sendWechatRequest(
+  url: string,
+  options: ExtendOptions,
+): Promise<Record<string, unknown>> {
   const myOptions = Object.assign({}, defaultOptions, options);
   try {
     const body: {
@@ -112,10 +112,13 @@ export async function sendWechatRequest(url, options): Promise<object> {
 
 /**
  * Send the payment request to wechat server
- * @param {string|Object} url
+ * @param {string} url
  * @param {object} options custom request options
  */
-export async function sendWechatPaymentRequest(url, options): Promise<any> {
+export async function sendWechatPaymentRequest(
+  url: string,
+  options: ExtendOptions,
+): Promise<any> {
   const myOptions = Object.assign(
     {},
     defaultOptions,
@@ -156,7 +159,10 @@ export function timestamp(): string {
  * @param {number=} interval milliseconds custom expires in
  * @return {boolean}
  */
-export function isExpired(modifyDate, interval?: number): boolean {
+export function isExpired(
+  modifyDate: Date | string,
+  interval?: number,
+): boolean {
   /* istanbul ignore else  */
   if (interval === undefined) interval = REFRESH_INTERVAL;
   return Date.now() - new Date(modifyDate).getTime() > interval;
@@ -169,9 +175,9 @@ export function isExpired(modifyDate, interval?: number): boolean {
  * @param {string} accessTokenUrl
  */
 export async function getGlobalAccessToken(
-  appId,
-  appSecret,
-  accessTokenUrl,
+  appId: string,
+  appSecret: string,
+  accessTokenUrl: string,
 ): Promise<GlobalAccessTokenResult> {
   const params = {
     grant_type: 'client_credential',
@@ -191,10 +197,11 @@ export async function getGlobalAccessToken(
 
 /**
  * Parse the xml data returned from wechat server
- * @param xmlData
  * @return {Promise} result promise
  */
-export async function parseXML(xmlData): Promise<object> {
+export async function parseXML(
+  xmlData: string,
+): Promise<Record<string, unknown>> {
   const parser = new xml2js.Parser({
     normalize: true,
     explicitRoot: false,
@@ -216,10 +223,12 @@ export async function parseXML(xmlData): Promise<object> {
 
 /**
  * Build xml data string from the JSON object
- * @param {object} objData
+ * @param {object} objData - object to xml string
  * @return {Promise}
  */
-export async function buildXML(objData): Promise<string> {
+export async function buildXML(
+  objData: Record<string, unknown>,
+): Promise<string> {
   const builder = new xml2js.Builder({
     rootName: 'xml',
     cdata: true,
@@ -236,7 +245,10 @@ export async function buildXML(objData): Promise<string> {
  * @param {string=} format
  * @return {string}
  */
-export function simpleDate(date = new Date(), format = DEFAULT_FORMAT): string {
+export function simpleDate(
+  date: string | Date = new Date(),
+  format = DEFAULT_FORMAT,
+): string {
   /* istanbul ignore if  */
   if (!(date instanceof Date)) {
     date = new Date(date);

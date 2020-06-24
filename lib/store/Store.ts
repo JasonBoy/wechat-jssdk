@@ -361,17 +361,11 @@ class Store extends EventEmitter {
   /**
    * Destroy the Store instance
    */
-  destroy() {
+  destroy(): void {
     clearInterval(this.wechatInterval);
     this.store = null;
     // this.emit(STORE_EVENTS.DESTROYED, true);
   }
-
-  /**
-   * Clear all old store information, e.g:
-   * Rewrite file or empty related db
-   */
-  clearStore() {}
 }
 
 export default Store;

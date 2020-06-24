@@ -32,7 +32,7 @@ describe('MongoStore', function () {
     });
   });
 
-  before(function () {
+  beforeAll(function () {
     return p;
   });
   this.timeout(20000);
@@ -82,7 +82,7 @@ describe('MongoStore2', function () {
     });
   });
 
-  before(function () {
+  beforeAll(function () {
     return p;
   });
 
