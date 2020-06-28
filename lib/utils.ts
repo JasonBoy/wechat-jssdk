@@ -97,7 +97,10 @@ export async function sendWechatRequest(
   try {
     const body: {
       errcode?: number;
-    } = await got(url, myOptions).json();
+    } = await got(url, myOptions)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      .json();
     if (body.hasOwnProperty('errcode') && body.errcode != 0) {
       return Promise.reject(body);
     }
@@ -118,7 +121,7 @@ export async function sendWechatRequest(
 export async function sendWechatPaymentRequest(
   url: string,
   options: ExtendOptions,
-): Promise<any> {
+): Promise<string> {
   const myOptions = Object.assign(
     {},
     defaultOptions,
@@ -129,6 +132,8 @@ export async function sendWechatPaymentRequest(
   );
   try {
     const response = await got(url, myOptions);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return Promise.resolve(response.body);
   } catch (err) {
     debug(err);
@@ -186,9 +191,9 @@ export async function getGlobalAccessToken(
   };
   debug('getting new global token...');
   try {
-    return (await sendWechatRequest(accessTokenUrl, {
+    return ((await sendWechatRequest(accessTokenUrl, {
       searchParams: params,
-    })) as GlobalAccessTokenResult;
+    })) as unknown) as GlobalAccessTokenResult;
   } catch (reason) {
     debug('get global wechat access token failed!');
     return Promise.reject(reason);

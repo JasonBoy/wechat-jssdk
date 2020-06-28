@@ -4,7 +4,7 @@ import isEmpty from 'lodash.isempty';
 import * as utils from './utils';
 import { getDefaultConfiguration, WeChatMiniProgramConfig } from './config';
 
-import Store from './store/Store';
+import Store, { StoreMiniProgramItem } from './store/Store';
 import FileStore from './store/FileStore';
 import { WeChatOptions } from './WeChatOptions';
 
@@ -71,7 +71,7 @@ class MiniProgram {
    * @param key - key used to store the session data, default will use the openid
    * @return {Promise<Object>}
    */
-  async getSession(code, key): Promise<object> {
+  async getSession(code: string, key: string): Promise<StoreMiniProgramItem> {
     try {
       const data: {
         openid?: string;
@@ -100,7 +100,10 @@ class MiniProgram {
    * @param sessionKey
    * @return {Promise<string>} Promise - generated signature
    */
-  async genSignature(rawDataString, sessionKey): Promise<string> {
+  async genSignature(
+    rawDataString: string,
+    sessionKey: string,
+  ): Promise<string> {
     return Promise.resolve(utils.genSHA1(rawDataString + sessionKey));
   }
 
@@ -111,7 +114,11 @@ class MiniProgram {
    * @param sessionKey
    * @return {Promise} Promise - resolved if signatures match, otherwise reject
    */
-  async verifySignature(rawData, signature, sessionKey): Promise<void> {
+  async verifySignature(
+    rawData: string | Record<string, unknown>,
+    signature: string,
+    sessionKey: string,
+  ): Promise<void> {
     if ('object' === typeof rawData) {
       rawData = JSON.stringify(rawData);
     }
@@ -137,7 +144,12 @@ class MiniProgram {
    * @param {string=} key - get the session_key with key(usually is openid) from Store if the above "sessionKey" is not provided
    * @return {Promise<object>} Promise - resolved/rejected with decrypted data or Error
    */
-  async decryptData(encryptedData, iv, sessionKey, key): Promise<object> {
+  async decryptData(
+    encryptedData: string,
+    iv: string,
+    sessionKey?: string,
+    key?: string,
+  ): Promise<Record<string, unknown>> {
     /* istanbul ignore if  */
     if (!sessionKey && !key) {
       return Promise.reject(

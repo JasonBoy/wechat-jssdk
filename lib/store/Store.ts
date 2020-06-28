@@ -1,6 +1,7 @@
 import debugFnc from 'debug';
 import { EventEmitter } from 'events';
 import { StoreOptions } from './StoreOptions';
+import { WeChatConfig } from '../config';
 
 const debug = debugFnc('wechat-Store');
 
@@ -11,13 +12,13 @@ export const STORE_EVENTS = {
   DESTROY: 'DESTROY',
 };
 
-export interface StoreGlobalTokenItem {
+export interface StoreGlobalTokenItem extends Record<string, unknown> {
   count?: number;
   modifyDate?: string | Date;
   accessToken?: string;
   jsapi_ticket?: string;
 }
-export interface StoreUrlSignatureItem {
+export interface StoreUrlSignatureItem extends Record<string, unknown> {
   _id?: string | undefined;
   __v?: number | undefined;
   appId?: string;
@@ -32,7 +33,7 @@ export interface StoreUrlSignatureItem {
   modifyDate?: string | Date;
   updated?: boolean;
 }
-export interface StoreOAuthItem {
+export interface StoreOAuthItem extends Record<string, unknown> {
   _id?: string | undefined;
   __v?: number | undefined;
   key?: string;
@@ -46,7 +47,7 @@ export interface StoreOAuthItem {
   modifyDate?: string | Date;
   updated?: boolean;
 }
-export interface StoreCardItem {
+export interface StoreCardItem extends Record<string, unknown> {
   ticket?: string;
   expires_in?: number;
   errcode?: number | string;
@@ -54,7 +55,7 @@ export interface StoreCardItem {
   createDate?: string | Date;
   modifyDate?: string | Date;
 }
-export interface StoreMiniProgramItem {
+export interface StoreMiniProgramItem extends Record<string, unknown> {
   openid?: string;
   session_key?: string;
   unionid?: string;
@@ -73,10 +74,13 @@ export interface MiniProgramSignaturesCollection {
   [openIdAsKey: string]: StoreMiniProgramItem;
 }
 
+export type StoreWechatConfig =
+  | {
+      store?: string; //store file path
+    }
+  | WeChatConfig;
 export interface StoreInterface {
-  wechatConfig: {
-    store?: string; //store file path
-  };
+  wechatConfig: StoreWechatConfig;
   globalToken: StoreGlobalTokenItem;
   urls: UrlSignaturesCollection;
   oauth: OAuthSignaturesCollection;

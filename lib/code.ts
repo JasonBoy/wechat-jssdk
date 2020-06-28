@@ -15,6 +15,6 @@ const accessTokenRelatedCodes = [
 ];
 
 /* istanbul ignore next  */
-export function errorByAccessTokenRelated(errorCode): boolean {
+export function errorByAccessTokenRelated(errorCode: number): boolean {
   return accessTokenRelatedCodes.indexOf(errorCode) >= 0;
 }

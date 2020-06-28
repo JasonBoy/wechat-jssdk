@@ -6,14 +6,14 @@ import * as utils from './utils';
 import {
   getDefaultConfiguration,
   checkPassedConfiguration,
-  WeChatConfig,
   WeChatPaymentAPIConfig,
   WeChatPaymentConfig,
+  WeChatConfig,
 } from './config';
 
 import Store from './store/Store';
 import FileStore from './store/FileStore';
-import got from 'got';
+import got, { Options } from 'got';
 import { WeChatOptions } from './WeChatOptions';
 
 const debug = debugFnc('wechat-Payment');
@@ -76,7 +76,7 @@ const SANDBOX_SIGN_KEY_ERROR_MSG = '沙箱验证签名失败';
 const MAX_SANDBOX_SIGN_KEY_ERROR_ATTEMPTS = 2;
 
 interface PaymentSignatureObject {
-  params: object;
+  params: Record<string, unknown>;
   paySign: string;
 }
 interface ChoosePaymentData {
@@ -97,7 +97,7 @@ interface PaymentRequestResult {
   sandbox_signkey?: string;
 }
 interface SimpleRequestResult {
-  requestData: object;
+  requestData: Record<string, unknown>;
   responseData: PaymentRequestResult;
 }
 
@@ -116,6 +116,8 @@ class Payment {
   paymentAgent: Agent;
 
   constructor(options?: WeChatOptions) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     checkPassedConfiguration(options);
 
     this.options = isEmpty(options)
@@ -163,7 +165,7 @@ class Payment {
    * @param value
    * @return {number}
    */
-  static fenToYuan(value): number {
+  static fenToYuan(value: number | string): number {
     return Number(value) / 100; //to yuan
   }
 
@@ -172,7 +174,7 @@ class Payment {
    * @param value
    * @return {number}
    */
-  static yuanToFen(value): number {
+  static yuanToFen(value: number | string): number {
     return Math.round(Number(value) * 100);
   }
 
@@ -181,49 +183,49 @@ class Payment {
    * @param value
    * @return {string} formatted currency
    */
-  static formatCurrency(value): string {
+  static formatCurrency(value: number | string): string {
     const fen = Payment.yuanToFen(value);
     const yuan = Payment.fenToYuan(fen);
     return yuan.toFixed(2);
   }
 
   /* istanbul ignore next  */
-  static get DOWNLOAD_BILL_TYPE(): object {
+  static get DOWNLOAD_BILL_TYPE(): Record<string, string> {
     return BILL_TYPE;
   }
 
   /* istanbul ignore next  */
-  static get TRADE_TYPE(): object {
+  static get TRADE_TYPE(): Record<string, string> {
     return PAYMENT_TYPE;
   }
 
   /* istanbul ignore next  */
-  static get TRADE_STATE(): object {
+  static get TRADE_STATE(): Record<string, string> {
     return TRADE_STATE;
   }
 
   /* istanbul ignore next  */
-  static get REFUND_STATUS(): object {
+  static get REFUND_STATUS(): Record<string, string> {
     return REFUND_STATUS;
   }
 
   /* istanbul ignore next  */
-  static get FUND_ACCOUNT_TYPE(): object {
+  static get FUND_ACCOUNT_TYPE(): Record<string, string> {
     return FUND_ACCOUNT_TYPE;
   }
 
   /* istanbul ignore next  */
-  static get SIGN_TYPE(): object {
+  static get SIGN_TYPE(): Record<string, string> {
     return SIGN_TYPE;
   }
 
   /* istanbul ignore next  */
-  static get PAYMENT_TYPE(): object {
+  static get PAYMENT_TYPE(): Record<string, string> {
     return PAYMENT_TYPE;
   }
 
   /* istanbul ignore next  */
-  static get COUPON_TYPE(): object {
+  static get COUPON_TYPE(): Record<string, string> {
     return COUPON_TYPE;
   }
 
@@ -234,7 +236,11 @@ class Payment {
    * @param {Boolean=} sandbox gen sign for retrieve sandbox sign key
    * @return {object} signature object
    */
-  generateSignature(params, signType?: string, sandbox?: boolean): object {
+  generateSignature(
+    params: Record<string, unknown>,
+    signType?: string,
+    sandbox?: boolean,
+  ): Record<string, unknown> {
     const data = this.generateGeneralPaymentSignature(
       params,
       signType || /* istanbul ignore next  */ SIGN_TYPE.MD5,
@@ -249,8 +255,8 @@ class Payment {
    * @param {string=} signType MD5 or SHA1, default MD5
    */
   async generateChooseWXPayInfo(
-    prepayId,
-    signType,
+    prepayId: string,
+    signType?: string,
   ): Promise<ChoosePaymentData> {
     const params = {
       appId: this.options.appId,
@@ -279,7 +285,7 @@ class Payment {
    * @param sandbox - if gen the sign to get sandbox api key
    */
   generateGeneralPaymentSignature(
-    params: object,
+    params: Record<string, unknown>,
     signType: string,
     sandbox?: boolean,
   ): PaymentSignatureObject {
@@ -344,7 +350,9 @@ class Payment {
    * @param {object} orderInfo
    * @return {Promise}
    */
-  async unifiedOrder(orderInfo): Promise<object> {
+  async unifiedOrder(
+    orderInfo: Record<string, unknown>,
+  ): Promise<SimpleRequestResult> {
     const data = Object.assign(
       {
         // appid: wechatConfig.appId,
@@ -381,7 +389,9 @@ class Payment {
    * @param {object} queryInfo
    * @return {Promise}
    */
-  async queryOrder(queryInfo): Promise<object> {
+  async queryOrder(
+    queryInfo: Record<string, unknown>,
+  ): Promise<SimpleRequestResult> {
     try {
       return this.simpleRequest(this.paymentAPI.QUERY_ORDER, queryInfo);
     } catch (reason) {
@@ -395,7 +405,7 @@ class Payment {
    * @param {string} orderId wechat out_trade_no
    * @return {Promise}
    */
-  async closeOrder(orderId): Promise<object> {
+  async closeOrder(orderId: string): Promise<SimpleRequestResult> {
     try {
       return this.simpleRequest(this.paymentAPI.CLOSE_ORDER, {
         out_trade_no: orderId,
@@ -422,7 +432,9 @@ class Payment {
    * }
    * @return {Promise}
    */
-  async refund(info): Promise<object> {
+  async refund(
+    info: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     const data = this.generateSignature(this.mergeParams(info));
     try {
       const xmlData = await utils.buildXML(data);
@@ -452,7 +464,9 @@ class Payment {
    * }
    * @return {Promise}
    */
-  async queryRefund(info): Promise<object> {
+  async queryRefund(
+    info: Record<string, unknown>,
+  ): Promise<SimpleRequestResult> {
     try {
       return this.simpleRequest(this.paymentAPI.QUERY_REFUND, info);
     } catch (reason) {
@@ -468,7 +482,11 @@ class Payment {
    * @param {boolean=} noGzip if download stream is gziped
    * @return {Promise}
    */
-  async downloadBill(billDate, billType, noGzip): Promise<object> {
+  async downloadBill(
+    billDate: string,
+    billType: string,
+    noGzip?: boolean,
+  ): Promise<Record<string, unknown>> {
     const data = this.generateSignature(
       this.mergeParams({
         bill_date: billDate,
@@ -476,14 +494,10 @@ class Payment {
         tar_type: noGzip ? '' : 'GZIP',
       }),
     );
-    return this.download(
-      data,
-      {
-        decompress: !noGzip,
-        encoding: null, // get zip file as buffer
-      },
-      this.paymentAPI.DOWNLOAD_BILL,
-    );
+    return this.download(this.paymentAPI.DOWNLOAD_BILL, data, {
+      decompress: !noGzip,
+      encoding: null, // get zip file as buffer
+    });
   }
 
   /**
@@ -493,7 +507,11 @@ class Payment {
    * @param {boolean=} noGzip if download stream is gziped
    * @return {Promise}
    */
-  async downloadFundFlow(billDate, accountType, noGzip): Promise<object> {
+  async downloadFundFlow(
+    billDate: string,
+    accountType: string,
+    noGzip?: boolean,
+  ): Promise<Record<string, unknown>> {
     const data = this.generateSignature(
       this.mergeParams(
         {
@@ -505,14 +523,10 @@ class Payment {
       ),
       SIGN_TYPE.HMAC_SHA256,
     );
-    return this.download(
-      data,
-      {
-        agent: { https: this.getPaymentAgent() },
-        decompress: !noGzip,
-      },
-      this.paymentAPI.DOWNLOAD_FUND_FLOW,
-    );
+    return this.download(this.paymentAPI.DOWNLOAD_FUND_FLOW, data, {
+      agent: { https: this.getPaymentAgent() },
+      decompress: !noGzip,
+    });
   }
 
   /**
@@ -533,7 +547,11 @@ class Payment {
    *   digest: 'SHA=ec45d7c24492dcd62d92472b0f2816c8d9a2d773',
    * }
    */
-  async download(data, requestOptions, url): Promise<object> {
+  async download(
+    url: string,
+    data: Record<string, unknown>,
+    requestOptions?: { [key: string]: string | number | boolean } | Options,
+  ): Promise<Record<string, unknown>> {
     const xmlData = await utils.buildXML(data);
     const myOptions = Object.assign(
       {
@@ -544,6 +562,8 @@ class Payment {
       requestOptions,
     );
     return new Promise((resolve, reject) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const stream = got.stream(url, myOptions);
       const chunks = [];
       let body = '';
@@ -599,7 +619,9 @@ class Payment {
    * @param {object} info
    * @return {Promise}
    */
-  async reportToWechat(info): Promise<object> {
+  async reportToWechat(
+    info: Record<string, unknown>,
+  ): Promise<SimpleRequestResult> {
     try {
       return this.simpleRequest(this.paymentAPI.REPORT, info);
     } catch (reason) {
@@ -608,7 +630,7 @@ class Payment {
     }
   }
 
-  async getSandboxSignKey(): Promise<object> {
+  async getSandboxSignKey(): Promise<PaymentRequestResult> {
     const params = {
       mch_id: this.paymentConfig.merchantId,
       nonce_str: utils.nonceStr(),
@@ -639,8 +661,8 @@ class Payment {
    * @param {Number=} attempts, sandbox key error retry count
    */
   async simpleRequest(
-    apiUrl,
-    info,
+    apiUrl: string,
+    info: Record<string, unknown>,
     attempts?: number,
   ): Promise<SimpleRequestResult> {
     if (attempts > MAX_SANDBOX_SIGN_KEY_ERROR_ATTEMPTS) {
@@ -687,7 +709,10 @@ class Payment {
    * @param signType
    * @return {object}
    */
-  mergeParams(customParams, signType?: string): object {
+  mergeParams(
+    customParams: Record<string, unknown>,
+    signType?: string,
+  ): Record<string, unknown> {
     return Object.assign(
       {
         appid: this.options.appId,
@@ -704,7 +729,7 @@ class Payment {
    * @param data
    * @return {Promise}
    */
-  async parseNotifyData(data): Promise<object> {
+  async parseNotifyData(data: string): Promise<Record<string, unknown>> {
     return utils.parseXML(data);
   }
 
@@ -713,7 +738,7 @@ class Payment {
    * @param {boolean} isSuccess
    * @return {Promise}
    */
-  async replyData(isSuccess): Promise<string> {
+  async replyData(isSuccess: boolean): Promise<string> {
     const result: {
       return_code: string;
       return_msg?: string;
@@ -732,7 +757,7 @@ class Payment {
    * @param {string|Date} date
    * @return {string}
    */
-  getDownloadBillDate(date): string {
+  getDownloadBillDate(date: string | Date): string {
     return utils.simpleDate(date, 'YYYYMMDD');
   }
 
@@ -753,8 +778,11 @@ class Payment {
    * @param {string} xmlResult notify xml data
    */
   async decryptRefundNotifyResult(
-    xmlResult,
-  ): Promise<{ parsedXMLData: object; decryptedData: object }> {
+    xmlResult: string,
+  ): Promise<{
+    parsedXMLData: Record<string, unknown>;
+    decryptedData: Record<string, unknown>;
+  }> {
     const data: {
       req_info?: string;
     } = await utils.parseXML(xmlResult);
@@ -781,7 +809,12 @@ class Payment {
    * @param {number=} limit integer
    * @return {Promise}
    */
-  async queryComments(beginTime, endTime, offset, limit): Promise<object> {
+  async queryComments(
+    beginTime: string,
+    endTime: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<string> {
     const data = this.generateSignature(
       this.mergeParams(
         {
@@ -821,7 +854,9 @@ class Payment {
    * @see https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_14&index=9
    * @return {Promise}
    */
-  async querySettlement(query): Promise<object> {
+  async querySettlement(
+    query: Record<string, unknown>,
+  ): Promise<SimpleRequestResult> {
     try {
       return this.simpleRequest(this.paymentAPI.QUERY_SETTLEMENT, query);
     } catch (reason) {
@@ -837,7 +872,9 @@ class Payment {
    * @see https://pay.weixin.qq.com/wiki/doc/api/external/jsapi.php?chapter=9_15&index=10
    * @return {Promise}
    */
-  async queryExchangeRate(query): Promise<object> {
+  async queryExchangeRate(
+    query: Record<string, unknown>,
+  ): Promise<SimpleRequestResult> {
     try {
       return this.simpleRequest(
         this.paymentAPI.QUERY_EXCHANGE_RATE,

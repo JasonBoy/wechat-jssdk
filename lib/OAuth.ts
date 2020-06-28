@@ -60,16 +60,19 @@ class OAuth {
    * @param {boolean=} withToken if true, the access token info will be merged to the resolved user profile object
    * @return {Promise}
    */
-  async getUserInfoRemotely(tokenInfo, withToken): Promise<object> {
+  async getUserInfoRemotely(
+    tokenInfo: StoreOAuthItem,
+    withToken: boolean,
+  ): Promise<StoreOAuthItem> {
     try {
-      const data = await utils.sendWechatRequest('/sns/userinfo', {
+      const data = ((await utils.sendWechatRequest('/sns/userinfo', {
         prefixUrl: this.options.apiUrl,
         searchParams: {
           access_token: tokenInfo.access_token,
           openid: tokenInfo.openid,
           lang: 'zh_CN',
         },
-      });
+      })) as unknown) as StoreOAuthItem;
       debug('user info received');
       return withToken ? Object.assign({}, tokenInfo, data) : data;
     } catch (reason) {
@@ -84,7 +87,9 @@ class OAuth {
    * @static
    * @return {object} tokenInfo updated token info
    */
-  static setAccessTokenExpirationTime(tokenInfo): object {
+  static setAccessTokenExpirationTime(
+    tokenInfo: StoreOAuthItem,
+  ): StoreOAuthItem {
     if (!tokenInfo.expires_in) return tokenInfo;
     const now = Date.now();
     tokenInfo.expirationTime = now + (tokenInfo.expires_in - 60) * 1000; //minus 60s to expire
@@ -98,7 +103,11 @@ class OAuth {
    * @param {string=} state pass custom state
    * @return {string} generated oauth uri
    */
-  generateOAuthUrl(redirectUrl, scope?: string, state?: string): string {
+  generateOAuthUrl(
+    redirectUrl: string,
+    scope?: string,
+    state?: string,
+  ): string {
     let url = this.oAuthUrl;
     const tempObj = {
       appid: this.options.appId,
@@ -130,7 +139,7 @@ class OAuth {
    * @param {string} [key] key to store the oauth token
    * @return {Promise}
    */
-  async getUserBaseInfo(code, key): Promise<object> {
+  async getUserBaseInfo(code: string, key: string): Promise<StoreOAuthItem> {
     return this.getAccessToken(code, key);
   }
 
@@ -141,7 +150,11 @@ class OAuth {
    * @param {boolean} [withToken] return token info together with the profile
    * @return {Promise}
    */
-  async getUserInfo(code, key, withToken): Promise<object> {
+  async getUserInfo(
+    code: string,
+    key: string,
+    withToken: boolean,
+  ): Promise<StoreOAuthItem> {
     const tokenInfo = await this.getAccessToken(code, key);
     return this.getUserInfoRemotely(tokenInfo, withToken);
   }
@@ -152,7 +165,7 @@ class OAuth {
    * @param {string} key custom user session id to identify cached token
    * @return {Promise}
    */
-  async getAccessToken(code, key): Promise<object> {
+  async getAccessToken(code: string, key: string): Promise<StoreOAuthItem> {
     if (code) {
       return this.getAccessTokenRemotely(code, key);
     }
@@ -174,10 +187,13 @@ class OAuth {
    * @param {string} key
    * @return {Promise}
    */
-  async getAccessTokenRemotely(code, key): Promise<object> {
+  async getAccessTokenRemotely(
+    code: string,
+    key: string,
+  ): Promise<StoreOAuthItem> {
     debug('getting new oauth access token...');
     try {
-      const data = (await utils.sendWechatRequest('/sns/oauth2/access_token', {
+      const data = ((await utils.sendWechatRequest('/sns/oauth2/access_token', {
         prefixUrl: this.options.apiUrl,
         searchParams: {
           appid: this.options.appId,
@@ -185,7 +201,7 @@ class OAuth {
           code: code,
           grant_type: 'authorization_code',
         },
-      })) as StoreOAuthItem;
+      })) as unknown) as StoreOAuthItem;
       OAuth.setAccessTokenExpirationTime(data);
       const oauthKey = key || data.openid;
       data.key = oauthKey;
@@ -204,16 +220,22 @@ class OAuth {
    * @param {object} tokenInfo
    * @return {Promise}
    */
-  async refreshAccessToken(key, tokenInfo): Promise<object> {
+  async refreshAccessToken(
+    key: string,
+    tokenInfo: StoreOAuthItem,
+  ): Promise<StoreOAuthItem> {
     try {
-      const data = (await utils.sendWechatRequest('/sns/oauth2/refresh_token', {
-        prefixUrl: this.options.apiUrl,
-        searchParams: {
-          appid: this.options.appId,
-          refresh_token: tokenInfo.refresh_token,
-          grant_type: 'refresh_token',
+      const data = ((await utils.sendWechatRequest(
+        '/sns/oauth2/refresh_token',
+        {
+          prefixUrl: this.options.apiUrl,
+          searchParams: {
+            appid: this.options.appId,
+            refresh_token: tokenInfo.refresh_token,
+            grant_type: 'refresh_token',
+          },
         },
-      })) as StoreOAuthItem;
+      )) as unknown) as StoreOAuthItem;
       OAuth.setAccessTokenExpirationTime(data);
       const oauthKey = key || data.openid;
       data.modifyDate = new Date();
@@ -229,7 +251,9 @@ class OAuth {
    * @param {object} tokenInfo
    * @return {Promise}
    */
-  async isAccessTokenValid(tokenInfo): Promise<object> {
+  async isAccessTokenValid(
+    tokenInfo: StoreOAuthItem,
+  ): Promise<Record<string, unknown>> {
     return utils.sendWechatRequest('/sns/auth', {
       prefixUrl: this.options.apiUrl,
       searchParams: {
@@ -257,7 +281,7 @@ class OAuth {
    * @param {object} tokenInfo
    * @return {boolean}
    */
-  static isAccessTokenExpired(tokenInfo): boolean {
+  static isAccessTokenExpired(tokenInfo: StoreOAuthItem): boolean {
     if (!tokenInfo.expirationTime) return true;
     return Date.now() - tokenInfo.expirationTime >= 0;
   }

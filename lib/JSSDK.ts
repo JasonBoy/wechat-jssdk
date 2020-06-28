@@ -2,11 +2,7 @@ import debugFnc from 'debug';
 import isEmpty from 'lodash.isempty';
 import { parse } from 'url';
 import * as utils from './utils';
-import {
-  getDefaultConfiguration,
-  checkPassedConfiguration,
-  WeChatConfig,
-} from './config';
+import { getDefaultConfiguration, checkPassedConfiguration } from './config';
 
 import Store, {
   StoreGlobalTokenItem,
@@ -58,7 +54,7 @@ class JSSDK {
    * @static
    * @return {boolean}
    */
-  static isTokenExpired(modifyDate): boolean {
+  static isTokenExpired(modifyDate: string | Date): boolean {
     return utils.isExpired(modifyDate);
   }
 
@@ -76,7 +72,9 @@ class JSSDK {
    * @param {object} originalSignatureObj original signature information
    * @return filtered signature object
    */
-  filterSignature(originalSignatureObj): StoreUrlSignatureItem {
+  filterSignature(
+    originalSignatureObj: StoreUrlSignatureItem,
+  ): StoreUrlSignatureItem {
     if (!originalSignatureObj) {
       return {} as StoreUrlSignatureItem;
     }
@@ -95,7 +93,7 @@ class JSSDK {
    * @static
    * @return {string}
    */
-  static normalizeUrl(url): string {
+  static normalizeUrl(url: string): string {
     const temp = parse(url);
     const hashIndex = url.indexOf(temp.hash);
     //remove hash from url
@@ -110,7 +108,11 @@ class JSSDK {
    * @static
    * @returns generated wechat signature info
    */
-  static generateSignature(url, accessToken, ticket): StoreUrlSignatureItem {
+  static generateSignature(
+    url: string,
+    accessToken: string,
+    ticket: string,
+  ): StoreUrlSignatureItem {
     const ret = {
       jsapi_ticket: ticket,
       nonceStr: JSSDK.createNonceStr(),
@@ -130,7 +132,7 @@ class JSSDK {
    * @param {object} query url query sent by the wechat server to do the validation
    * @return {boolean}
    */
-  verifySignature(query): boolean {
+  verifySignature(query: Record<string, unknown>): boolean {
     const keys = [this.options.wechatToken, query['timestamp'], query['nonce']];
     let str = keys.sort().join('');
     str = utils.genSHA1(str);
@@ -156,7 +158,7 @@ class JSSDK {
    * @return {Promise}
    */
   async getJsApiTicket(
-    accessToken,
+    accessToken: string,
   ): Promise<{
     ticket: string;
   }> {
@@ -180,7 +182,10 @@ class JSSDK {
    * @param {string} ticket
    * @return {Promise} resolved with the updated globalToken object
    */
-  async updateAccessTokenOrTicketGlobally(token, ticket): Promise<object> {
+  async updateAccessTokenOrTicketGlobally(
+    token: string,
+    ticket: string,
+  ): Promise<StoreGlobalTokenItem> {
     const info: StoreGlobalTokenItem = { modifyDate: new Date() };
     token && (info.accessToken = token);
     ticket && (info.jsapi_ticket = ticket);
@@ -193,7 +198,7 @@ class JSSDK {
    *        cause the wechat server limits the access_token requests number
    * @return {Promise}
    */
-  async getGlobalTokenAndTicket(force): Promise<object> {
+  async getGlobalTokenAndTicket(force: boolean): Promise<StoreGlobalTokenItem> {
     force || this.refreshedTimes++;
     /* istanbul ignore if  */
     if (!force && this.refreshedTimes > 5) {
@@ -241,7 +246,9 @@ class JSSDK {
    * @param {object} info signature information to save
    * @return {Promise}
    */
-  async saveSignature(info): Promise<object> {
+  async saveSignature(
+    info: StoreUrlSignatureItem,
+  ): Promise<StoreUrlSignatureItem> {
     const signature = Object.assign({}, info);
     signature.createDate = new Date();
     signature.modifyDate = signature.createDate;
@@ -263,7 +270,10 @@ class JSSDK {
    * @param {object} info update info need to be updated to the existing url signature info
    * @return {Promise}
    */
-  async updateSignature(url, info): Promise<object> {
+  async updateSignature(
+    url: string,
+    info: StoreUrlSignatureItem,
+  ): Promise<StoreUrlSignatureItem> {
     url = JSSDK.normalizeUrl(url);
     info.modifyDate = new Date();
     delete info.createDate;
@@ -280,7 +290,10 @@ class JSSDK {
    * @param {boolean=} forceNewSignature if true, generate a new signature rather than getting from cache
    * @return {Promise}
    */
-  async getSignature(url, forceNewSignature): Promise<object> {
+  async getSignature(
+    url: string,
+    forceNewSignature?: boolean,
+  ): Promise<StoreUrlSignatureItem> {
     url = JSSDK.normalizeUrl(url);
     let signature = await this.store.getSignature(url);
     if (
@@ -299,7 +312,7 @@ class JSSDK {
    * @param {string} url signature will be created for the url
    * @return {Promise} resolved with filtered signature results
    */
-  async createSignature(url): Promise<StoreUrlSignatureItem> {
+  async createSignature(url: string): Promise<StoreUrlSignatureItem> {
     const data = await this.prepareGlobalToken();
     const ret = JSSDK.generateSignature(
       url,
@@ -316,7 +329,7 @@ class JSSDK {
    * @param {string} url
    * @return {Promise} filtered signature info
    */
-  async getCachedSignature(url): Promise<object> {
+  async getCachedSignature(url: string): Promise<StoreUrlSignatureItem> {
     url = JSSDK.normalizeUrl(url);
     const signature = await this.store.getSignature(url);
     return Promise.resolve(this.filterSignature(signature));

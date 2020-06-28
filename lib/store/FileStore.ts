@@ -7,8 +7,12 @@ import {
   readFileSync,
 } from 'fs';
 import { resolve } from 'path';
-import Store from './Store';
-import { getConfigFromCompareKeys, isBreakingConfigChange } from '../config';
+import Store, { StoreWechatConfig } from './Store';
+import {
+  getConfigFromCompareKeys,
+  isBreakingConfigChange,
+  WeChatConfig,
+} from '../config';
 import { StoreOptions } from './StoreOptions';
 
 const debug = debugFnc('wechat-FileStore');
@@ -16,6 +20,7 @@ const writeFile = promisify(_writeFile);
 
 export interface FileStoreOptions extends StoreOptions {
   fileStorePath?: string;
+  compareConfigKeys?: string[];
 }
 
 /**
@@ -25,7 +30,7 @@ class FileStore extends Store {
   fileStorePath: string;
   // store: Store;
 
-  constructor(options: FileStoreOptions = {}, wechatConfig = {}) {
+  constructor(options: FileStoreOptions = {}, wechatConfig?: WeChatConfig) {
     super(options);
 
     this.fileStorePath = options.fileStorePath
@@ -35,7 +40,7 @@ class FileStore extends Store {
     this.initFileStore(options, wechatConfig);
   }
 
-  initFileStore(options, wechatConfig) {
+  initFileStore(options: FileStoreOptions, wechatConfig: WeChatConfig): void {
     debug('using FileStore[%s]...', this.fileStorePath);
 
     const emptyStore = Object.assign({}, this.store);
@@ -69,22 +74,25 @@ class FileStore extends Store {
         (hasExistFile && options.clearStore) ||
         isBreakingConfigChange(
           wechatConfig,
-          this.store.wechatConfig,
+          this.store.wechatConfig as WeChatConfig,
           options.compareConfigKeys,
         )
       ) {
         this.store = emptyStore;
-        this.store.wechatConfig = options;
+        this.store.wechatConfig = options as StoreWechatConfig;
         this.flush();
         debug('wechat config change, resetting wechat info...');
       }
     }
   }
 
-  async flush() {
+  async flush(): Promise<void> {
     const temp = Object.assign({}, this.store);
-    if (temp.wechatConfig) {
-      temp.wechatConfig.store = `${this.constructor.name}_${this.fileStorePath}`;
+    const storeConfig = temp.wechatConfig as {
+      store?: string; //store file path
+    };
+    if (storeConfig) {
+      storeConfig.store = `${this.constructor.name}_${this.fileStorePath}`;
     }
     // console.log('this.store: ', temp);
     try {
@@ -100,7 +108,7 @@ class FileStore extends Store {
     }
   }
 
-  destroy() {
+  destroy(): void {
     super.destroy();
     debug('fileStore destroyed!');
   }

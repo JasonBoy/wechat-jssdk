@@ -39,6 +39,7 @@ export interface WeChatMiniProgramConfig {
 }
 
 export interface WeChatConfig {
+  // store?: string;
   //redirect host in oauth redirect
   wechatRedirectHost: string;
   //full redirect url in oauth redirect, e.g http://127.0.0.1/wechat/oauth-callback
@@ -149,9 +150,9 @@ export const COMPARE_CONFIG_KEYS = [
 ];
 
 export function getConfigFromCompareKeys(
-  wechatConfig,
+  wechatConfig: WeChatConfig,
   compareKeys = COMPARE_CONFIG_KEYS,
-): object {
+): Record<string, unknown> {
   const ret = {};
   compareKeys.forEach((k) => (ret[k] = wechatConfig[k]));
   return ret;
@@ -161,7 +162,7 @@ export function getConfigFromCompareKeys(
  * Check if user passed necessary configuration
  * @param {object} options user custom wechat config
  */
-export function checkPassedConfiguration(options): boolean {
+export function checkPassedConfiguration(options: WeChatConfig): boolean {
   if (isEmpty(options)) {
     throw new Error('you need to pass the wechat configuration');
   }
@@ -189,8 +190,8 @@ export function getDefaultConfiguration(): WeChatConfig {
  * @param {Array=} compareKeys - custom keys to compare
  */
 export function isBreakingConfigChange(
-  newConfig,
-  oldConfig,
+  newConfig: WeChatConfig,
+  oldConfig: WeChatConfig,
   compareKeys = COMPARE_CONFIG_KEYS,
 ): boolean {
   if (!newConfig || !oldConfig) {

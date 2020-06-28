@@ -17,26 +17,44 @@ interface WeChatJSSDKConfig extends SignConfigOptions {
 }
 interface WeChatJSSDKInterface {
   config: (config: SignConfigOptions) => void;
-  ready: (cb: Function) => void;
-  error: (cb: Function) => void;
+  ready: (cb: () => void) => void;
+  error: (cb: (err: unknown) => void) => void;
   //functional jssdk function
-  onMenuShareTimeline: (config: object, cb?: Function) => void;
-  onMenuShareAppMessage: (config: object, cb?: Function) => void;
-  onMenuShareQQ: (config: object, cb?: Function) => void;
-  onMenuShareWeibo: (config: object, cb?: Function) => void;
-  onMenuShareQZone: (config: object, cb?: Function) => void;
-  previewImage: (config: object, cb?: Function) => void;
-  getLocation: (config: object, cb?: Function) => void;
-  openProductSpecificView: (config: object, cb?: Function) => void;
-  addCard: (config: object, cb?: Function) => void;
-  openCard: (config: object, cb?: Function) => void;
-  chooseWXPay: (config: object, cb?: Function) => void;
-  openEnterpriseRedPacket: (config: object, cb?: Function) => void;
-  startSearchBeacons: (config: object, cb?: Function) => void;
-  stopSearchBeacons: (config: object, cb?: Function) => void;
-  onSearchBeacons: (config: object, cb?: Function) => void;
-  consumeAndShareCard: (config: object, cb?: Function) => void;
-  openAddress: (config: object, cb?: Function) => void;
+  onMenuShareTimeline: (
+    config: Record<string, unknown>,
+    cb?: () => void,
+  ) => void;
+  onMenuShareAppMessage: (
+    config: Record<string, unknown>,
+    cb?: () => void,
+  ) => void;
+  onMenuShareQQ: (config: Record<string, unknown>, cb?: () => void) => void;
+  onMenuShareWeibo: (config: Record<string, unknown>, cb?: () => void) => void;
+  onMenuShareQZone: (config: Record<string, unknown>, cb?: () => void) => void;
+  previewImage: (config: Record<string, unknown>, cb?: () => void) => void;
+  getLocation: (config: Record<string, unknown>, cb?: () => void) => void;
+  openProductSpecificView: (
+    config: Record<string, unknown>,
+    cb?: () => void,
+  ) => void;
+  addCard: (config: Record<string, unknown>, cb?: () => void) => void;
+  openCard: (config: Record<string, unknown>, cb?: () => void) => void;
+  chooseWXPay: (config: Record<string, unknown>, cb?: () => void) => void;
+  openEnterpriseRedPacket: (
+    config: Record<string, unknown>,
+    cb?: () => void,
+  ) => void;
+  startSearchBeacons: (
+    config: Record<string, unknown>,
+    cb?: () => void,
+  ) => void;
+  stopSearchBeacons: (config: Record<string, unknown>, cb?: () => void) => void;
+  onSearchBeacons: (config: Record<string, unknown>, cb?: () => void) => void;
+  consumeAndShareCard: (
+    config: Record<string, unknown>,
+    cb?: () => void,
+  ) => void;
+  openAddress: (config: Record<string, unknown>, cb?: () => void) => void;
 }
 
 declare let wx: WeChatJSSDKInterface;
@@ -97,7 +115,7 @@ class WechatJSSDK {
   /**
    * Initialize wechat config
    */
-  initialize() {
+  initialize(): Promise<WechatJSSDK> {
     return this.loadScript();
   }
 
@@ -176,7 +194,7 @@ class WechatJSSDK {
    * use #instance.callWechatApi('updateTimelineShareData', config) instead
    * @returns {WechatJSSDK}
    */
-  shareOnMoment(info) {
+  shareOnMoment(info: Record<string, unknown>): WechatJSSDK {
     if (!info) return this;
     return this.callWechatApi('onMenuShareTimeline', info);
   }
@@ -188,7 +206,7 @@ class WechatJSSDK {
    * use #instance.callWechatApi('updateAppMessageShareData', config) instead
    * @returns {WechatJSSDK}
    */
-  shareOnChat(info) {
+  shareOnChat(info: Record<string, unknown>): WechatJSSDK {
     if (!info) return this;
     return this.callWechatApi('onMenuShareAppMessage', info);
   }
@@ -200,7 +218,11 @@ class WechatJSSDK {
    * @param {function=} cb wx api callback in v1.4
    * @returns {WechatJSSDK}
    */
-  callWechatApi(apiName, config, cb?: Function) {
+  callWechatApi(
+    apiName: string,
+    config: Record<string, unknown>,
+    cb?: () => void,
+  ): WechatJSSDK {
     if (!apiName) return this;
     const debug = this.debug;
     if (this.config.jsApiList.indexOf(apiName) < 0) {
@@ -226,7 +248,7 @@ class WechatJSSDK {
    * get the original wx object directly
    * @return {*}
    */
-  getOriginalWx() {
+  getOriginalWx(): WeChatJSSDKInterface {
     return this.wx || wx;
   }
 
@@ -234,7 +256,7 @@ class WechatJSSDK {
    * check and set the original wx to this
    * @returns {WechatJSSDK}
    */
-  setOriginWx() {
+  setOriginWx(): WechatJSSDK {
     if (!this.wx) {
       this.wx = wx;
     }

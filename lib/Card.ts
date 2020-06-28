@@ -78,12 +78,12 @@ class Card {
   }
 
   /* istanbul ignore next */
-  static get CODE_TYPE(): object {
+  static get CODE_TYPE(): Record<string, string> {
     return CODE_TYPE;
   }
 
   /* istanbul ignore next */
-  static get CARD_TYPE(): object {
+  static get CARD_TYPE(): Record<string, string> {
     return CARD_TYPE;
   }
 
@@ -92,7 +92,7 @@ class Card {
    * @param {string} accessToken
    * @return {Promise}
    */
-  async getApiTicketRemotely(accessToken): Promise<StoreCardItem> {
+  async getApiTicketRemotely(accessToken: string): Promise<StoreCardItem> {
     const params = {
       access_token: accessToken,
       type: TOKEN_TYPE,
@@ -187,7 +187,11 @@ class Card {
    * @param {string=} cardId
    * @return {Promise}
    */
-  async getCardSignature(shopId, cardType, cardId): Promise<object> {
+  async getCardSignature(
+    shopId: string,
+    cardType: string,
+    cardId: string,
+  ): Promise<CardSignObject> {
     const infoForCardSign: CardSignObject = {
       shopId: shopId || /* istanbul ignore next */ '', //location_id
       cardType: cardType || /* istanbul ignore next */ '',
@@ -223,11 +227,11 @@ class Card {
    * @param {string=} outerStr
    */
   async getCardExt(
-    cardId,
-    code,
-    openid,
-    fixedBeginTimestamp,
-    outerStr,
+    cardId: string,
+    code: string,
+    openid: string,
+    fixedBeginTimestamp: string,
+    outerStr: string,
   ): Promise<string> {
     const infoForCardExt: CardExtObject = {
       // card_id: cardId || '',
@@ -277,7 +281,10 @@ class Card {
    * @param {object} qs querystring object to send with the request
    * @return {Promise}
    */
-  async sendDecodeRequest(encryptCode, qs): Promise<object> {
+  async sendDecodeRequest(
+    encryptCode: string,
+    qs: { [key: string]: string | number | boolean },
+  ): Promise<Record<string, unknown>> {
     return utils.sendWechatRequest(this.options.decodeCardCodeUrl, {
       searchParams: qs,
       method: 'POST',
@@ -292,7 +299,7 @@ class Card {
    * @param {string} encryptCode
    * @return {Promise}
    */
-  async decryptCardCode(encryptCode): Promise<object> {
+  async decryptCardCode(encryptCode: string): Promise<Record<string, unknown>> {
     const info = await this.getGlobalToken();
     const accessToken = info.accessToken;
     const params = {

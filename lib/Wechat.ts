@@ -7,8 +7,12 @@ import Payment from './Payment';
 import MiniProgram from './MiniProgram';
 import Store from './store/Store';
 import FileStore from './store/FileStore';
+import { WeChatOptions } from './WeChatOptions';
+import { getDefaultConfiguration } from './config';
 
 const debug = debugFnc('wechat');
+
+const wxConfig = getDefaultConfiguration();
 
 class Wechat {
   jssdk: JSSDK;
@@ -22,8 +26,8 @@ class Wechat {
    * @param options custom wechat configuration
    * @return {Wechat}
    */
-  constructor(options) {
-    options = options || {};
+  constructor(options?: WeChatOptions) {
+    options = options || wxConfig;
     //no custom store provided, using default FileStore
     if (!options.store || !(options.store instanceof Store)) {
       debug('Store not provided, using default FileStore...');
