@@ -93,9 +93,9 @@ const wx = new Wechat(wechatConfig);
 
 ## Browser Side Usage
 ```javascript
-const WechatJSSDK = require('wechat-jssdk/dist/client.umd');
+const WechatJSSDK = require('wechat-jssdk');
 //ES6 import
-import WechatJSSDK from 'wechat-jssdk/dist/client.umd';
+import WechatJSSDK from 'wechat-jssdk';
 const wechatObj = new WechatJSSDK(config)
 
 // or if you do not have a bundle process, just add the script tag, and access "WechatJSSDK" from window, e.g:
