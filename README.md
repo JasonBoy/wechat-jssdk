@@ -92,6 +92,9 @@ const wx = new Wechat(wechatConfig);
 
 
 ## Browser Side Usage
+
+You can use it from the browser side as follows. Since we have [configured the `browser` field in package.json](https://github.com/yuezk/wechat-jssdk/blob/3ab192a5a67e8db65b2ae6cd9978013eef363b73/package.json#L7), the bundlers (e.g., webpack or rollup, etc.) will resolve the module to `wechat-jssdk/dist/client.umd.js`.
+
 ```javascript
 const WechatJSSDK = require('wechat-jssdk');
 //ES6 import
