@@ -8,7 +8,6 @@ import {
   checkPassedConfiguration,
   WeChatPaymentAPIConfig,
   WeChatPaymentConfig,
-  WeChatConfig,
 } from './config';
 
 import Store from './store/Store';
