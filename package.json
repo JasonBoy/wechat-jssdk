@@ -15,8 +15,8 @@
     "build": "microbundle  -i lib/client/index.ts -f umd -o dist/client/index.js --target web --name WechatJSSDK --no-sourcemap --tsconfig lib/client/tsconfig.json",
     "watch": "microbundle -i lib/client/index.ts --watch -f umd -o dist/client/index.js --name WechatJSSDK --tsconfig lib/client/tsconfig.json",
     "prepublishOnly": "npm run build",
-    "lint": "tsc --noEmit && eslint '{lib,test}/**/*.{js,ts}'",
-    "lintOnly": "eslint 'lib/**/*.{js,ts}'",
+    "lint": "tsc --noEmit && eslint '{lib,test}/**/*.ts'",
+    "lintOnly": "eslint 'lib/**/*.ts'",
     "compile": "tsc"
   },
   "husky": {
