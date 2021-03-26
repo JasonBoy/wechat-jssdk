@@ -52,7 +52,7 @@
     "debug": "4.1.1",
     "got": "9.6.0",
     "lodash.isempty": "4.4.0",
-    "mongoose": "5.11.7",
+    "mongoose": "5.12.2",
     "xml2js": "0.4.23"
   },
   "devDependencies": {
