@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const Wechat = require('../lib');
-const MongoStore = Wechat.MongoStore;
+// const MongoStore = Wechat.MongoStore;
 const FileStore = Wechat.FileStore;
 
 const DOMAIN = 'http://your.domain.com';
@@ -26,4 +26,17 @@ module.exports = {
     path.join(process.cwd(), 'cert/apiclient_cert.p12')
   ),
   paymentNotifyUrl: `${DOMAIN}/api/wechat/payment/`,
+  // add custom http proxy, or custom http lib
+  httpClientOptions: {
+    // // example:
+    // // customHttpClient: require('axios'),
+    // customHttpClient: function (url, options) {
+    //   return require('axios')(url, options)
+    // },
+    // gotOptions: {
+    //   decompress: false,
+    // },
+    // // assume you are using charles proxy, ignored if you are using customHttpClient
+    // httpProxy: 'https://127.0.0.1:8888',
+  },
 };
