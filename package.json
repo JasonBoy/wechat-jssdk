@@ -53,7 +53,7 @@
     "got": "9.6.0",
     "lodash.isempty": "4.4.0",
     "mongoose": "5.11.7",
-    "xml2js": "0.4.23"
+    "xml2js": "0.5.0"
   },
   "devDependencies": {
     "body-parser": "1.19.0",
