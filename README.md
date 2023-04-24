@@ -107,7 +107,7 @@ const config = {
   'timestamp': 'xxx',
   //下面为可选参数
   'debug': true, //开启 debug 模式
-  'jsApiList': [], //设置所有想要使用的微信jsapi列表, 默认值为 ['onMenuShareTimeline', 'onMenuShareAppMessage']，分享到朋友圈及聊天记录
+  'jsApiList': [], //设置所有想要使用的微信jsapi列表, 默认值为 ['updateAppMessageShareData','updateTimelineShareData','onMenuShareTimeline', 'onMenuShareAppMessage']，分享到朋友圈及聊天记录
   'customUrl': '' //自定义微信js链接
 }
 const wechatObj = new WechatJSSDK(config);
@@ -120,21 +120,24 @@ wechatObj.initialize()
   });
 ```
 验证签名成功后, 就可以自定义你的分享内容了:
+> sdk默认只注册了`updateAppMessageShareData`，`updateTimelineShareData`，`onMenuShareTimeline(wx即将废弃)`，`onMenuShareAppMessage(wx即将废弃)`
 ```javascript
 //自定义分享到聊天窗口
-//内部调用 `wechatObj.callWechatApi('onMenuShareAppMessage', {...})`， 语法糖而已
-wechatObj.shareOnChat({
+//内部调用 `wechatObj.callWechatApi('updateAppMessageShareData', {...})`， 语法糖而已
+wechatObj.updateAppMessageShareData({
   type: 'link',
   title: 'title',
   link: location.href,
   imgUrl: '/logo.png',
   desc: 'description',
   success: function (){},
+  fail: function (){},
+  complete: function (){},
   cancel: function (){}
 });
 //自定义分享到朋友圈
 //语法糖
-wechatObj.shareOnMoment({
+wechatObj.updateTimelineShareData({
   type: 'link',
   title: 'title',
   link: location.href,
