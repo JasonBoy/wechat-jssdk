@@ -234,6 +234,10 @@ Copy `demo/wechat-config-sample.js` 到 `demo/wechat-config.js`,
 
 在`./demo/index.js`中设置你自己的`appId`, `appSecret`， 然后 `npm start` 或 `npm run dev`, 使用微信开发者工具测试。
 
+## Buy me a coffee
+如果您觉得这个项目对您有用，可以请我喝杯咖啡
+![reward-me](https://raw.githubusercontent.com/JasonBoy/wechat-jssdk/master/assets/jason-wx-reward-code.png)
+
 ## LICENSE
 
 MIT @ 2016-present [jason](http://blog.lovemily.me)
