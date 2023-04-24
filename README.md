@@ -1,38 +1,33 @@
 # wechat-jssdk
 [![npm](https://img.shields.io/npm/v/wechat-jssdk.svg?style=flat-square)](https://www.npmjs.com/package/wechat-jssdk)
 [![node](https://img.shields.io/node/v/wechat-jssdk.svg?style=flat-square)](https://nodejs.org/)
-[![Building Status](https://img.shields.io/travis/JasonBoy/wechat-jssdk.svg?style=flat-square)](https://travis-ci.org/JasonBoy/wechat-jssdk)
 [![Coverage Status](https://img.shields.io/coveralls/github/JasonBoy/wechat-jssdk.svg?style=flat-square)](https://coveralls.io/github/JasonBoy/wechat-jssdk)
 [![npm](https://img.shields.io/npm/l/wechat-jssdk.svg?style=flat-square)](https://www.npmjs.com/package/wechat-jssdk)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
+微信JSSDK与NodeJS及Web端整合
+WeChat JS-SDK integration with NodeJS and Web.
 
-Next-Generation WeChat JS-SDK integration with NodeJS.
-> If you need node-v6 support ,use [v4](https://github.com/JasonBoy/wechat-jssdk/tree/v4.1.0)
-
-> If you need node-v4 support ,use [v3](https://github.com/JasonBoy/wechat-jssdk/tree/v3.1.x)
-
-[中文使用文档](https://github.com/JasonBoy/wechat-jssdk/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
-[Changelog](https://github.com/JasonBoy/wechat-jssdk/releases)
+[English](https://github.com/JasonBoy/wechat-jssdk/blob/master/README_EN.md)
+| [Release Notes](https://github.com/JasonBoy/wechat-jssdk/releases)
 
 ![wechat-jssdk-demo](https://raw.githubusercontent.com/JasonBoy/wechat-jssdk/master/demo/wechat-jssdk-demo-new.gif)
 
-## Features
+## 主要功能
 
-  - [:heartbeat:Server-Side](#usage)
-  - [:heartpulse:Browser-Side](#browser-side-usage)
-  - [:unlock:OAuth](#oauth)
-  - [:fries:Cards and Offers](#cards-and-offers)
-  - [:credit_card:Wechat Payment](#payment)
-  - [:baby_chick:Wechat Mini Program](#mini-program)
-  - [:cd:Using Stores](#using-stores)
-  - [:movie_camera:Full Featured Demo](#demo)
+- [:heartbeat:服务端](#使用方法)
+- [:heartpulse:浏览器端](#浏览器端)
+- [:unlock:OAuth网页授权](#oauth)
+- [:fries:微信卡券](#微信卡券)
+- [:credit_card:微信支付](#微信支付)
+- [:baby_chick:微信小程序](#小程序)
+- [:cd:使用Stores](#使用Stores)
+- [:movie_camera:完整 Demo](#demo)
 
-## Usage
-
+## 使用方法
 ```bash
 npm install wechat-jssdk --save
-# or
+# 或者
 yarn add wechat-jssdk
 ```
 
@@ -40,27 +35,26 @@ yarn add wechat-jssdk
 const {Wechat} = require('wechat-jssdk');
 const wx = new Wechat(wechatConfig);
 ```
+### Wechat 配置项
 
-## Wechat Config
-
-`wechatConfig` info:
-
+`wechatConfig` 为以下格式:
 ```javascript
 {
-  //set your oauth redirect url, defaults to localhost
-  "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback",
-  //"wechatToken": "wechat_token", //not necessary required
-  "appId": "appid",
-  "appSecret": "app_secret",
-  card: true, //enable cards
-  payment: true, //enable payment support
-  merchantId: '', //
-  paymentSandBox: true, //dev env
-  paymentKey: '', //API key to gen payment sign
+  //第一个为设置网页授权回调地址
+  wechatRedirectUrl: "http://yourdomain.com/wechat/oauth-callback", 
+  wechatToken: "xxx", //第一次在微信控制台保存开发者配置信息时使用
+  appId: "xxx",
+  appSecret: "xxx",
+  card: true, //开启卡券支持，默认关闭
+  payment: true, //开启支付支持，默认关闭
+  merchantId: '', //商户ID
+  paymentSandBox: true, //沙箱模式，验收用例
+  paymentKey: '', //必传，验签密钥，TIP:获取沙箱密钥也需要真实的密钥，所以即使在沙箱模式下，真实验签密钥也需要传入。
+  //pfx 证书
   paymentCertificatePfx: fs.readFileSync(path.join(process.cwd(), 'cert/apiclient_cert.p12')),
-  //default payment notify url
+  //默认微信支付通知地址
   paymentNotifyUrl: `http://your.domain.com/api/wechat/payment/`,
-  //mini program config
+  //小程序配置
   "miniProgram": {
     "appId": "mp_appid",
     "appSecret": "mp_app_secret",
@@ -68,56 +62,52 @@ const wx = new Wechat(wechatConfig);
 }
 ```
 
-### Setup your Wechat ENV
-1.Set your own URL in [Wechat Website](https://mp.weixin.qq.com)
+其他支持的设置都有默认值，基本都是微信API的地址，且基本不会改变, 可以查看 `./lib/config.js`.
 
-  Usually wechat will provide you a `MP_verify_XHZon7GAGRdcAFxx.txt` like file to ask you to put that on your website root,
-  which will be accessed by wechat on `http://yourdomain.com/MP_verify_XHZon7GAGRdcAFxx.txt` to verify that you own the domain.
+## 设置微信环境
+1.去<a href="https://mp.weixin.qq.com" target="_blank">微信公众平台</a>
 
-2.You should also provide a api for your browser to get token for the current url, see [demo](#demo)
+下载类似 `MP_verify_XHZon7GAGRdcAFxx.txt` 这样的文件放到网站根目录, 如`http://yourdomain.com/MP_verify_XHZon7GAGRdcAFxx.txt`，微信会验证这个链接.
+
+2.然后在你的express/koa app中提供一个接口给浏览器获取验证信息, @see [demo](#demo)
 
   ```javascript
-  //express app for example:
+  //express app:
   router.get('/get-signature', (req, res) => {
     wx.jssdk.getSignature(req.query.url).then(signatureData => {
       res.json(signatureData);
     });
   });
-  //koa2/koa-router app for example:
+  //koa2/koa-router app:
   router.get('/get-signature', async ctx => {
     ctx.body = await wx.jssdk.getSignature(ctx.request.query.url);
   });
   ```
-3.Now you can get to the next step in your browser to pass the verification.
+3.获取签名后，进入下一步浏览器端使用方法.
 
-
-## Browser Side Usage
-
-You can use it from the browser side as follows. Since we have [configured the `browser` field in package.json](https://github.com/yuezk/wechat-jssdk/blob/3ab192a5a67e8db65b2ae6cd9978013eef363b73/package.json#L7), the bundlers (e.g., webpack or rollup, etc.) will resolve the module to `wechat-jssdk/dist/client.umd.js`.
-
+## 浏览器端
 ```javascript
-const WechatJSSDK = require('wechat-jssdk');
+const WechatJSSDK = require('wechat-jssdk/dist/client.umd');
 //ES6 import
-import WechatJSSDK from 'wechat-jssdk';
-const wechatObj = new WechatJSSDK(config)
+import WechatJSSDK from 'wechat-jssdk/dist/client.umd';
 
-// or if you do not have a bundle process, just add the script tag, and access "WechatJSSDK" from window, e.g:
+//没有打包的话直接script扔到html，然后从`window`获取, e.g:
 const wechatObj = new window.WechatJSSDK(config)
 ```
-where config will be:
+
+`config`应该为:
+
 ```javascript
 const config = {
-  //below are mandatory options to finish the wechat signature verification
-  //the 4 options below should be received like api '/get-signature' above
-  'appId': 'app_id',
-  'nonceStr': 'your_nonceStr',
-  'signature': 'url_signature',
-  'timestamp': 'your_timestamp',
-  //below are optional
-  //enable debug mode, same as debug
-  'debug': true,
-  'jsApiList': [], //optional, pass all the jsapi you want, the default will be ['onMenuShareTimeline', 'onMenuShareAppMessage']
-  'customUrl': '' //set custom weixin js script url, usually you don't need to add this js manually
+  //前4个是微信验证签名必须的参数，第2-4个参数为类似上面 '/get-signature' 从node端获取的结果
+  'appId': 'xxx',
+  'nonceStr': 'xxx',
+  'signature': 'xxx',
+  'timestamp': 'xxx',
+  //下面为可选参数
+  'debug': true, //开启 debug 模式
+  'jsApiList': [], //设置所有想要使用的微信jsapi列表, 默认值为 ['updateAppMessageShareData','updateTimelineShareData','onMenuShareTimeline', 'onMenuShareAppMessage']，分享到朋友圈及聊天记录
+  'customUrl': '' //自定义微信js链接
 }
 const wechatObj = new WechatJSSDK(config);
 wechatObj.initialize()
@@ -128,90 +118,80 @@ wechatObj.initialize()
     console.error(err);
   });
 ```
-after signature signed successfully, you can customize the share information:
-
+验证签名成功后, 就可以自定义你的分享内容了:
+> sdk默认只注册了`updateAppMessageShareData`，`updateTimelineShareData`，`onMenuShareTimeline(wx即将废弃)`，`onMenuShareAppMessage(wx即将废弃)`
 ```javascript
-//customize share on chat info
-//sugar method for `wechatObj.callWechatApi('onMenuShareAppMessage', {...})`
-wechatObj.shareOnChat({
+//自定义分享到聊天窗口
+//内部调用 `wechatObj.callWechatApi('updateAppMessageShareData', {...})`， 语法糖而已
+wechatObj.updateAppMessageShareData({
   type: 'link',
   title: 'title',
   link: location.href,
   imgUrl: '/logo.png',
   desc: 'description',
   success: function (){},
+  fail: function (){},
+  complete: function (){},
   cancel: function (){}
 });
-//customize share on timeline info
-//sugar method
-wechatObj.shareOnMoment({
+//自定义分享到朋友圈
+//语法糖
+wechatObj.updateTimelineShareData({
   type: 'link',
   title: 'title',
   link: location.href,
   imgUrl: '/logo.png'
 });
 ```
-You can also access the original wechat object `wx` from `wechatObj.getOriginalWx()`.
-
-Call other wechat apis: `wechatObj.callWechatApi(apiName, config)`:
-
-```javascript
-wechatObj.callWechatApi('onMenuShareAppMessage', {
-  type: 'link',
-  title: 'title',
-  link: location.href,
-  imgUrl: '/logo.png',
-  desc: 'description',
-  success: function (){},
-  cancel: function (){}
-});
+要获取原始的微信对象 `wx`，可以通过`wechatObj.getOriginalWx()`来获取。  
+如果第一次验证失败，可以在`error`回调里更新签名信息，并重新发验证请求：   
+`wechatObj.signSignature(newSignatureConfig);`, `newSignatureConfig`只需包含：
 ```
-or with the original one:
-`wechatObj.getOriginalWx().onMenuShareAppMessage(config)`
+{
+  'nonceStr': 'xxx',
+  'signature': 'xxx',
+  'timestamp': 'xxx',
+}
+```
+
+调用其他微信接口：  
+`wechatObj.callWechatApi(apiName, apiConfig)`  
+`apiName`和`apiConfig`请参考微信官方接口文档
 
 ## OAuth
-Wechat support web OAuth to get user profile in wechat app.
-In your page, provide a link, which you can get by `wx.oauth.snsUserInfoUrl` which is the default oauth url, to the wechat OAuth page,
-also you need provide a callback url(as show below) to get the wechat code after user click Agree button, the callback url is configured in the `wechatConfig` object above while initializing,
-but you can customize your own callback url by using `wx.oauth.generateOAuthUrl(customUrl, scope, state)` api.
+默认生成微信授权URL为 `wx.oauth.snsUserInfoUrl` 和 `wx.oauth.snsUserBaseUrl`，其中的默认回调URL为 `wechatConfig` 中配置的 `wechatRedirectUrl`.
+你也可以通过调用 `wx.oauth. generateOAuthUrl(customUrl, scope, state)`来自定义回调地址
 ```javascript
-//in node:
-const wx = new Wechat(config);
-const url = wx.oauth.generateOAuthUrl('http://mycustom.com/oauth-callback', 'snsapi_userinfo', 'custom_state');
-res.render("oauth-page", {
-  wechatOAuthUrl: url,
-});
-//insert "wechatOAuthUrl" into your html:
-
-//custom callback url, agree clicked by user, come back here:
-router.get('/oauth-callback', function (req, res) {
+//callback url handler
+//如"wechatRedirectUrl"配置为 "http://127.0.0.1/wechat/oauth-callback", 你的路由需要为：
+router.get('/wechat/oauth-callback', function (req, res) {
+  //得到code，获取用户信息
   wx.oauth.getUserInfo(req.query.code)
-    .then(function(userProfile) {
-      console.log(userProfile)
-      res.render("demo", {
-        wechatInfo: userProfile
-      });
-    });
+          .then(function(userProfile) {
+            console.log(userProfile)
+            res.render("demo", {
+              wechatInfo: userProfile
+            });
+          });
 });
 ```
+TIP: 确保上面的重定向地址域名已经在微信里的授权回调地址设置里设置过。
+![](https://cloud.githubusercontent.com/assets/2911620/23061999/f95da3d4-f53e-11e6-9022-29ea33adb126.png)
 
-## Cards and Offers
+## 微信卡券
 
-since(v3.1)  
-Set `card: true` in config to enable the cards support on server side, see [demo](#demo).
-For cards APIs, see [cards apis](https://github.com/JasonBoy/wechat-jssdk/wiki/API#card-apis)
+在wechatConfig设置 `card: true` 来支持卡券功能的服务端支持, 参考[demo](#demo).  
+要查看卡券 APIs, 参考 [cards apis](https://github.com/JasonBoy/wechat-jssdk/wiki/API#card-apis)
 
-## Payment
+## 微信支付
 
-since(v3.1)  
-Set `payment: true` in config to enable the payment support on server side, you should also provide payment related info.
-See [demo](#demo).
-For payment APIs, see [payment apis](https://github.com/JasonBoy/wechat-jssdk/wiki/API#payment-apis)
+在wechatConfig设置 `payment: true` 来支持微信支付功能的服务端支持, 其他一些支付必须的配置也需要一同设置.  
+参考 [demo](#demo).  
+要查看支付 APIs, 参考 [payment apis](https://github.com/JasonBoy/wechat-jssdk/wiki/API#payment-apis)
 
-## Mini Program
+## 小程序
 
-since(v4)  
-To enable mini program support([see API](https://github.com/JasonBoy/wechat-jssdk/wiki/API#mini-programv4)), you can just set mini program `appId` & `appSecret` in config:
+使用小程序的服务端支持([看接口](https://github.com/JasonBoy/wechat-jssdk/wiki/API#mini-programv4)), 在配置里设置小程序的`appId` 和 `appSecret`:
 ```javascript
 const { Wechat, MiniProgram } = require('wechat-jssdk');
 const wechatConfig = {
@@ -219,17 +199,17 @@ const wechatConfig = {
   "appSecret": "app_secret",
   //...other configs
   //...
-  //mini program config
+  //小程序配置
   "miniProgram": {
     "appId": "mp_appid",
     "appSecret": "mp_app_secret",
   }
 };
 const wx = new Wechat(wechatConfig);
-//access mini program instance
+//调用小程序接口
 wx.miniProgram.getSession('code');
 
-//Use MiniProgram directly
+//手动实例化 MiniProgram
 const miniProgram = new MiniProgram({
   miniProgram: {
     "appId": "mp_appid",
@@ -238,64 +218,24 @@ const miniProgram = new MiniProgram({
 })
 ```
 
-## Using Stores
-
-[Store](https://github.com/JasonBoy/wechat-jssdk/wiki/Store) are used to save url signatures into files, dbs, etc..., but also keep a copy in memory for better performence.
-The default store used is `FileStore` which will persist tokens and signatures into `wechat-info.json` file every 10 minutes, also it will load these info from the file in next initialization.
-Built in Stores: `FileStore`, `MongoStore`,
-### Using Custom Stores:
-
-```javascript
-...
-const {Wechat, MongoStore, FileStore} = require('wechat-jssdk');
-const wx = new Wechat({
-	appId: 'xxx',
-	...,
-	//file store
-	//store: new FileStore(),
-	//======
-	//pass the MongoStore instance to config
-	//default 127.0.0.1:27017/wechat db, no need to pass anything to constructor
-	store: new MongoStore({
-		//dbName: 'myWechat', //default wechat
-		dbAddress: 'mongodb://127.0.0.1:27017/wechat', //set the whole connection uri by yourself
-		dbOptions: {}, //set mongoose connection config
-	})
-})
-
-```
-
-### Create your own Store
-
-You can also create own Store to store tokens anywhere you want, by doing that, you may need to extend the base `Store` class, and reimplement the [apis](https://github.com/JasonBoy/wechat-jssdk/wiki/Store) you need:
-
-```javascript
-const {Store} = require('wechat-jssdk');
-class CustomStore extends Store {
-	constructor (options) {
-		super();
-		console.log('using my own store!');
-	}
-}
-```
+## 使用Stores
+Store用来自定义存储token持久化(如文件，数据库等待)，实现自己的Store, 请查看[API](https://github.com/JasonBoy/wechat-jssdk/wiki/Store)  
+自带 Store: `FileStore`, `MongoStore`，默认为`FileStore`, 存储到`wechat-info.json`文件.
 
 ## APIs
-see [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
-
-[A Blog About This](http://blog.lovemily.me/next-generation-wechat-jssdk-integration-with-nodejs/)
-
-## Debug
-
-Add `DEBUG=wechat*` when start your app to enable wechat-jssdk debug
-`DEBUG=wechat* node your-app.js`
+查看 [API wiki](https://github.com/JasonBoy/wechat-jssdk/wiki/API)
 
 ## Demo
 
-In v3.1+, the demo page is updated to test the new added `Cards & Offers` and `Payment` support.
-Copy the `demo/wechat-config-sample.js` to `demo/wechat-config.js`,
-and use your own `appId`, `appSecret`, and other [configs](#wechat-config) like payment if your want to enable them.
+在v3.1.0后，demo页面增加卡券和支付的用例测试，
+Copy `demo/wechat-config-sample.js` 到 `demo/wechat-config.js`,  
+然后在里面里面修改 `appId`, `appSecret`, 及其他的[配置](#wechat-config) 如支付的其他配置如果需要使用支付功能的话.
 
-Use `npm start` or `npm run dev` to start the demo.
+在`./demo/index.js`中设置你自己的`appId`, `appSecret`， 然后 `npm start` 或 `npm run dev`, 使用微信开发者工具测试。
+
+## Buy me a coffee
+如果您觉得这个项目对您有用，可以请我喝杯咖啡
+![reward-me](https://raw.githubusercontent.com/JasonBoy/wechat-jssdk/master/assets/jason-wx-reward-code.png)
 
 ## LICENSE
 

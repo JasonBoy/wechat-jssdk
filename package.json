@@ -1,7 +1,7 @@
 {
   "name": "wechat-jssdk",
-  "version": "5.0.8",
-  "description": "Next-Generation WeChat JS-SDK integration with NodeJS",
+  "version": "5.1.0",
+  "description": "WeChat JS-SDK integration with NodeJS and Web",
   "main": "./lib/index.js",
   "source": "./lib/client.js",
   "browser": "./dist/client.umd.js",
@@ -80,7 +80,6 @@
     ".travis.yml",
     "LICENSE",
     "package.json",
-    "package-lock.json",
     "README.md"
   ]
 }
