@@ -1,9 +1,9 @@
 {
-  "name": "web",
-  "version": "0.1.0",
+  "name": "@wx-sdk/web",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3005",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
