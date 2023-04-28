@@ -1,22 +1,21 @@
 {
-  "name": "@wx-sdk/docs",
-  "version": "0.0.1",
-  "description": "wx sdk docs",
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "dev": "next dev -p 3003",
+    "dev": "next dev -p 3005",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
-  "license": "MIT",
   "dependencies": {
     "next": "^13.3.1",
-    "nextra": "latest",
-    "nextra-theme-docs": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "18.16.2",
+    "tailwindcss": "^3.3.2",
     "typescript": "^5.0.4"
   }
 }
