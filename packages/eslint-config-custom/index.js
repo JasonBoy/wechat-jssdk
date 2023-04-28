@@ -7,14 +7,16 @@ module.exports = {
     // 'prettier',
     'plugin:prettier/recommended',
   ],
-  // env: {
-  //   browser: true,
-  //   node: true,
-  // },
+  env: {
+    browser: true,
+    node: true,
+    es6: true,
+  },
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
   rules: {
     // '@next/next/no-html-link-for-pages': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
   },
   parserOptions: {
     // babelOptions: {

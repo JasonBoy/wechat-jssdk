@@ -1,0 +1,22 @@
+{
+  "name": "@wx-sdk/docs",
+  "version": "0.0.1",
+  "description": "wx sdk docs",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "next": "^13.3.1",
+    "nextra": "latest",
+    "nextra-theme-docs": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.16.2",
+    "typescript": "^5.0.4"
+  }
+}

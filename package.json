@@ -17,18 +17,12 @@
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
     "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
-    "prepublishOnly": "npm run build"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+    "prepublishOnly": "npm run build",
+    "prepare": "husky install"
   },
   "lint-staged": {
-    "**/*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.{ts,js,tsx,jsx}": "eslint --cache --fix",
+    "*.{json,css,md,mdx}": "prettier --cache --write"
   },
   "repository": {
     "type": "git",
