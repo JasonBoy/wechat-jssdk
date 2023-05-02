@@ -19,6 +19,7 @@
     "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
     "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
     "prepublishOnly": "npm run build",
+    "preinstall": "npx only-allow pnpm",
     "prepare": "husky install"
   },
   "lint-staged": {
