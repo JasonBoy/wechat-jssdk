@@ -9,6 +9,7 @@
     "node": ">= 18",
     "pnpm": ">= 8"
   },
+  "packageManager": "pnpm@8.3.1",
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
     "dev": "DEBUG=wechat* nodemon -w ./lib -w ./demo ./demo/index.js",
