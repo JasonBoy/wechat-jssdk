@@ -30,6 +30,7 @@ node_modules
 *.map
 --no-cache
 .idea
+.vscode
 config.json
 .Ds_Store
 wechat-info*.json
