@@ -9,6 +9,7 @@
     "node": ">= 18",
     "pnpm": ">= 8"
   },
+  "packageManager": "pnpm@8.3.1",
   "scripts": {
     "start": "DEBUG=wechat* node ./demo/index.js",
     "dev": "DEBUG=wechat* nodemon -w ./lib -w ./demo ./demo/index.js",
@@ -18,6 +19,7 @@
     "build": "microbundle -f umd -o dist/client.js --name WechatJSSDK --no-sourcemap",
     "watch": "microbundle --watch -f umd -o dist/client.js --name WechatJSSDK",
     "prepublishOnly": "npm run build",
+    "preinstall": "npx only-allow pnpm",
     "prepare": "husky install"
   },
   "lint-staged": {
