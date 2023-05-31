@@ -6,7 +6,7 @@
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.1",
-    "eslint-config-next": "latest",
+    "eslint-config-next": "^13.4.4",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-turbo": "latest",
     "eslint-plugin-prettier": "^4.2.1",
